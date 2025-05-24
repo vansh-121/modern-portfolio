@@ -53,165 +53,25 @@
   * {
     @apply border-border;
   }
-
-  html {
-    font-size: 16px;
-    -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%;
-    touch-action: manipulation;
-  }
-
   body {
     @apply bg-background text-foreground;
+    /* Prevent zoom on mobile */
     touch-action: manipulation;
-    overscroll-behavior: none;
-    -webkit-overflow-scrolling: touch;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
-
-  /* Ensure proper pointer events hierarchy */
-  .pointer-events-none {
-    pointer-events: none;
-  }
-
-  .pointer-events-auto {
-    pointer-events: auto;
-  }
-}
-
-/* High-performance animations */
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInFromTop {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes bounce {
-  0%,
-  20%,
-  53%,
-  80%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-  40%,
-  43% {
-    transform: translate3d(0, -8px, 0);
-  }
-  70% {
-    transform: translate3d(0, -4px, 0);
-  }
-  90% {
-    transform: translate3d(0, -2px, 0);
-  }
-}
-
-/* Enhanced button interactions */
-.touch-manipulation {
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
-}
-
-/* Prevent text selection on interactive elements */
-.select-none {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
 /* Mobile-specific optimizations */
 @media (max-width: 768px) {
   html {
-    font-size: 16px !important;
+    /* Prevent zoom on input focus */
+    font-size: 16px;
   }
 
   body {
+    /* Prevent overscroll bounce */
     overscroll-behavior: none;
+    /* Improve touch scrolling */
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-  }
-
-  button,
-  .cursor-pointer {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  * {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .animate-pulse {
-    animation-duration: 2s;
-  }
-
-  .backdrop-blur-md {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-}
-
-/* Small mobile optimizations */
-@media (max-width: 640px) {
-  button,
-  .cursor-pointer {
-    min-height: 48px;
-    min-width: 48px;
-  }
-
-  .backdrop-blur-md {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-}
-
-/* Tablet optimizations */
-@media (min-width: 768px) and (max-width: 1024px) {
-  button {
-    min-height: 40px;
-    min-width: 40px;
   }
 }
 
@@ -266,6 +126,7 @@
   width: 6px;
 }
 
+/* Hide scrollbar for dock on mobile */
 .scrollbar-none {
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -278,70 +139,66 @@
 /* Performance optimizations */
 .transform-gpu {
   transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
 .will-change-transform {
   will-change: transform;
 }
 
-/* Smooth animations with reduced motion support */
-@media (prefers-reduced-motion: no-preference) {
-  * {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+/* Smooth animations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Glassmorphism effects */
 .backdrop-blur-md {
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .backdrop-blur-sm {
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
-/* Utility classes */
+/* Loading animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out;
 }
 
+/* Dock hover effects */
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
 .animate-bounce-subtle {
   animation: bounce 1s ease-in-out;
-}
-
-.animate-in {
-  animation-fill-mode: both;
-}
-
-.slide-in-from-top {
-  animation-name: slideInFromTop;
-}
-
-.duration-200 {
-  animation-duration: 200ms;
-}
-
-.duration-300 {
-  animation-duration: 300ms;
-}
-
-.duration-500 {
-  animation-duration: 500ms;
 }
 
 /* Terminal specific styles */
@@ -358,50 +215,30 @@
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Safe area handling */
-@supports (padding: max(0px)) {
-  .safe-area-inset-top {
-    padding-top: max(0.5rem, env(safe-area-inset-top));
-  }
-
-  .safe-area-inset-bottom {
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
-  }
-}
-
-.create-stacking-context {
-  transform: translateZ(0);
-}
-
-/* Optimize for mobile performance */
+/* Mobile touch improvements */
 @media (max-width: 768px) {
-  .reduce-gpu-mobile {
-    transform: none !important;
-    will-change: auto !important;
+  /* Larger touch targets */
+  button,
+  .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
   }
 
-  .shadow-2xl {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* Prevent text selection on UI elements */
+  .select-none {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
-}
 
-/* High DPI display optimizations */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .high-dpi-optimize {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-  }
-}
-
-/* Landscape mobile optimizations */
-@media (max-width: 768px) and (orientation: landscape) {
-  .landscape-mobile-adjust {
-    height: 100vh;
-    height: 100dvh;
+  /* Improve tap highlighting */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 }
 
-/* Responsive utilities */
+/* Responsive text utilities */
 @media (max-width: 640px) {
   .text-responsive {
     font-size: 0.875rem;
@@ -416,41 +253,13 @@
   }
 }
 
-.prevent-layout-shift {
-  contain: layout style paint;
-}
+/* Safe area handling for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-inset-top {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
-
-/* Fix for button interaction issues */
-button {
-  outline: none;
-  border: none;
-  background: none;
-  cursor: pointer;
-}
-
-button:focus {
-  outline: none;
-}
-
-button:active {
-  outline: none;
-}
-
-/* Ensure proper event handling */
-.interactive-element {
-  pointer-events: auto !important;
-  touch-action: manipulation;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* Prevent double-tap zoom on mobile */
-@media (max-width: 768px) {
-  * {
-    touch-action: manipulation;
+  .safe-area-inset-bottom {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
   }
 }
