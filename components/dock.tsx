@@ -1,6 +1,6 @@
 "use client"
 
-import { memo } from "react"
+import { memo, useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { FolderOpen, User, FileText, Mail, Trash2, Terminal } from "lucide-react"
 
@@ -10,6 +10,22 @@ interface DockProps {
 }
 
 export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
+  const [screenSize, setScreenSize] = useState({ width: 0, height: 0, isMobile: false })
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        isMobile: window.innerWidth < 768,
+      })
+    }
+
+    updateScreenSize()
+    window.addEventListener("resize", updateScreenSize)
+    return () => window.removeEventListener("resize", updateScreenSize)
+  }, [])
+
   const dockItems = [
     { id: "projects", icon: FolderOpen, label: "Projects", color: "from-blue-500 to-blue-600" },
     { id: "about", icon: User, label: "About", color: "from-green-500 to-green-600" },
@@ -26,8 +42,31 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
     }
   }
 
+  // Calculate responsive dock positioning
+  const getDockStyle = () => {
+    const { isMobile, width } = screenSize
+
+    if (isMobile) {
+      return {
+        bottom: "0.5rem",
+        left: "50%",
+        transform: "translateX(-50%)",
+        maxWidth: `${width - 16}px`, // Account for padding
+      }
+    }
+
+    return {
+      bottom: "1rem",
+      left: "50%",
+      transform: "translateX(-50%)",
+      maxWidth: "none",
+    }
+  }
+
+  const dockStyle = getDockStyle()
+
   return (
-    <div className="fixed bottom-2 md:bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+    <div className="fixed z-40" style={dockStyle}>
       <div className="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-2 md:p-3 border border-white/20 shadow-2xl">
         <div className="flex items-center space-x-1 md:space-x-2 overflow-x-auto scrollbar-none">
           {dockItems.map((item) => {
@@ -42,7 +81,7 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
                   className={`
                     h-12 w-12 md:h-16 md:w-16 rounded-lg md:rounded-xl transition-all duration-300 ease-out
                     hover:scale-110 md:hover:scale-125 hover:bg-white/20 active:scale-95
-                    transform-gpu will-change-transform
+                    transform-gpu will-change-transform touch-manipulation
                     ${isOpen && !isMinimized ? "bg-white/20 shadow-lg scale-105 md:scale-110" : ""}
                     ${isMinimized ? "bg-yellow-500/30" : ""}
                   `}
@@ -64,7 +103,7 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
                 )}
 
                 {/* Tooltip - Hidden on mobile */}
-                <div className="hidden md:block absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
+                <div className="hidden md:block absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100 z-50">
                   <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl backdrop-blur-sm">
                     {item.label}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90" />
@@ -82,14 +121,14 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
             <Button
               variant="ghost"
               size="lg"
-              className="h-12 w-12 md:h-16 md:w-16 rounded-lg md:rounded-xl transition-all duration-300 ease-out hover:scale-110 md:hover:scale-125 hover:bg-white/20 active:scale-95"
+              className="h-12 w-12 md:h-16 md:w-16 rounded-lg md:rounded-xl transition-all duration-300 ease-out hover:scale-110 md:hover:scale-125 hover:bg-white/20 active:scale-95 touch-manipulation"
             >
               <div className="p-1.5 md:p-2 rounded-md md:rounded-lg bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
                 <Trash2 className="h-5 w-5 md:h-8 md:w-8 text-white drop-shadow-lg" />
               </div>
             </Button>
 
-            <div className="hidden md:block absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
+            <div className="hidden md:block absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100 z-50">
               <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl backdrop-blur-sm">
                 Trash
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90" />
