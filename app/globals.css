@@ -1,3 +1,4 @@
+/* macOS System Fonts - No external imports needed */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,6 +25,11 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
     --radius: 0.5rem;
+
+    /* macOS System Font Stack */
+    --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
   }
 
   .dark {
@@ -53,8 +59,17 @@
   * {
     @apply border-border;
   }
+
+  html {
+    font-family: var(--font-system);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-system);
     /* Prevent zoom on mobile */
     touch-action: manipulation;
     /* Prevent overscroll bounce */
@@ -62,7 +77,38 @@
   }
 }
 
-/* Enhanced mobile optimizations */
+/* macOS-specific boot loader styles */
+.macos-boot {
+  font-family: var(--font-system);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.macos-display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+.macos-text {
+  font-family: var(--font-system);
+  font-weight: 400;
+}
+
+.macos-mono {
+  font-family: var(--font-mono);
+}
+
+/* Prevent any scrolling during boot */
+.boot-loading {
+  overflow: hidden !important;
+  height: 100vh !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+/* Enhanced mobile boot loading */
 @media (max-width: 768px) {
   html {
     /* Prevent zoom on input focus */
@@ -74,6 +120,12 @@
     -webkit-overflow-scrolling: touch;
     /* Prevent pull-to-refresh */
     overscroll-behavior-y: contain;
+  }
+
+  .boot-loading {
+    -webkit-overflow-scrolling: none !important;
+    overscroll-behavior: none !important;
+    touch-action: none !important;
   }
 
   /* Optimize viewport for mobile */
