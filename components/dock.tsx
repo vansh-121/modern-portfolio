@@ -27,44 +27,44 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
   }
 
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 shadow-2xl">
-        <div className="flex items-center space-x-2">
+    <div className="fixed bottom-2 md:bottom-4 left-1/2 transform -translate-x-1/2 z-40">
+      <div className="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-2 md:p-3 border border-white/20 shadow-2xl">
+        <div className="flex items-center space-x-1 md:space-x-2 overflow-x-auto scrollbar-none">
           {dockItems.map((item) => {
             const { isOpen, isMinimized } = getWindowState(item.id)
             const Icon = item.icon
 
             return (
-              <div key={item.id} className="relative group">
+              <div key={item.id} className="relative group flex-shrink-0">
                 <Button
                   variant="ghost"
                   size="lg"
                   className={`
-                    h-16 w-16 rounded-xl transition-all duration-300 ease-out
-                    hover:scale-125 hover:bg-white/20 active:scale-95
+                    h-12 w-12 md:h-16 md:w-16 rounded-lg md:rounded-xl transition-all duration-300 ease-out
+                    hover:scale-110 md:hover:scale-125 hover:bg-white/20 active:scale-95
                     transform-gpu will-change-transform
-                    ${isOpen && !isMinimized ? "bg-white/20 shadow-lg scale-110" : ""}
+                    ${isOpen && !isMinimized ? "bg-white/20 shadow-lg scale-105 md:scale-110" : ""}
                     ${isMinimized ? "bg-yellow-500/30" : ""}
                   `}
                   onClick={() => onOpenWindow(item.id)}
                 >
-                  <div className={`p-2 rounded-lg bg-gradient-to-br ${item.color} shadow-lg`}>
-                    <Icon className="h-8 w-8 text-white drop-shadow-lg" />
+                  <div className={`p-1.5 md:p-2 rounded-md md:rounded-lg bg-gradient-to-br ${item.color} shadow-lg`}>
+                    <Icon className="h-5 w-5 md:h-8 md:w-8 text-white drop-shadow-lg" />
                   </div>
                 </Button>
 
                 {/* Active indicator */}
                 {isOpen && !isMinimized && (
-                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-lg animate-pulse" />
+                  <div className="absolute -bottom-0.5 md:-bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full shadow-lg animate-pulse" />
                 )}
 
                 {/* Minimized indicator */}
                 {isMinimized && (
-                  <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-400 rounded-full shadow-lg" />
+                  <div className="absolute -bottom-0.5 md:-bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 md:w-2 md:h-2 bg-yellow-400 rounded-full shadow-lg" />
                 )}
 
-                {/* Tooltip */}
-                <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
+                {/* Tooltip - Hidden on mobile */}
+                <div className="hidden md:block absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
                   <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl backdrop-blur-sm">
                     {item.label}
                     <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90" />
@@ -75,21 +75,21 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
           })}
 
           {/* Separator */}
-          <div className="w-px h-14 bg-white/20 mx-2" />
+          <div className="w-px h-10 md:h-14 bg-white/20 mx-1 md:mx-2 flex-shrink-0" />
 
           {/* Trash */}
-          <div className="relative group">
+          <div className="relative group flex-shrink-0">
             <Button
               variant="ghost"
               size="lg"
-              className="h-16 w-16 rounded-xl transition-all duration-300 ease-out hover:scale-125 hover:bg-white/20 active:scale-95"
+              className="h-12 w-12 md:h-16 md:w-16 rounded-lg md:rounded-xl transition-all duration-300 ease-out hover:scale-110 md:hover:scale-125 hover:bg-white/20 active:scale-95"
             >
-              <div className="p-2 rounded-lg bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
-                <Trash2 className="h-8 w-8 text-white drop-shadow-lg" />
+              <div className="p-1.5 md:p-2 rounded-md md:rounded-lg bg-gradient-to-br from-red-500 to-red-600 shadow-lg">
+                <Trash2 className="h-5 w-5 md:h-8 md:w-8 text-white drop-shadow-lg" />
               </div>
             </Button>
 
-            <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
+            <div className="hidden md:block absolute bottom-16 md:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
               <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl backdrop-blur-sm">
                 Trash
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90" />

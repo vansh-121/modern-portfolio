@@ -2,7 +2,7 @@
 
 import { useState, useEffect, memo } from "react"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, Battery, Wifi, Volume2 } from "lucide-react"
+import { Moon, Sun, Battery, Wifi, Volume2, Menu } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export const MenuBar = memo(function MenuBar() {
@@ -35,39 +35,44 @@ export const MenuBar = memo(function MenuBar() {
   }, [])
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-8 bg-black/20 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 text-white text-sm font-medium z-50">
+    <div className="fixed top-0 left-0 right-0 h-8 md:h-8 bg-black/20 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-2 md:px-4 text-white text-xs md:text-sm font-medium z-50">
       {/* Left side - App menu */}
-      <div className="flex items-center space-x-4">
-        <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+      <div className="flex items-center space-x-2 md:space-x-4">
+        <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-xs md:text-sm">
           Portfolio OS
         </span>
-        <span className="text-white/70 hover:text-white cursor-pointer transition-colors">File</span>
-        <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Edit</span>
-        <span className="text-white/70 hover:text-white cursor-pointer transition-colors">View</span>
-        <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Window</span>
-        <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Help</span>
+        <div className="hidden md:flex items-center space-x-4">
+          <span className="text-white/70 hover:text-white cursor-pointer transition-colors">File</span>
+          <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Edit</span>
+          <span className="text-white/70 hover:text-white cursor-pointer transition-colors">View</span>
+          <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Window</span>
+          <span className="text-white/70 hover:text-white cursor-pointer transition-colors">Help</span>
+        </div>
+        <Button variant="ghost" size="sm" className="md:hidden h-5 w-5 p-0 text-white hover:bg-white/10">
+          <Menu className="h-3 w-3" />
+        </Button>
       </div>
 
       {/* Right side - System indicators */}
-      <div className="flex items-center space-x-3">
+      <div className="flex items-center space-x-1 md:space-x-3">
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 w-6 p-0 text-white hover:bg-white/10 transition-all duration-200"
+          className="h-5 w-5 md:h-6 md:w-6 p-0 text-white hover:bg-white/10 transition-all duration-200"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {theme === "dark" ? <Sun className="h-3 w-3 md:h-4 md:w-4" /> : <Moon className="h-3 w-3 md:h-4 md:w-4" />}
         </Button>
 
-        <div className="flex items-center space-x-1">
-          <Volume2 className="h-4 w-4 opacity-80" />
-          <Wifi className="h-4 w-4 opacity-80" />
-          <Battery className="h-4 w-4 opacity-80" />
-          <span className="text-xs opacity-80">100%</span>
+        <div className="hidden sm:flex items-center space-x-1">
+          <Volume2 className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
+          <Wifi className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
+          <Battery className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
+          <span className="text-xs opacity-80 hidden md:inline">100%</span>
         </div>
 
         <div className="text-right">
-          <div className="text-xs leading-none opacity-90">{currentDate}</div>
+          <div className="text-xs leading-none opacity-90 hidden sm:block">{currentDate}</div>
           <div className="text-xs leading-none font-mono">{currentTime}</div>
         </div>
       </div>

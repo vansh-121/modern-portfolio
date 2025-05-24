@@ -27,60 +27,86 @@ interface WindowState {
 export default function Portfolio() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadingProgress, setLoadingProgress] = useState(0)
-  const [windows, setWindows] = useState<WindowState[]>([
-    {
-      id: "projects",
-      title: "Projects",
-      isOpen: false,
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 100, y: 100 },
-      size: { width: 800, height: 600 },
-      zIndex: 1,
-    },
-    {
-      id: "about",
-      title: "About Me",
-      isOpen: false,
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 150, y: 150 },
-      size: { width: 700, height: 500 },
-      zIndex: 1,
-    },
-    {
-      id: "resume",
-      title: "Resume",
-      isOpen: false,
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 200, y: 200 },
-      size: { width: 600, height: 700 },
-      zIndex: 1,
-    },
-    {
-      id: "contact",
-      title: "Contact",
-      isOpen: false,
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 250, y: 250 },
-      size: { width: 500, height: 400 },
-      zIndex: 1,
-    },
-    {
-      id: "terminal",
-      title: "Terminal",
-      isOpen: false,
-      isMinimized: false,
-      isMaximized: false,
-      position: { x: 300, y: 100 },
-      size: { width: 700, height: 500 },
-      zIndex: 1,
-    },
-  ])
+  const [isMobile, setIsMobile] = useState(false)
+  const [windows, setWindows] = useState<WindowState[]>([])
 
   const [highestZIndex, setHighestZIndex] = useState(1)
+
+  // Check for mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+
+      // Initialize windows with responsive sizes
+      const getResponsiveSize = (baseWidth: number, baseHeight: number) => ({
+        width: mobile ? window.innerWidth : Math.min(baseWidth, window.innerWidth - 100),
+        height: mobile ? window.innerHeight - 88 : Math.min(baseHeight, window.innerHeight - 140),
+      })
+
+      const getResponsivePosition = (baseX: number, baseY: number) => ({
+        x: mobile ? 0 : Math.min(baseX, window.innerWidth - 400),
+        y: mobile ? 32 : Math.max(40, Math.min(baseY, window.innerHeight - 300)),
+      })
+
+      setWindows([
+        {
+          id: "projects",
+          title: "Projects",
+          isOpen: false,
+          isMinimized: false,
+          isMaximized: mobile,
+          position: getResponsivePosition(100, 100),
+          size: getResponsiveSize(800, 600),
+          zIndex: 1,
+        },
+        {
+          id: "about",
+          title: "About Me",
+          isOpen: false,
+          isMinimized: false,
+          isMaximized: mobile,
+          position: getResponsivePosition(150, 150),
+          size: getResponsiveSize(700, 500),
+          zIndex: 1,
+        },
+        {
+          id: "resume",
+          title: "Resume",
+          isOpen: false,
+          isMinimized: false,
+          isMaximized: mobile,
+          position: getResponsivePosition(200, 200),
+          size: getResponsiveSize(600, 700),
+          zIndex: 1,
+        },
+        {
+          id: "contact",
+          title: "Contact",
+          isOpen: false,
+          isMinimized: false,
+          isMaximized: mobile,
+          position: getResponsivePosition(250, 250),
+          size: getResponsiveSize(500, 400),
+          zIndex: 1,
+        },
+        {
+          id: "terminal",
+          title: "Terminal",
+          isOpen: false,
+          isMinimized: false,
+          isMaximized: mobile,
+          position: getResponsivePosition(300, 100),
+          size: getResponsiveSize(700, 500),
+          zIndex: 1,
+        },
+      ])
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
 
   // Boot loading simulation
   useEffect(() => {
@@ -141,12 +167,12 @@ export default function Portfolio() {
           ? {
               ...window,
               isMaximized: !window.isMaximized,
-              position: window.isMaximized ? window.position : { x: 0, y: 40 },
+              position: window.isMaximized ? window.position : { x: 0, y: isMobile ? 32 : 40 },
               size: window.isMaximized
                 ? window.size
                 : {
-                    width: typeof window !== "undefined" ? window.innerWidth || 1200 : 1200,
-                    height: typeof window !== "undefined" ? (window.innerHeight || 800) - 140 : 660,
+                    width: window.innerWidth || 1200,
+                    height: (window.innerHeight || 800) - (isMobile ? 88 : 140),
                   },
             }
           : window,
@@ -162,10 +188,12 @@ export default function Portfolio() {
   }
 
   const updateWindowPosition = (id: string, position: { x: number; y: number }) => {
+    if (isMobile) return // Don't update position on mobile
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, position } : window)))
   }
 
   const updateWindowSize = (id: string, size: { width: number; height: number }) => {
+    if (isMobile) return // Don't update size on mobile
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, size } : window)))
   }
 
@@ -199,7 +227,7 @@ export default function Portfolio() {
       <MenuBar />
 
       {/* Desktop Area */}
-      <div className="absolute inset-0 top-8 bottom-20">
+      <div className="absolute inset-0 top-8 bottom-14 md:bottom-20">
         {/* Welcome Widget */}
         <WelcomeWidget />
 

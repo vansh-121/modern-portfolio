@@ -33,48 +33,48 @@ export function ProjectsContent() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">My Projects</h2>
-        <p className="text-gray-600">A collection of my recent work and side projects.</p>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">My Projects</h2>
+        <p className="text-sm md:text-base text-gray-600">A collection of my recent work and side projects.</p>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-4 md:gap-6">
         {projects.map((project, index) => (
           <Card key={index} className="overflow-hidden">
-            <div className="md:flex">
-              <div className="md:w-1/3">
+            <div className="flex flex-col md:flex-row">
+              <div className="w-full md:w-1/3">
                 <Image
                   src={project.image || "/placeholder.svg"}
                   alt={project.title}
                   width={300}
                   height={200}
-                  className="w-full h-48 md:h-full object-cover"
+                  className="w-full h-32 md:h-48 lg:h-full object-cover"
                 />
               </div>
-              <div className="md:w-2/3">
-                <CardHeader>
-                  <CardTitle className="text-xl">{project.title}</CardTitle>
-                  <CardDescription>{project.description}</CardDescription>
+              <div className="w-full md:w-2/3">
+                <CardHeader className="p-3 md:p-6">
+                  <CardTitle className="text-lg md:text-xl">{project.title}</CardTitle>
+                  <CardDescription className="text-sm md:text-base">{project.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2 mb-4">
+                <CardContent className="p-3 md:p-6 pt-0">
+                  <div className="flex flex-wrap gap-1 md:gap-2 mb-3 md:mb-4">
                     {project.technologies.map((tech) => (
-                      <Badge key={tech} variant="secondary">
+                      <Badge key={tech} variant="secondary" className="text-xs">
                         {tech}
                       </Badge>
                     ))}
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" asChild>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button size="sm" variant="outline" asChild className="w-full sm:w-auto">
                       <a href={project.github} target="_blank" rel="noopener noreferrer">
-                        <Github className="w-4 h-4 mr-2" />
+                        <Github className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Code
                       </a>
                     </Button>
-                    <Button size="sm" asChild>
+                    <Button size="sm" asChild className="w-full sm:w-auto">
                       <a href={project.demo} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" />
+                        <ExternalLink className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                         Live Demo
                       </a>
                     </Button>

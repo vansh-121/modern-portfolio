@@ -9,7 +9,7 @@ import { ExternalLink, Github, Star, GitFork } from "lucide-react"
 
 interface Command {
   input: string
-  output: string | JSX.Element
+  output: string | React.JSX.Element
   timestamp: Date
 }
 
@@ -96,14 +96,14 @@ export function TerminalContent() {
 
   const executeCommand = useCallback((input: string) => {
     const cmd = input.toLowerCase().trim()
-    let output: string | JSX.Element = ""
+    let output: string | React.JSX.Element = ""
 
     switch (cmd) {
       case "help":
         output = (
           <div className="space-y-1">
             <div className="text-green-400 font-bold">Available Commands:</div>
-            <div className="ml-4 space-y-1">
+            <div className="ml-2 md:ml-4 space-y-1 text-xs md:text-sm">
               <div>
                 <span className="text-blue-400">help</span> - Show this help message
               </div>
@@ -144,7 +144,7 @@ export function TerminalContent() {
 
       case "whoami":
         output = (
-          <div className="space-y-2">
+          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
             <div className="text-green-400 font-bold">John Doe</div>
             <div>🚀 Full Stack Developer</div>
             <div>📍 San Francisco, CA</div>
@@ -157,45 +157,45 @@ export function TerminalContent() {
 
       case "projects":
         output = (
-          <div className="space-y-3">
-            <div className="text-green-400 font-bold">🚀 GitHub Projects:</div>
+          <div className="space-y-2 md:space-y-3">
+            <div className="text-green-400 font-bold text-sm md:text-base">🚀 GitHub Projects:</div>
             {githubProjects.map((project, index) => (
-              <div key={index} className="border border-gray-600 rounded p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="text-blue-400 font-bold">{project.name}</div>
-                  <div className="flex items-center space-x-2">
+              <div key={index} className="border border-gray-600 rounded p-2 md:p-3 space-y-1 md:space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 md:gap-2">
+                  <div className="text-blue-400 font-bold text-sm md:text-base">{project.name}</div>
+                  <div className="flex items-center space-x-1 md:space-x-2">
                     <Badge variant="outline" className="text-xs">
                       {project.language}
                     </Badge>
                     <span className="text-xs">{project.status}</span>
                   </div>
                 </div>
-                <div className="text-gray-300">{project.description}</div>
-                <div className="flex items-center space-x-4 text-sm">
+                <div className="text-gray-300 text-xs md:text-sm">{project.description}</div>
+                <div className="flex flex-wrap items-center space-x-2 md:space-x-4 text-xs md:text-sm">
                   <div className="flex items-center space-x-1">
-                    <Star className="w-3 h-3" />
+                    <Star className="w-2.5 h-2.5 md:w-3 md:h-3" />
                     <span>{project.stars}</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <GitFork className="w-3 h-3" />
+                    <GitFork className="w-2.5 h-2.5 md:w-3 md:h-3" />
                     <span>{project.forks}</span>
                   </div>
                   <Button
                     variant="link"
                     size="sm"
-                    className="h-auto p-0 text-blue-400 hover:text-blue-300"
+                    className="h-auto p-0 text-blue-400 hover:text-blue-300 text-xs"
                     onClick={() => window.open(project.url, "_blank")}
                   >
-                    <Github className="w-3 h-3 mr-1" />
+                    <Github className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
                     Code
                   </Button>
                   <Button
                     variant="link"
                     size="sm"
-                    className="h-auto p-0 text-green-400 hover:text-green-300"
+                    className="h-auto p-0 text-green-400 hover:text-green-300 text-xs"
                     onClick={() => window.open(project.demo, "_blank")}
                   >
-                    <ExternalLink className="w-3 h-3 mr-1" />
+                    <ExternalLink className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
                     Demo
                   </Button>
                 </div>
@@ -207,12 +207,12 @@ export function TerminalContent() {
 
       case "skills":
         output = (
-          <div className="space-y-3">
-            <div className="text-green-400 font-bold">💻 Technical Skills:</div>
+          <div className="space-y-2 md:space-y-3">
+            <div className="text-green-400 font-bold text-sm md:text-base">💻 Technical Skills:</div>
             {Object.entries(skills).map(([category, skillList]) => (
               <div key={category}>
-                <div className="text-blue-400 font-semibold capitalize">{category}:</div>
-                <div className="ml-4 flex flex-wrap gap-2 mt-1">
+                <div className="text-blue-400 font-semibold capitalize text-sm md:text-base">{category}:</div>
+                <div className="ml-2 md:ml-4 flex flex-wrap gap-1 md:gap-2 mt-1">
                   {skillList.map((skill) => (
                     <Badge key={skill} variant="secondary" className="text-xs">
                       {skill}
@@ -227,7 +227,7 @@ export function TerminalContent() {
 
       case "contact":
         output = (
-          <div className="space-y-2">
+          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
             <div className="text-green-400 font-bold">📧 Contact Information:</div>
             <div>Email: john.doe@email.com</div>
             <div>Phone: +1 (555) 123-4567</div>
@@ -239,12 +239,12 @@ export function TerminalContent() {
         break
 
       case "ascii":
-        output = <pre className="text-blue-400 text-xs leading-tight">{asciiArt}</pre>
+        output = <pre className="text-blue-400 text-xs leading-tight overflow-x-auto">{asciiArt}</pre>
         break
 
       case "neofetch":
         output = (
-          <div className="space-y-1">
+          <div className="space-y-1 text-xs md:text-sm">
             <div className="text-green-400 font-bold">System Information:</div>
             <div>OS: Portfolio OS (macOS inspired)</div>
             <div>Shell: zsh 5.8.1</div>
@@ -259,7 +259,7 @@ export function TerminalContent() {
 
       case "ls":
         output = (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm">
             <div className="text-blue-400">projects/</div>
             <div className="text-blue-400">about/</div>
             <div className="text-blue-400">resume/</div>
@@ -273,26 +273,26 @@ export function TerminalContent() {
       case "cat readme.md":
       case "cat readme":
         output = (
-          <div className="space-y-2">
+          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
             <div className="text-green-400 font-bold"># John Doe - Portfolio</div>
             <div>Welcome to my interactive portfolio!</div>
             <div>This is a macOS-inspired portfolio built with:</div>
-            <div className="ml-4">- Next.js & React</div>
-            <div className="ml-4">- Three.js for 3D animations</div>
-            <div className="ml-4">- Tailwind CSS for styling</div>
-            <div className="ml-4">- TypeScript for type safety</div>
-            <div className="mt-2">Type 'help' for available commands.</div>
+            <div className="ml-2 md:ml-4">- Next.js & React</div>
+            <div className="ml-2 md:ml-4">- Three.js for 3D animations</div>
+            <div className="ml-2 md:ml-4">- Tailwind CSS for styling</div>
+            <div className="ml-2 md:ml-4">- TypeScript for type safety</div>
+            <div className="mt-1 md:mt-2">Type 'help' for available commands.</div>
           </div>
         )
         break
 
       case "matrix":
         output = (
-          <div className="text-green-400 space-y-1">
+          <div className="text-green-400 space-y-1 text-xs md:text-sm">
             <div>Wake up, Neo...</div>
             <div>The Matrix has you...</div>
             <div>Follow the white rabbit 🐰</div>
-            <div className="text-xs mt-2">01001000 01100101 01101100 01101100 01101111</div>
+            <div className="text-xs mt-1 md:mt-2 overflow-x-auto">01001000 01100101 01101100 01101100 01101111</div>
           </div>
         )
         break
@@ -339,7 +339,7 @@ export function TerminalContent() {
         {
           input: "",
           output: (
-            <div className="space-y-2">
+            <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
               <div className="text-green-400 font-bold">Welcome to Portfolio Terminal v2.0</div>
               <div>Type 'help' to see available commands.</div>
               <div>Type 'projects' to see my GitHub repositories.</div>
@@ -357,37 +357,41 @@ export function TerminalContent() {
   }, [typeWriter])
 
   return (
-    <div className="h-full bg-black text-green-400 font-mono text-sm flex flex-col">
+    <div className="h-full bg-black text-green-400 font-mono text-xs md:text-sm flex flex-col">
       {/* Terminal Header */}
-      <div className="bg-gray-800 px-4 py-2 text-white text-xs flex items-center justify-between">
+      <div className="bg-gray-800 px-2 md:px-4 py-1 md:py-2 text-white text-xs flex items-center justify-between">
         <div>Terminal — zsh — 80×24</div>
-        <div className="flex space-x-2">
-          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+        <div className="flex space-x-1 md:space-x-2">
+          <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full"></div>
+          <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full"></div>
+          <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full"></div>
         </div>
       </div>
 
       {/* Terminal Content */}
-      <div ref={terminalRef} className="flex-1 p-4 overflow-y-auto space-y-2" onClick={() => inputRef.current?.focus()}>
+      <div
+        ref={terminalRef}
+        className="flex-1 p-2 md:p-4 overflow-y-auto space-y-1 md:space-y-2"
+        onClick={() => inputRef.current?.focus()}
+      >
         {commands.map((command, index) => (
           <div key={index} className="space-y-1">
             {command.input && (
-              <div className="flex items-center space-x-2">
-                <span className="text-blue-400">johndoe@portfolio</span>
+              <div className="flex items-center space-x-1 md:space-x-2 flex-wrap">
+                <span className="text-blue-400 text-xs md:text-sm">johndoe@portfolio</span>
                 <span className="text-white">:</span>
                 <span className="text-purple-400">~</span>
                 <span className="text-white">$</span>
-                <span className="text-green-400">{command.input}</span>
+                <span className="text-green-400 break-all">{command.input}</span>
               </div>
             )}
-            {command.output && <div className="ml-4 text-gray-300">{command.output}</div>}
+            {command.output && <div className="ml-2 md:ml-4 text-gray-300">{command.output}</div>}
           </div>
         ))}
 
         {/* Current Input Line */}
-        <form onSubmit={handleSubmit} className="flex items-center space-x-2">
-          <span className="text-blue-400">johndoe@portfolio</span>
+        <form onSubmit={handleSubmit} className="flex items-center space-x-1 md:space-x-2 flex-wrap">
+          <span className="text-blue-400 text-xs md:text-sm">johndoe@portfolio</span>
           <span className="text-white">:</span>
           <span className="text-purple-400">~</span>
           <span className="text-white">$</span>
@@ -396,7 +400,7 @@ export function TerminalContent() {
             type="text"
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
-            className="flex-1 bg-transparent outline-none text-green-400"
+            className="flex-1 min-w-0 bg-transparent outline-none text-green-400 text-xs md:text-sm"
             autoFocus
             spellCheck={false}
           />
