@@ -138,33 +138,33 @@ export const Window = memo(function Window({
       }}
       onMouseDown={handleMouseDown}
     >
-      {/* Window Header */}
-      <div className="window-header flex items-center justify-between h-8 md:h-10 bg-gradient-to-r from-gray-50/80 to-gray-100/80 border-b border-gray-200/50 px-2 md:px-4 cursor-grab active:cursor-grabbing backdrop-blur-sm">
-        {/* Traffic Lights */}
+      {/* Window Header - Smaller buttons on mobile */}
+      <div className="window-header flex items-center justify-between h-7 md:h-10 bg-gradient-to-r from-gray-50/80 to-gray-100/80 border-b border-gray-200/50 px-2 md:px-4 cursor-grab active:cursor-grabbing backdrop-blur-sm">
+        {/* Traffic Lights - Smaller on mobile */}
         <div className="flex items-center space-x-1 md:space-x-2">
           <Button
             variant="ghost"
             size="sm"
-            className="h-2.5 w-2.5 md:h-3 md:w-3 p-0 rounded-full bg-red-500 hover:bg-red-600 border border-red-600 transition-all duration-200 group"
+            className="h-2 w-2 md:h-3 md:w-3 p-0 rounded-full bg-red-500 hover:bg-red-600 border border-red-600 transition-all duration-200 group"
             onClick={onClose}
           >
-            <X className="h-1.5 w-1.5 md:h-2 md:w-2 text-red-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <X className="h-1 w-1 md:h-2 md:w-2 text-red-900 opacity-0 group-hover:opacity-100 transition-opacity" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-2.5 w-2.5 md:h-3 md:w-3 p-0 rounded-full bg-yellow-500 hover:bg-yellow-600 border border-yellow-600 transition-all duration-200 group"
+            className="h-2 w-2 md:h-3 md:w-3 p-0 rounded-full bg-yellow-500 hover:bg-yellow-600 border border-yellow-600 transition-all duration-200 group"
             onClick={onMinimize}
           >
-            <Minus className="h-1.5 w-1.5 md:h-2 md:w-2 text-yellow-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Minus className="h-1 w-1 md:h-2 md:w-2 text-yellow-900 opacity-0 group-hover:opacity-100 transition-opacity" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            className="h-2.5 w-2.5 md:h-3 md:w-3 p-0 rounded-full bg-green-500 hover:bg-green-600 border border-green-600 transition-all duration-200 group"
+            className="h-2 w-2 md:h-3 md:w-3 p-0 rounded-full bg-green-500 hover:bg-green-600 border border-green-600 transition-all duration-200 group"
             onClick={onMaximize}
           >
-            <Square className="h-1.5 w-1.5 md:h-2 md:w-2 text-green-900 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Square className="h-1 w-1 md:h-2 md:w-2 text-green-900 opacity-0 group-hover:opacity-100 transition-opacity" />
           </Button>
         </div>
 

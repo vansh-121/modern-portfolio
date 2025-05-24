@@ -8,6 +8,7 @@ import { Window } from "@/components/window"
 import { ProjectsContent } from "@/components/projects-content"
 import { AboutContent } from "@/components/about-content"
 import { ResumeContent } from "@/components/resume-content"
+import { ServicesContent } from "@/components/services-content"
 import { ContactContent } from "@/components/contact-content"
 import { ThreeBackground } from "@/components/three-background"
 import { WelcomeWidget } from "@/components/welcome-widget"
@@ -28,26 +29,60 @@ export default function Portfolio() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [isTablet, setIsTablet] = useState(false)
   const [windows, setWindows] = useState<WindowState[]>([])
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
 
   const [highestZIndex, setHighestZIndex] = useState(1)
 
-  // Check for mobile on mount and resize
+  // Enhanced device detection and responsive handling
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768
+    const checkDevice = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      const mobile = width < 768
+      const tablet = width >= 768 && width < 1024
+      const newOrientation = width > height ? "landscape" : "portrait"
+
       setIsMobile(mobile)
+      setIsTablet(tablet)
+      setOrientation(newOrientation)
 
-      // Initialize windows with responsive sizes
-      const getResponsiveSize = (baseWidth: number, baseHeight: number) => ({
-        width: mobile ? window.innerWidth : Math.min(baseWidth, window.innerWidth - 100),
-        height: mobile ? window.innerHeight - 88 : Math.min(baseHeight, window.innerHeight - 140),
-      })
+      // Enhanced responsive sizing
+      const getResponsiveSize = (baseWidth: number, baseHeight: number) => {
+        if (mobile) {
+          return {
+            width: width,
+            height: height - (newOrientation === "landscape" ? 64 : 88),
+          }
+        } else if (tablet) {
+          return {
+            width: Math.min(baseWidth * 0.9, width - 50),
+            height: Math.min(baseHeight * 0.9, height - 100),
+          }
+        } else {
+          return {
+            width: Math.min(baseWidth, width - 100),
+            height: Math.min(baseHeight, height - 140),
+          }
+        }
+      }
 
-      const getResponsivePosition = (baseX: number, baseY: number) => ({
-        x: mobile ? 0 : Math.min(baseX, window.innerWidth - 400),
-        y: mobile ? 32 : Math.max(40, Math.min(baseY, window.innerHeight - 300)),
-      })
+      const getResponsivePosition = (baseX: number, baseY: number) => {
+        if (mobile) {
+          return { x: 0, y: newOrientation === "landscape" ? 32 : 32 }
+        } else if (tablet) {
+          return {
+            x: Math.min(baseX * 0.5, width - 400),
+            y: Math.max(40, Math.min(baseY * 0.5, height - 300)),
+          }
+        } else {
+          return {
+            x: Math.min(baseX, width - 400),
+            y: Math.max(40, Math.min(baseY, height - 300)),
+          }
+        }
+      }
 
       setWindows([
         {
@@ -81,12 +116,22 @@ export default function Portfolio() {
           zIndex: 1,
         },
         {
+          id: "services",
+          title: "Services",
+          isOpen: false,
+          isMinimized: false,
+          isMaximized: mobile,
+          position: getResponsivePosition(250, 150),
+          size: getResponsiveSize(900, 650),
+          zIndex: 1,
+        },
+        {
           id: "contact",
           title: "Contact",
           isOpen: false,
           isMinimized: false,
           isMaximized: mobile,
-          position: getResponsivePosition(250, 250),
+          position: getResponsivePosition(300, 250),
           size: getResponsiveSize(500, 400),
           zIndex: 1,
         },
@@ -96,26 +141,34 @@ export default function Portfolio() {
           isOpen: false,
           isMinimized: false,
           isMaximized: mobile,
-          position: getResponsivePosition(300, 100),
+          position: getResponsivePosition(350, 100),
           size: getResponsiveSize(700, 500),
           zIndex: 1,
         },
       ])
     }
 
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
+    checkDevice()
+    window.addEventListener("resize", checkDevice)
+    window.addEventListener("orientationchange", () => {
+      setTimeout(checkDevice, 100) // Delay to ensure proper orientation detection
+    })
+
+    return () => {
+      window.removeEventListener("resize", checkDevice)
+      window.removeEventListener("orientationchange", checkDevice)
+    }
   }, [])
 
-  // Boot loading simulation
+  // Enhanced boot loading with more realistic timing
   useEffect(() => {
     const loadingSteps = [
-      { progress: 20, delay: 500 },
-      { progress: 40, delay: 800 },
-      { progress: 60, delay: 1000 },
-      { progress: 80, delay: 1200 },
-      { progress: 100, delay: 1500 },
+      { progress: 15, delay: 300 },
+      { progress: 35, delay: 500 },
+      { progress: 55, delay: 400 },
+      { progress: 75, delay: 600 },
+      { progress: 90, delay: 400 },
+      { progress: 100, delay: 500 },
     ]
 
     let timeoutId: NodeJS.Timeout
@@ -130,10 +183,10 @@ export default function Portfolio() {
         })
       }
 
-      // Final delay before showing desktop
+      // Smooth transition to desktop
       timeoutId = setTimeout(() => {
         setIsLoading(false)
-      }, 800)
+      }, 300)
     }
 
     runLoadingSequence()
@@ -167,12 +220,14 @@ export default function Portfolio() {
           ? {
               ...window,
               isMaximized: !window.isMaximized,
-              position: window.isMaximized ? window.position : { x: 0, y: isMobile ? 32 : 40 },
+              position: window.isMaximized
+                ? window.position
+                : { x: 0, y: isMobile ? (orientation === "landscape" ? 32 : 32) : 40 },
               size: window.isMaximized
                 ? window.size
                 : {
-                    width: window.innerWidth || 1200,
-                    height: (window.innerHeight || 800) - (isMobile ? 88 : 140),
+                    width: window.innerWidth || (isMobile ? window.innerWidth : 1200),
+                    height: (window.innerHeight || 800) - (isMobile ? (orientation === "landscape" ? 64 : 88) : 140),
                   },
             }
           : window,
@@ -205,6 +260,8 @@ export default function Portfolio() {
         return <AboutContent />
       case "resume":
         return <ResumeContent />
+      case "services":
+        return <ServicesContent />
       case "contact":
         return <ContactContent />
       case "terminal":
@@ -220,18 +277,20 @@ export default function Portfolio() {
 
   return (
     <div className="h-screen w-full overflow-hidden relative">
-      {/* Three.js Background */}
+      {/* Three.js Background - Optimized for all devices */}
       <ThreeBackground />
 
-      {/* Menu Bar */}
+      {/* Menu Bar - Responsive */}
       <MenuBar />
 
-      {/* Desktop Area */}
-      <div className="absolute inset-0 top-8 bottom-14 md:bottom-20">
-        {/* Welcome Widget */}
-        <WelcomeWidget />
+      {/* Desktop Area - Adaptive to orientation */}
+      <div
+        className={`absolute inset-0 ${orientation === "landscape" && isMobile ? "top-8 bottom-12" : "top-8 bottom-14 md:bottom-20"}`}
+      >
+        {/* Welcome Widget - Hidden on small mobile landscape */}
+        {!(isMobile && orientation === "landscape") && <WelcomeWidget />}
 
-        {/* Windows */}
+        {/* Windows - Fully responsive */}
         {windows.map(
           (window) =>
             window.isOpen &&
@@ -257,7 +316,7 @@ export default function Portfolio() {
         )}
       </div>
 
-      {/* Dock */}
+      {/* Dock - Responsive and adaptive */}
       <Dock onOpenWindow={openWindow} windows={windows} />
     </div>
   )
