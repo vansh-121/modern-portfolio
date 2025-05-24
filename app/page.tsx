@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { BootLoader } from "@/components/boot-loader"
 import { MenuBar } from "@/components/menu-bar"
 import { Dock } from "@/components/dock"
 import { Window } from "@/components/window"
@@ -8,6 +9,9 @@ import { ProjectsContent } from "@/components/projects-content"
 import { AboutContent } from "@/components/about-content"
 import { ResumeContent } from "@/components/resume-content"
 import { ContactContent } from "@/components/contact-content"
+import { ThreeBackground } from "@/components/three-background"
+import { WelcomeWidget } from "@/components/welcome-widget"
+import { TerminalContent } from "@/components/terminal-content"
 
 interface WindowState {
   id: string
@@ -21,6 +25,8 @@ interface WindowState {
 }
 
 export default function Portfolio() {
+  const [isLoading, setIsLoading] = useState(true)
+  const [loadingProgress, setLoadingProgress] = useState(0)
   const [windows, setWindows] = useState<WindowState[]>([
     {
       id: "projects",
@@ -62,9 +68,54 @@ export default function Portfolio() {
       size: { width: 500, height: 400 },
       zIndex: 1,
     },
+    {
+      id: "terminal",
+      title: "Terminal",
+      isOpen: false,
+      isMinimized: false,
+      isMaximized: false,
+      position: { x: 300, y: 100 },
+      size: { width: 700, height: 500 },
+      zIndex: 1,
+    },
   ])
 
   const [highestZIndex, setHighestZIndex] = useState(1)
+
+  // Boot loading simulation
+  useEffect(() => {
+    const loadingSteps = [
+      { progress: 20, delay: 500 },
+      { progress: 40, delay: 800 },
+      { progress: 60, delay: 1000 },
+      { progress: 80, delay: 1200 },
+      { progress: 100, delay: 1500 },
+    ]
+
+    let timeoutId: NodeJS.Timeout
+
+    const runLoadingSequence = async () => {
+      for (const step of loadingSteps) {
+        await new Promise((resolve) => {
+          timeoutId = setTimeout(() => {
+            setLoadingProgress(step.progress)
+            resolve(void 0)
+          }, step.delay)
+        })
+      }
+
+      // Final delay before showing desktop
+      timeoutId = setTimeout(() => {
+        setIsLoading(false)
+      }, 800)
+    }
+
+    runLoadingSequence()
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId)
+    }
+  }, [])
 
   const openWindow = (id: string) => {
     setWindows((prev) =>
@@ -93,7 +144,10 @@ export default function Portfolio() {
               position: window.isMaximized ? window.position : { x: 0, y: 40 },
               size: window.isMaximized
                 ? window.size
-                : { width: window.innerWidth || 1200, height: (window.innerHeight || 800) - 140 },
+                : {
+                    width: typeof window !== "undefined" ? window.innerWidth || 1200 : 1200,
+                    height: typeof window !== "undefined" ? (window.innerHeight || 800) - 140 : 660,
+                  },
             }
           : window,
       ),
@@ -125,29 +179,31 @@ export default function Portfolio() {
         return <ResumeContent />
       case "contact":
         return <ContactContent />
+      case "terminal":
+        return <TerminalContent />
       default:
         return null
     }
   }
 
+  if (isLoading) {
+    return <BootLoader progress={loadingProgress} />
+  }
+
   return (
     <div className="h-screen w-full overflow-hidden relative">
-      {/* Wallpaper Background */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23ffffff' fillOpacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Blur overlay */}
-      <div className="absolute inset-0 backdrop-blur-sm bg-black/10" />
+      {/* Three.js Background */}
+      <ThreeBackground />
 
       {/* Menu Bar */}
       <MenuBar />
 
       {/* Desktop Area */}
       <div className="absolute inset-0 top-8 bottom-20">
+        {/* Welcome Widget */}
+        <WelcomeWidget />
+
+        {/* Windows */}
         {windows.map(
           (window) =>
             window.isOpen &&
