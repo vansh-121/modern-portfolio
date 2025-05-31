@@ -160,7 +160,7 @@ export default function Portfolio() {
     }
   }, [])
 
-  // Enhanced boot loading with strict mobile handling
+  // Authentic macOS boot sequence
   useEffect(() => {
     // Force loading state and prevent any premature transitions
     setIsLoading(true)
@@ -169,8 +169,8 @@ export default function Portfolio() {
     const isMobileDevice = window.innerWidth < 768
     const isTabletDevice = window.innerWidth >= 768 && window.innerWidth < 1024
 
-    // Strict minimum loading times
-    const minLoadingTime = isMobileDevice ? 4000 : isTabletDevice ? 3500 : 3000
+    // Realistic boot timing
+    const minLoadingTime = isMobileDevice ? 6000 : isTabletDevice ? 5000 : 4500
     const startTime = Date.now()
 
     // Prevent any interaction during loading
@@ -178,15 +178,20 @@ export default function Portfolio() {
     document.body.style.pointerEvents = "none"
     document.body.style.userSelect = "none"
 
+    // Authentic macOS boot progress pattern
+    // - Starts slow
+    // - Accelerates in the middle
+    // - Slows down at the end with a pause at ~95%
     const loadingSteps = [
-      { progress: 5, delay: isMobileDevice ? 400 : 300 },
-      { progress: 15, delay: isMobileDevice ? 500 : 400 },
-      { progress: 30, delay: isMobileDevice ? 600 : 500 },
-      { progress: 50, delay: isMobileDevice ? 700 : 600 },
-      { progress: 70, delay: isMobileDevice ? 600 : 500 },
-      { progress: 85, delay: isMobileDevice ? 500 : 400 },
-      { progress: 95, delay: isMobileDevice ? 400 : 300 },
-      { progress: 100, delay: isMobileDevice ? 800 : 600 },
+      { progress: 0, delay: 800 },
+      { progress: 5, delay: 500 },
+      { progress: 15, delay: 700 },
+      { progress: 30, delay: 600 },
+      { progress: 50, delay: 500 },
+      { progress: 70, delay: 400 },
+      { progress: 85, delay: 300 },
+      { progress: 95, delay: 1200 }, // Authentic pause at 95%
+      { progress: 100, delay: 500 },
     ]
 
     let timeoutId: NodeJS.Timeout

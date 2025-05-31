@@ -35,12 +35,14 @@ export const MenuBar = memo(function MenuBar() {
     return () => clearInterval(interval)
   }, [])
 
+  // Replace the menuItems array with portfolio-related links
   const menuItems = [
-    { label: "File", action: () => console.log("File clicked") },
-    { label: "Edit", action: () => console.log("Edit clicked") },
-    { label: "View", action: () => console.log("View clicked") },
-    { label: "Window", action: () => console.log("Window clicked") },
-    { label: "Help", action: () => console.log("Help clicked") },
+    { label: "About", action: () => console.log("About clicked") },
+    { label: "Projects", action: () => console.log("Projects clicked") },
+    { label: "LinkedIn", action: () => window.open("https://linkedin.com", "_blank") },
+    { label: "GitHub", action: () => window.open("https://github.com", "_blank") },
+    { label: "Medium", action: () => window.open("https://medium.com", "_blank") },
+    { label: "Contact", action: () => console.log("Contact clicked") },
   ]
 
   return (

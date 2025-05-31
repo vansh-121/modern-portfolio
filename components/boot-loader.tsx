@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { Apple } from "lucide-react"
-import * as THREE from "three"
 
 interface BootLoaderProps {
   progress: number
@@ -11,27 +9,12 @@ interface BootLoaderProps {
 export function BootLoader({ progress }: BootLoaderProps) {
   const [showApple, setShowApple] = useState(false)
   const [showProgress, setShowProgress] = useState(false)
-  const [showText, setShowText] = useState(false)
-  const [bootMessages, setBootMessages] = useState<string[]>([])
   const mountRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<THREE.Scene | null>(null)
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const progressBarRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
 
-  // macOS boot messages
-  const macOSBootMessages = [
-    "Checking system integrity...",
-    "Loading kernel extensions...",
-    "Initializing hardware drivers...",
-    "Starting system services...",
-    "Mounting file systems...",
-    "Loading user interface...",
-    "Preparing desktop environment...",
-    "Portfolio OS ready",
-  ]
-
+  // Prevent any scrolling or interaction during boot
   useEffect(() => {
-    // Prevent any scrolling or interaction
     document.documentElement.style.overflow = "hidden"
     document.body.style.overflow = "hidden"
     document.body.style.height = "100vh"
@@ -47,206 +30,56 @@ export function BootLoader({ progress }: BootLoaderProps) {
     }
   }, [])
 
-  // Update boot messages based on progress
+  // Simple background gradient
   useEffect(() => {
-    const messageIndex = Math.floor((progress / 100) * macOSBootMessages.length)
-    if (messageIndex > 0 && messageIndex <= macOSBootMessages.length) {
-      setBootMessages(macOSBootMessages.slice(0, messageIndex))
-    }
-  }, [progress])
-
-  useEffect(() => {
-    if (!mountRef.current) return
-
-    // Detect device capabilities
-    const isMobile = window.innerWidth < 768
-    const isLowEnd = navigator.hardwareConcurrency <= 4 || isMobile
-
-    // Scene setup with darker, more minimal theme
-    const scene = new THREE.Scene()
-    scene.fog = new THREE.Fog(0x000000, 50, 200)
-
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-
-    const renderer = new THREE.WebGLRenderer({
-      alpha: true,
-      antialias: !isLowEnd,
-      powerPreference: "high-performance",
-    })
-
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isLowEnd ? 1.5 : 2))
-    renderer.setClearColor(0x000000, 1)
-
-    sceneRef.current = scene
-    rendererRef.current = renderer
-    mountRef.current.appendChild(renderer.domElement)
-
-    // Minimal starfield for macOS aesthetic
-    const starCount = isMobile ? 300 : 600
-    const starGeometry = new THREE.BufferGeometry()
-    const starPositions = new Float32Array(starCount * 3)
-    const starColors = new Float32Array(starCount * 3)
-
-    for (let i = 0; i < starCount; i++) {
-      starPositions[i * 3] = (Math.random() - 0.5) * 200
-      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 200
-      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 200
-
-      // White/blue stars only for clean macOS look
-      const brightness = 0.8 + Math.random() * 0.2
-      starColors[i * 3] = brightness
-      starColors[i * 3 + 1] = brightness
-      starColors[i * 3 + 2] = brightness
-    }
-
-    starGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3))
-    starGeometry.setAttribute("color", new THREE.BufferAttribute(starColors, 3))
-
-    const starMaterial = new THREE.PointsMaterial({
-      size: isMobile ? 1 : 2,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.6,
-    })
-
-    const stars = new THREE.Points(starGeometry, starMaterial)
-    scene.add(stars)
-
-    camera.position.z = 30
-
-    // Minimal animation
-    const animate = () => {
-      animationRef.current = requestAnimationFrame(animate)
-      stars.rotation.y += 0.0005
-      renderer.render(scene, camera)
-    }
-
-    animate()
-
-    // Handle resize
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(window.innerWidth, window.innerHeight)
-    }
-
-    window.addEventListener("resize", handleResize)
-
-    return () => {
-      window.removeEventListener("resize", handleResize)
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-      if (mountRef.current && renderer.domElement && mountRef.current.contains(renderer.domElement)) {
-        mountRef.current.removeChild(renderer.domElement)
-      }
-      starGeometry.dispose()
-      starMaterial.dispose()
-      renderer.dispose()
-    }
-  }, [])
-
-  useEffect(() => {
-    // Staggered animations with proper timing
-    const timer1 = setTimeout(() => setShowApple(true), 1000)
-    const timer2 = setTimeout(() => setShowText(true), 1800)
-    const timer3 = setTimeout(() => setShowProgress(true), 2500)
+    // Staggered animations with proper timing for authentic boot experience
+    const timer1 = setTimeout(() => setShowApple(true), 800)
+    const timer2 = setTimeout(() => setShowProgress(true), 2000)
 
     return () => {
       clearTimeout(timer1)
       clearTimeout(timer2)
-      clearTimeout(timer3)
     }
   }, [])
 
+  // Update progress bar width
+  useEffect(() => {
+    if (progressBarRef.current) {
+      progressBarRef.current.style.width = `${progress}%`
+    }
+  }, [progress])
+
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 overflow-hidden macos-boot">
-      {/* 3D Background */}
-      <div ref={mountRef} className="absolute inset-0 -z-10" />
+    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 overflow-hidden">
+      {/* Pure black background - authentic to macOS */}
 
-      {/* macOS-style Apple Logo */}
-      <div
-        className={`relative transition-all duration-2000 ease-out ${
-          showApple ? "opacity-100 scale-100" : "opacity-0 scale-90"
-        }`}
-      >
-        {/* Subtle glow */}
-        <div className="absolute inset-0 -m-8">
-          <div className="w-24 h-24 md:w-32 md:h-32 mx-auto bg-white/10 rounded-full blur-2xl" />
-        </div>
-
-        {/* Apple Logo */}
-        <div className="relative z-10">
-          <Apple className="w-20 h-20 md:w-28 md:h-28 text-white fill-current" />
-        </div>
-      </div>
-
-      {/* macOS-style Loading Text */}
-      <div
-        className={`mt-12 md:mt-16 text-white transition-all duration-1500 ${
-          showText ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        }`}
-      >
-        <div className="text-center">
-          <h1 className="text-xl md:text-2xl font-light mb-4 macos-display">Portfolio OS</h1>
-
-          {/* Boot Messages */}
-          <div className="h-16 md:h-20 flex flex-col justify-end">
-            {bootMessages.slice(-2).map((message, index) => (
-              <p
-                key={index}
-                className={`text-xs md:text-sm text-gray-400 transition-opacity duration-500 macos-text ${
-                  index === bootMessages.slice(-2).length - 1 ? "opacity-100" : "opacity-60"
-                }`}
-              >
-                {message}
-              </p>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* macOS-style Progress Bar */}
-      <div
-        className={`mt-8 md:mt-12 w-72 md:w-80 transition-all duration-1500 ${
-          showProgress ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        }`}
-      >
-        {/* Progress Bar Container */}
-        <div className="relative">
-          {/* Track */}
-          <div className="w-full bg-gray-800 rounded-full h-1 md:h-1.5 overflow-hidden">
-            {/* Progress Fill */}
-            <div
-              className="h-full bg-white rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          {/* Progress Text */}
-          <div className="text-center mt-4">
-            <span className="text-white text-sm md:text-base font-light macos-text">
-              {progress < 100 ? `Loading... ${progress}%` : "Starting up..."}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Minimal floating particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-white/20 rounded-full animate-pulse"
-            style={{
-              left: `${20 + Math.random() * 60}%`,
-              top: `${20 + Math.random() * 60}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-            }}
+      {/* Apple Logo - clean, minimal, white */}
+      <div className={`transition-opacity duration-1000 ${showApple ? "opacity-100" : "opacity-0"}`}>
+        {/* Custom SVG Apple logo for more authentic look */}
+        <svg
+          width="80"
+          height="80"
+          viewBox="0 0 170 170"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="text-white"
+        >
+          <path
+            d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.2-2.12-9.96-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.93 0.21-9.84-1.96-14.75-6.52-3.13-2.73-7.05-7.41-11.73-14.04-5.03-7.08-9.17-15.29-12.41-24.65-3.47-10.11-5.21-19.9-5.21-29.38 0-10.86 2.35-20.22 7.04-28.07 3.69-6.29 8.6-11.27 14.75-14.96 6.15-3.69 12.79-5.57 19.95-5.78 3.91 0 9.05 1.21 15.43 3.59 6.36 2.39 10.45 3.6 12.24 3.6 1.34 0 5.88-1.42 13.57-4.24 7.29-2.62 13.44-3.7 18.48-3.27 13.65 1.1 23.91 6.47 30.72 16.14-12.21 7.4-18.22 17.74-18.05 31 0.16 10.33 3.85 18.94 11.07 25.77 3.3 3.13 6.98 5.54 11.07 7.26-0.89 2.57-1.83 5.04-2.82 7.4zM119.11 7.24c0 8.1-2.96 15.67-8.86 22.67-7.12 8.32-15.73 13.13-25.07 12.38-0.12-0.97-0.19-1.99-0.19-3.07 0-7.78 3.39-16.1 9.4-22.91 3-3.45 6.82-6.31 11.45-8.6 4.62-2.25 8.99-3.5 13.1-3.71 0.12 1.08 0.17 2.17 0.17 3.24z"
+            fill="white"
           />
-        ))}
+        </svg>
+      </div>
+
+      {/* Progress Bar - authentic macOS style */}
+      <div className={`mt-8 transition-opacity duration-1000 ${showProgress ? "opacity-100" : "opacity-0"}`}>
+        <div className="w-56 h-0.5 bg-gray-700 rounded-full overflow-hidden">
+          <div
+            ref={progressBarRef}
+            className="h-full bg-white rounded-full transition-all duration-300 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
     </div>
   )
