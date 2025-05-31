@@ -13,6 +13,8 @@ import { ContactContent } from "@/components/contact-content"
 import { ThreeBackground } from "@/components/three-background"
 import { WelcomeWidget } from "@/components/welcome-widget"
 import { TerminalContent } from "@/components/terminal-content"
+import { GreetingWidget } from "@/components/greeting-widget"
+import { MusicWidget } from "@/components/music-widget"
 
 interface WindowState {
   id: string
@@ -325,6 +327,14 @@ export default function Portfolio() {
     <div className="h-screen w-full overflow-hidden relative">
       {/* Three.js Background - Optimized for all devices */}
       <ThreeBackground />
+
+      {/* Greeting Widget - Centered */}
+      <GreetingWidget />
+
+      {/* Music Widget - Position at the bottom right corner, smaller and more subtle */}
+      <div className="absolute bottom-20 md:bottom-24 right-4 md:right-8 w-72 md:w-80 max-w-xs z-10">
+        <MusicWidget />
+      </div>
 
       {/* Menu Bar - Responsive */}
       <MenuBar />
