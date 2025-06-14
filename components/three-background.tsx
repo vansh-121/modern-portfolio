@@ -32,19 +32,19 @@ export function ThreeBackground() {
 
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, isLowEnd ? 1.5 : 2))
-    renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.shadowMap.enabled = false // Disable shadows for better performance
 
-    // Enhanced particle system with subtle colors
-    const particleCount = isLowEnd ? 200 : isMobile ? 350 : 600
+    // Enhanced floating particles system
+    const particleCount = isLowEnd ? 150 : isMobile ? 250 : 400
     const geometry = new THREE.BufferGeometry()
 
     const positions = new Float32Array(particleCount * 3)
     const colors = new Float32Array(particleCount * 3)
     const sizes = new Float32Array(particleCount)
     const velocities = new Float32Array(particleCount * 3)
+    const phases = new Float32Array(particleCount)
 
-    const spread = isMobile ? 80 : 120
+    const spread = isMobile ? 100 : 150
 
     for (let i = 0; i < particleCount; i++) {
       // Position
@@ -53,38 +53,45 @@ export function ThreeBackground() {
       positions[i * 3 + 2] = (Math.random() - 0.5) * spread
 
       // Velocities for floating effect
-      velocities[i * 3] = (Math.random() - 0.5) * 0.01
-      velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.01
-      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.01
+      velocities[i * 3] = (Math.random() - 0.5) * 0.02
+      velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.015
+      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.02
 
-      // Subtle color palette that works with both themes
+      // Random phase for wave motion
+      phases[i] = Math.random() * Math.PI * 2
+
+      // Beautiful color palette inspired by vanshsethi.in
       const colorChoice = Math.random()
       let color
-      if (colorChoice < 0.4) {
-        // Soft blue
-        color = new THREE.Color().setHSL(0.6, 0.3, 0.7)
-      } else if (colorChoice < 0.7) {
-        // Soft purple
-        color = new THREE.Color().setHSL(0.75, 0.3, 0.6)
+      if (colorChoice < 0.3) {
+        // Bright blue
+        color = new THREE.Color().setHSL(0.55, 0.8, 0.7)
+      } else if (colorChoice < 0.6) {
+        // Purple/violet
+        color = new THREE.Color().setHSL(0.75, 0.7, 0.6)
+      } else if (colorChoice < 0.8) {
+        // Cyan/teal
+        color = new THREE.Color().setHSL(0.5, 0.6, 0.7)
       } else {
-        // Soft white/gray
-        color = new THREE.Color().setHSL(0, 0, 0.8)
+        // Pink/magenta
+        color = new THREE.Color().setHSL(0.85, 0.6, 0.7)
       }
       
       colors[i * 3] = color.r
       colors[i * 3 + 1] = color.g
       colors[i * 3 + 2] = color.b
 
-      // Smaller, more subtle sizes
-      sizes[i] = Math.random() * 2 + 0.5
+      // Varied sizes for depth
+      sizes[i] = Math.random() * 3 + 1
     }
 
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute("customColor", new THREE.BufferAttribute(colors, 3))
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1))
     geometry.setAttribute("velocity", new THREE.BufferAttribute(velocities, 3))
+    geometry.setAttribute("phase", new THREE.BufferAttribute(phases, 1))
 
-    // Subtle shader material
+    // Enhanced shader material with glow effects
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
@@ -94,43 +101,53 @@ export function ThreeBackground() {
         attribute float size;
         attribute vec3 customColor;
         attribute vec3 velocity;
+        attribute float phase;
         varying vec3 vColor;
         varying float vAlpha;
+        varying float vGlow;
         uniform float time;
         
         void main() {
           vColor = customColor;
           vec3 pos = position;
           
-          // Gentle floating animation
-          pos += velocity * time * 5.0;
+          // Floating animation with wave motion
+          pos += velocity * time * 8.0;
+          pos.y += sin(pos.x * 0.01 + time * 0.5 + phase) * 3.0;
+          pos.x += cos(pos.z * 0.01 + time * 0.3 + phase) * 2.0;
+          pos.z += sin(pos.y * 0.008 + time * 0.4 + phase) * 2.5;
           
-          // Subtle wave motion
-          pos.y += sin(pos.x * 0.005 + time * 0.3) * 1.5;
-          pos.x += cos(pos.z * 0.005 + time * 0.2) * 1.0;
-          
-          // Gentle pulsing
-          float pulse = sin(time * 1.0 + length(pos) * 0.005) * 0.3 + 0.7;
-          vAlpha = 0.3 + pulse * 0.2;
+          // Dynamic pulsing with individual phases
+          float pulse = sin(time * 1.5 + phase + length(pos) * 0.01) * 0.5 + 0.5;
+          vAlpha = 0.4 + pulse * 0.6;
+          vGlow = pulse;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (200.0 / -mvPosition.z) * pulse;
+          float distance = length(mvPosition.xyz);
+          gl_PointSize = size * (300.0 / distance) * (0.8 + pulse * 0.4);
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
       fragmentShader: `
         varying vec3 vColor;
         varying float vAlpha;
+        varying float vGlow;
         
         void main() {
-          float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
-          float alpha = 1.0 - smoothstep(0.0, 0.5, distanceToCenter);
+          vec2 center = gl_PointCoord - vec2(0.5);
+          float dist = length(center);
           
-          // Soft glow
-          float glow = 1.0 - smoothstep(0.0, 0.8, distanceToCenter);
-          vec3 finalColor = vColor + glow * 0.1;
+          // Soft circular gradient
+          float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
           
-          gl_FragColor = vec4(finalColor, alpha * vAlpha * 0.6);
+          // Enhanced glow effect
+          float glow = 1.0 - smoothstep(0.0, 0.8, dist);
+          vec3 glowColor = vColor + vec3(0.3, 0.3, 0.5) * vGlow;
+          
+          // Final color with enhanced brightness
+          vec3 finalColor = mix(vColor, glowColor, vGlow * 0.7);
+          
+          gl_FragColor = vec4(finalColor, alpha * vAlpha * 0.9);
         }
       `,
       transparent: true,
@@ -140,33 +157,37 @@ export function ThreeBackground() {
     const particles = new THREE.Points(geometry, material)
     scene.add(particles)
 
-    // Fewer, more subtle geometric shapes
+    // Floating geometric shapes with gradient colors
     const shapes: THREE.Mesh[] = []
-    const shapeCount = isLowEnd ? 3 : isMobile ? 5 : 8
+    const shapeCount = isLowEnd ? 4 : isMobile ? 6 : 10
 
     for (let i = 0; i < shapeCount; i++) {
       let shapeGeometry
       const shapeType = Math.random()
       
-      if (shapeType < 0.5) {
-        shapeGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5)
+      if (shapeType < 0.4) {
+        shapeGeometry = new THREE.BoxGeometry(2, 2, 2)
+      } else if (shapeType < 0.7) {
+        shapeGeometry = new THREE.OctahedronGeometry(1.5)
       } else {
-        shapeGeometry = new THREE.OctahedronGeometry(1)
+        shapeGeometry = new THREE.TetrahedronGeometry(1.8)
       }
 
+      // Gradient material colors
+      const hue = (i / shapeCount) * 0.3 + 0.5 // Blue to purple range
       const shapeMaterial = new THREE.MeshPhongMaterial({
-        color: new THREE.Color().setHSL(0.6 + Math.random() * 0.1, 0.2, 0.7),
+        color: new THREE.Color().setHSL(hue, 0.7, 0.6),
         transparent: true,
-        opacity: 0.08,
+        opacity: 0.15,
         wireframe: true,
-        shininess: 30,
+        shininess: 100,
       })
 
       const mesh = new THREE.Mesh(shapeGeometry, shapeMaterial)
       mesh.position.set(
-        (Math.random() - 0.5) * 60,
-        (Math.random() - 0.5) * 60,
-        (Math.random() - 0.5) * 60
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80,
+        (Math.random() - 0.5) * 80
       )
       mesh.rotation.set(
         Math.random() * Math.PI,
@@ -178,15 +199,19 @@ export function ThreeBackground() {
       shapes.push(mesh)
     }
 
-    // Soft ambient lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.6)
+    // Enhanced lighting for better depth
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.8)
     scene.add(ambientLight)
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4)
-    directionalLight.position.set(10, 10, 5)
-    scene.add(directionalLight)
+    const directionalLight1 = new THREE.DirectionalLight(0x4a90e2, 0.6)
+    directionalLight1.position.set(10, 10, 5)
+    scene.add(directionalLight1)
 
-    camera.position.z = 40
+    const directionalLight2 = new THREE.DirectionalLight(0x9b59b6, 0.4)
+    directionalLight2.position.set(-10, -10, -5)
+    scene.add(directionalLight2)
+
+    camera.position.z = 50
 
     return { scene, camera, renderer, particles, shapes, material }
   }, [])
@@ -206,7 +231,7 @@ export function ThreeBackground() {
     const targetFPS = window.innerWidth < 768 ? 30 : 60
     const frameInterval = 1000 / targetFPS
 
-    // Gentle animation loop
+    // Smooth animation loop
     const animate = (currentTime: number) => {
       animationRef.current = requestAnimationFrame(animate)
 
@@ -220,15 +245,17 @@ export function ThreeBackground() {
         material.uniforms.time.value = time
       }
 
-      // Slow rotation
-      particles.rotation.y = time * 0.02
-      particles.rotation.x = time * 0.01
+      // Gentle rotation
+      particles.rotation.y = time * 0.03
+      particles.rotation.x = time * 0.02
 
-      // Gentle shape animation
+      // Smooth shape animation
       shapes.forEach((shape, index) => {
-        shape.rotation.x += 0.002
-        shape.rotation.y += 0.003
-        shape.position.y += Math.sin(time * 0.3 + index) * 0.005
+        shape.rotation.x += 0.003
+        shape.rotation.y += 0.004
+        shape.rotation.z += 0.002
+        shape.position.y += Math.sin(time * 0.4 + index) * 0.01
+        shape.position.x += Math.cos(time * 0.3 + index) * 0.008
       })
 
       renderer.render(scene, camera)
@@ -284,22 +311,26 @@ export function ThreeBackground() {
     const isDark = theme === "dark"
     sceneRef.current.traverse((object) => {
       if (object instanceof THREE.Mesh && object.material instanceof THREE.MeshPhongMaterial) {
-        object.material.opacity = isDark ? 0.12 : 0.06
+        object.material.opacity = isDark ? 0.2 : 0.15
       }
     })
   }, [theme])
 
-  // Much more subtle and elegant background gradients
+  // Beautiful gradient backgrounds inspired by vanshsethi.in
   const backgroundGradient =
     theme === "dark"
-      ? "linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)"
-      : "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 60%, #94a3b8 100%)"
+      ? "radial-gradient(ellipse at top left, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #1a1a2e 75%, #000000 100%), linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)"
+      : "radial-gradient(ellipse at top left, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%), linear-gradient(135deg, #a8edea 0%, #fed6e3 25%, #d299c2 50%, #fef9d7 75%, #667eea 100%)"
 
   return (
     <div
       ref={mountRef}
       className="fixed inset-0 -z-10 transition-all duration-1000"
-      style={{ background: backgroundGradient }}
+      style={{ 
+        background: backgroundGradient,
+        backgroundSize: "400% 400%, 200% 200%",
+        animation: "gradientShift 15s ease infinite"
+      }}
     />
   )
 }
