@@ -88,7 +88,7 @@ export function MusicWidget() {
     <Card
       className={`w-full max-w-xs mx-auto ${isDark ? "bg-gray-900/30" : "bg-white/20"} backdrop-blur-sm border-${
         isDark ? "gray-700/30" : "gray-300/30"
-      } shadow-lg hover:${isDark ? "bg-gray-900/40" : "bg-white/30"} transition-all duration-300`}
+      } shadow-lg hover:${isDark ? "bg-gray-900/40" : "bg-white/30"} transition-all duration-300 z-5`}
     >
       <CardContent className="p-3">
         <div className="flex items-center gap-3">

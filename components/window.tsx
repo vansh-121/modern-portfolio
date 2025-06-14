@@ -134,7 +134,7 @@ export const Window = memo(function Window({
         top: effectivelyMaximized ? (isMobile ? 32 : 40) : position.y,
         width: effectivelyMaximized ? "100vw" : size.width,
         height: effectivelyMaximized ? (isMobile ? "calc(100vh - 88px)" : "calc(100vh - 140px)") : size.height,
-        zIndex,
+        zIndex: Math.max(10, zIndex), // Ensure windows are always above background elements
       }}
       onMouseDown={handleMouseDown}
     >

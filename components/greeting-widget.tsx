@@ -15,7 +15,7 @@ export function GreetingWidget() {
   if (!mounted) return null
 
   return (
-    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4 text-center z-10">
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl px-4 text-center z-0 pointer-events-none">
       <div className="mb-16 md:mb-20">
         <h1
           className={`text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 ${

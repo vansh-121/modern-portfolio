@@ -35,7 +35,7 @@ export default function Portfolio() {
   const [windows, setWindows] = useState<WindowState[]>([])
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
 
-  const [highestZIndex, setHighestZIndex] = useState(1)
+  const [highestZIndex, setHighestZIndex] = useState(100) // Start with higher base z-index
 
   // Enhanced device detection and responsive handling
   useEffect(() => {
@@ -95,7 +95,7 @@ export default function Portfolio() {
           isMaximized: mobile,
           position: getResponsivePosition(100, 100),
           size: getResponsiveSize(800, 600),
-          zIndex: 1,
+          zIndex: 100,
         },
         {
           id: "about",
@@ -105,7 +105,7 @@ export default function Portfolio() {
           isMaximized: mobile,
           position: getResponsivePosition(150, 150),
           size: getResponsiveSize(700, 500),
-          zIndex: 1,
+          zIndex: 100,
         },
         {
           id: "resume",
@@ -115,7 +115,7 @@ export default function Portfolio() {
           isMaximized: mobile,
           position: getResponsivePosition(200, 200),
           size: getResponsiveSize(600, 700),
-          zIndex: 1,
+          zIndex: 100,
         },
         {
           id: "services",
@@ -125,7 +125,7 @@ export default function Portfolio() {
           isMaximized: mobile,
           position: getResponsivePosition(250, 150),
           size: getResponsiveSize(900, 650),
-          zIndex: 1,
+          zIndex: 100,
         },
         {
           id: "contact",
@@ -135,7 +135,7 @@ export default function Portfolio() {
           isMaximized: mobile,
           position: getResponsivePosition(300, 250),
           size: getResponsiveSize(500, 400),
-          zIndex: 1,
+          zIndex: 100,
         },
         {
           id: "terminal",
@@ -145,7 +145,7 @@ export default function Portfolio() {
           isMaximized: mobile,
           position: getResponsivePosition(350, 100),
           size: getResponsiveSize(700, 500),
-          zIndex: 1,
+          zIndex: 100,
         },
       ])
     }
@@ -328,7 +328,7 @@ export default function Portfolio() {
       {/* Three.js Background - Optimized for all devices */}
       <ThreeBackground />
 
-      {/* Greeting Widget - Centered */}
+      {/* Greeting Widget - Centered with low z-index */}
       <GreetingWidget />
 
       {/* Music Widget - Position at the bottom right corner, smaller and more subtle */}
@@ -336,7 +336,7 @@ export default function Portfolio() {
         <MusicWidget />
       </div>
 
-      {/* Menu Bar - Responsive */}
+      {/* Menu Bar - Responsive with high z-index */}
       <MenuBar />
 
       {/* Desktop Area - Adaptive to orientation */}
@@ -346,7 +346,7 @@ export default function Portfolio() {
         {/* Welcome Widget - Hidden on small mobile landscape */}
         {!(isMobile && orientation === "landscape") && <WelcomeWidget />}
 
-        {/* Windows - Fully responsive */}
+        {/* Windows - Fully responsive with proper z-index */}
         {windows.map(
           (window) =>
             window.isOpen &&
@@ -372,7 +372,7 @@ export default function Portfolio() {
         )}
       </div>
 
-      {/* Dock - Responsive and adaptive */}
+      {/* Dock - Responsive and adaptive with high z-index */}
       <Dock onOpenWindow={openWindow} windows={windows} />
     </div>
   )

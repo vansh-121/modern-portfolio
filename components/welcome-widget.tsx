@@ -73,7 +73,7 @@ export function WelcomeWidget() {
     <div
       className={`
         absolute top-2 md:top-4 lg:top-8 left-2 md:left-4 lg:left-8 transition-all duration-1000 ease-out
-        hidden sm:block
+        hidden sm:block z-5
         ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}
         ${isMobile ? "scale-90" : "scale-100"}
       `}
