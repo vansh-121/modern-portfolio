@@ -35,8 +35,8 @@ export function ThreeBackground() {
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
 
-    // Enhanced particle system with coding-themed elements
-    const particleCount = isLowEnd ? 300 : isMobile ? 500 : 1000
+    // Enhanced particle system with subtle colors
+    const particleCount = isLowEnd ? 200 : isMobile ? 350 : 600
     const geometry = new THREE.BufferGeometry()
 
     const positions = new Float32Array(particleCount * 3)
@@ -44,7 +44,7 @@ export function ThreeBackground() {
     const sizes = new Float32Array(particleCount)
     const velocities = new Float32Array(particleCount * 3)
 
-    const spread = isMobile ? 60 : 100
+    const spread = isMobile ? 80 : 120
 
     for (let i = 0; i < particleCount; i++) {
       // Position
@@ -53,30 +53,30 @@ export function ThreeBackground() {
       positions[i * 3 + 2] = (Math.random() - 0.5) * spread
 
       // Velocities for floating effect
-      velocities[i * 3] = (Math.random() - 0.5) * 0.02
-      velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.02
-      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.02
+      velocities[i * 3] = (Math.random() - 0.5) * 0.01
+      velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.01
+      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.01
 
-      // Tech-inspired color palette
+      // Subtle color palette that works with both themes
       const colorChoice = Math.random()
       let color
-      if (colorChoice < 0.3) {
-        // Blue tech colors
-        color = new THREE.Color().setHSL(0.6, 0.8, 0.7)
-      } else if (colorChoice < 0.6) {
-        // Purple/violet
-        color = new THREE.Color().setHSL(0.75, 0.8, 0.6)
+      if (colorChoice < 0.4) {
+        // Soft blue
+        color = new THREE.Color().setHSL(0.6, 0.3, 0.7)
+      } else if (colorChoice < 0.7) {
+        // Soft purple
+        color = new THREE.Color().setHSL(0.75, 0.3, 0.6)
       } else {
-        // Cyan/teal
-        color = new THREE.Color().setHSL(0.5, 0.8, 0.6)
+        // Soft white/gray
+        color = new THREE.Color().setHSL(0, 0, 0.8)
       }
       
       colors[i * 3] = color.r
       colors[i * 3 + 1] = color.g
       colors[i * 3 + 2] = color.b
 
-      // Varied sizes
-      sizes[i] = Math.random() * 3 + 1
+      // Smaller, more subtle sizes
+      sizes[i] = Math.random() * 2 + 0.5
     }
 
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3))
@@ -84,7 +84,7 @@ export function ThreeBackground() {
     geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1))
     geometry.setAttribute("velocity", new THREE.BufferAttribute(velocities, 3))
 
-    // Enhanced shader material with pulsing effect
+    // Subtle shader material
     const material = new THREE.ShaderMaterial({
       uniforms: {
         time: { value: 0 },
@@ -102,20 +102,19 @@ export function ThreeBackground() {
           vColor = customColor;
           vec3 pos = position;
           
-          // Floating animation with individual velocities
-          pos += velocity * time * 10.0;
+          // Gentle floating animation
+          pos += velocity * time * 5.0;
           
-          // Wave motion
-          pos.y += sin(pos.x * 0.01 + time * 0.8) * 3.0;
-          pos.x += cos(pos.z * 0.01 + time * 0.6) * 2.0;
-          pos.z += sin(pos.y * 0.01 + time * 0.7) * 2.5;
+          // Subtle wave motion
+          pos.y += sin(pos.x * 0.005 + time * 0.3) * 1.5;
+          pos.x += cos(pos.z * 0.005 + time * 0.2) * 1.0;
           
-          // Pulsing effect
-          float pulse = sin(time * 2.0 + length(pos) * 0.01) * 0.5 + 0.5;
-          vAlpha = 0.6 + pulse * 0.4;
+          // Gentle pulsing
+          float pulse = sin(time * 1.0 + length(pos) * 0.005) * 0.3 + 0.7;
+          vAlpha = 0.3 + pulse * 0.2;
           
           vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          gl_PointSize = size * (300.0 / -mvPosition.z) * (0.8 + pulse * 0.4);
+          gl_PointSize = size * (200.0 / -mvPosition.z) * pulse;
           gl_Position = projectionMatrix * mvPosition;
         }
       `,
@@ -127,11 +126,11 @@ export function ThreeBackground() {
           float distanceToCenter = distance(gl_PointCoord, vec2(0.5));
           float alpha = 1.0 - smoothstep(0.0, 0.5, distanceToCenter);
           
-          // Add glow effect
-          float glow = 1.0 - smoothstep(0.0, 0.7, distanceToCenter);
-          vec3 finalColor = vColor + glow * 0.3;
+          // Soft glow
+          float glow = 1.0 - smoothstep(0.0, 0.8, distanceToCenter);
+          vec3 finalColor = vColor + glow * 0.1;
           
-          gl_FragColor = vec4(finalColor, alpha * vAlpha);
+          gl_FragColor = vec4(finalColor, alpha * vAlpha * 0.6);
         }
       `,
       transparent: true,
@@ -141,38 +140,33 @@ export function ThreeBackground() {
     const particles = new THREE.Points(geometry, material)
     scene.add(particles)
 
-    // Add floating geometric shapes representing tech skills
+    // Fewer, more subtle geometric shapes
     const shapes: THREE.Mesh[] = []
-    const shapeCount = isLowEnd ? 5 : isMobile ? 8 : 12
+    const shapeCount = isLowEnd ? 3 : isMobile ? 5 : 8
 
     for (let i = 0; i < shapeCount; i++) {
       let shapeGeometry
       const shapeType = Math.random()
       
-      if (shapeType < 0.3) {
-        // Cubes for structured thinking
-        shapeGeometry = new THREE.BoxGeometry(2, 2, 2)
-      } else if (shapeType < 0.6) {
-        // Octahedrons for creativity
-        shapeGeometry = new THREE.OctahedronGeometry(1.5)
+      if (shapeType < 0.5) {
+        shapeGeometry = new THREE.BoxGeometry(1.5, 1.5, 1.5)
       } else {
-        // Torus for continuous learning
-        shapeGeometry = new THREE.TorusGeometry(1.2, 0.4, 8, 16)
+        shapeGeometry = new THREE.OctahedronGeometry(1)
       }
 
       const shapeMaterial = new THREE.MeshPhongMaterial({
-        color: new THREE.Color().setHSL(0.6 + Math.random() * 0.2, 0.8, 0.6),
+        color: new THREE.Color().setHSL(0.6 + Math.random() * 0.1, 0.2, 0.7),
         transparent: true,
-        opacity: 0.15,
-        wireframe: Math.random() > 0.5,
-        shininess: 100,
+        opacity: 0.08,
+        wireframe: true,
+        shininess: 30,
       })
 
       const mesh = new THREE.Mesh(shapeGeometry, shapeMaterial)
       mesh.position.set(
-        (Math.random() - 0.5) * 50,
-        (Math.random() - 0.5) * 50,
-        (Math.random() - 0.5) * 50
+        (Math.random() - 0.5) * 60,
+        (Math.random() - 0.5) * 60,
+        (Math.random() - 0.5) * 60
       )
       mesh.rotation.set(
         Math.random() * Math.PI,
@@ -180,43 +174,28 @@ export function ThreeBackground() {
         Math.random() * Math.PI
       )
 
-      mesh.castShadow = true
-      mesh.receiveShadow = true
-
       scene.add(mesh)
       shapes.push(mesh)
     }
 
-    // Add ambient and directional lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.4)
+    // Soft ambient lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6)
     scene.add(ambientLight)
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.4)
     directionalLight.position.set(10, 10, 5)
-    directionalLight.castShadow = true
-    directionalLight.shadow.mapSize.width = 1024
-    directionalLight.shadow.mapSize.height = 1024
     scene.add(directionalLight)
 
-    // Add point lights for dynamic lighting
-    const pointLight1 = new THREE.PointLight(0x00ffff, 0.5, 50)
-    pointLight1.position.set(20, 20, 20)
-    scene.add(pointLight1)
+    camera.position.z = 40
 
-    const pointLight2 = new THREE.PointLight(0xff00ff, 0.5, 50)
-    pointLight2.position.set(-20, -20, 20)
-    scene.add(pointLight2)
-
-    camera.position.z = 35
-
-    return { scene, camera, renderer, particles, shapes, material, pointLight1, pointLight2 }
+    return { scene, camera, renderer, particles, shapes, material }
   }, [])
 
   useEffect(() => {
     const sceneData = initializeScene()
     if (!sceneData || !mountRef.current) return
 
-    const { scene, camera, renderer, particles, shapes, material, pointLight1, pointLight2 } = sceneData
+    const { scene, camera, renderer, particles, shapes, material } = sceneData
 
     sceneRef.current = scene
     rendererRef.current = renderer
@@ -227,11 +206,10 @@ export function ThreeBackground() {
     const targetFPS = window.innerWidth < 768 ? 30 : 60
     const frameInterval = 1000 / targetFPS
 
-    // Enhanced animation loop
+    // Gentle animation loop
     const animate = (currentTime: number) => {
       animationRef.current = requestAnimationFrame(animate)
 
-      // Frame rate limiting
       if (currentTime - lastTime < frameInterval) return
       lastTime = currentTime
 
@@ -242,27 +220,16 @@ export function ThreeBackground() {
         material.uniforms.time.value = time
       }
 
-      // Rotate particle system
-      particles.rotation.y = time * 0.05
-      particles.rotation.x = time * 0.02
+      // Slow rotation
+      particles.rotation.y = time * 0.02
+      particles.rotation.x = time * 0.01
 
-      // Animate shapes with more dynamic movement
+      // Gentle shape animation
       shapes.forEach((shape, index) => {
-        shape.rotation.x += 0.005 + index * 0.001
-        shape.rotation.y += 0.008 + index * 0.001
-        shape.rotation.z += 0.003 + index * 0.0005
-        
-        // Floating motion
-        shape.position.y += Math.sin(time * 0.5 + index) * 0.01
-        shape.position.x += Math.cos(time * 0.3 + index) * 0.008
+        shape.rotation.x += 0.002
+        shape.rotation.y += 0.003
+        shape.position.y += Math.sin(time * 0.3 + index) * 0.005
       })
-
-      // Animate point lights
-      pointLight1.position.x = Math.sin(time * 0.5) * 30
-      pointLight1.position.y = Math.cos(time * 0.3) * 20
-      
-      pointLight2.position.x = Math.cos(time * 0.4) * 25
-      pointLight2.position.z = Math.sin(time * 0.6) * 30
 
       renderer.render(scene, camera)
     }
@@ -277,11 +244,8 @@ export function ThreeBackground() {
     }
 
     window.addEventListener("resize", handleResize, { passive: true })
-
-    // Start animation
     animate(0)
 
-    // Cleanup
     return () => {
       window.removeEventListener("resize", handleResize)
 
@@ -293,7 +257,6 @@ export function ThreeBackground() {
         mountRef.current.removeChild(renderer.domElement)
       }
 
-      // Dispose of Three.js resources
       scene.traverse((object) => {
         if (object instanceof THREE.Mesh) {
           object.geometry.dispose()
@@ -321,20 +284,21 @@ export function ThreeBackground() {
     const isDark = theme === "dark"
     sceneRef.current.traverse((object) => {
       if (object instanceof THREE.Mesh && object.material instanceof THREE.MeshPhongMaterial) {
-        object.material.opacity = isDark ? 0.2 : 0.1
+        object.material.opacity = isDark ? 0.12 : 0.06
       }
     })
   }, [theme])
 
+  // Much more subtle and elegant background gradients
   const backgroundGradient =
     theme === "dark"
-      ? "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%)"
-      : "linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%)"
+      ? "linear-gradient(135deg, #0f0f23 0%, #1a1a2e 30%, #16213e 60%, #0f3460 100%)"
+      : "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 30%, #cbd5e1 60%, #94a3b8 100%)"
 
   return (
     <div
       ref={mountRef}
-      className="fixed inset-0 -z-10 transition-colors duration-1000"
+      className="fixed inset-0 -z-10 transition-all duration-1000"
       style={{ background: backgroundGradient }}
     />
   )

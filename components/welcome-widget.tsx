@@ -78,48 +78,48 @@ export function WelcomeWidget() {
         ${isMobile ? "scale-90" : "scale-100"}
       `}
     >
-      <Card className="bg-white/10 backdrop-blur-md border-white/20 text-white shadow-2xl">
+      <Card className="window-glass shadow-2xl border-white/30 dark:border-white/10">
         <CardContent className="p-2 md:p-4 lg:p-6 space-y-1 md:space-y-2 lg:space-y-4">
           {/* Welcome Message */}
           <div>
-            <h2 className="text-sm md:text-lg lg:text-2xl font-bold mb-1">Welcome Back!</h2>
-            <p className="text-white/80 text-xs md:text-sm lg:text-base">Ready to explore my portfolio?</p>
+            <h2 className="text-sm md:text-lg lg:text-2xl font-bold mb-1 text-gray-900 dark:text-white">Welcome Back!</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-xs md:text-sm lg:text-base">Ready to explore my portfolio?</p>
           </div>
 
           {/* Date and Time */}
           <div className="space-y-1 md:space-y-2">
             <div className="flex items-center gap-1 md:gap-2">
-              <Calendar className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4" />
-              <span className="text-xs md:text-sm">{currentDate}</span>
+              <Calendar className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs md:text-sm text-gray-700 dark:text-gray-200">{currentDate}</span>
             </div>
             <div className="flex items-center gap-1 md:gap-2">
-              <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4" />
-              <span className="text-xs md:text-base lg:text-lg font-mono">{currentTime}</span>
+              <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 text-purple-600 dark:text-purple-400" />
+              <span className="text-xs md:text-base lg:text-lg font-mono text-gray-800 dark:text-gray-100">{currentTime}</span>
             </div>
           </div>
 
           {/* Quick Stats - Hidden on small screens */}
           <div className="space-y-1 md:space-y-2 hidden lg:block">
             <div className="flex items-center gap-2">
-              <MapPin className="w-3 h-3 lg:w-4 lg:h-4" />
-              <span className="text-xs lg:text-sm">San Francisco, CA</span>
+              <MapPin className="w-3 h-3 lg:w-4 lg:h-4 text-green-600 dark:text-green-400" />
+              <span className="text-xs lg:text-sm text-gray-700 dark:text-gray-200">India</span>
             </div>
             <div className="flex items-center gap-2">
-              <Thermometer className="w-3 h-3 lg:w-4 lg:h-4" />
-              <span className="text-xs lg:text-sm">72°F - Sunny</span>
+              <Thermometer className="w-3 h-3 lg:w-4 lg:h-4 text-orange-600 dark:text-orange-400" />
+              <span className="text-xs lg:text-sm text-gray-700 dark:text-gray-200">Perfect coding weather</span>
             </div>
           </div>
 
           {/* Status */}
           <div className="flex items-center gap-1 md:gap-2">
-            <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
-              <div className="w-1 h-1 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 bg-green-400 rounded-full mr-1 md:mr-2 animate-pulse" />
+            <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-600 text-xs">
+              <div className="w-1 h-1 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 bg-green-500 rounded-full mr-1 md:mr-2 animate-pulse" />
               Available for Work
             </Badge>
           </div>
 
           {/* Quick Actions */}
-          <div className="text-xs text-white/60 pt-1 md:pt-2 border-t border-white/10">
+          <div className="text-xs text-gray-500 dark:text-gray-400 pt-1 md:pt-2 border-t border-gray-200 dark:border-gray-700">
             Click dock icons to explore my work
           </div>
         </CardContent>

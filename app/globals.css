@@ -148,33 +148,44 @@
   }
 }
 
-/* Dark mode specific styles */
+/* Enhanced dark mode styles with better contrast */
 .dark .bg-white\/95 {
-  background-color: rgba(30, 30, 30, 0.95) !important;
+  background-color: rgba(15, 23, 42, 0.95) !important;
 }
 
 .dark .bg-white\/10 {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .dark .text-gray-900 {
-  color: rgb(243 244 246) !important;
+  color: rgb(248 250 252) !important;
 }
 
 .dark .text-gray-700 {
-  color: rgb(209 213 219) !important;
+  color: rgb(226 232 240) !important;
 }
 
 .dark .text-gray-600 {
-  color: rgb(156 163 175) !important;
+  color: rgb(203 213 225) !important;
 }
 
 .dark .border-gray-200\/50 {
-  border-color: rgba(75, 85, 99, 0.5) !important;
+  border-color: rgba(71, 85, 105, 0.5) !important;
 }
 
 .dark .bg-gray-100\/50 {
-  background-color: rgba(55, 65, 81, 0.5) !important;
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* Light mode enhancements */
+.bg-white\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(12px);
+}
+
+.bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(8px);
 }
 
 /* Enhanced scrollbar */
@@ -228,13 +239,13 @@
 
 /* Enhanced glassmorphism effects */
 .backdrop-blur-md {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Boot loader animations */
@@ -323,7 +334,7 @@
 
 /* Animation classes */
 .animate-fadeInUp {
-  animation: fadeInUp 0.6s ease-out;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .animate-bounce-subtle {
@@ -344,11 +355,11 @@
 
 /* Terminal specific styles */
 .dark .bg-black {
-  background-color: #000000 !important;
+  background-color: #0f172a !important;
 }
 
 .dark .bg-gray-800 {
-  background-color: #1f2937 !important;
+  background-color: #1e293b !important;
 }
 
 /* Smooth theme transitions */
@@ -386,13 +397,13 @@
 
   /* Reduce blur for better mobile performance */
   .backdrop-blur-md {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .backdrop-blur-sm {
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
   }
 }
 
@@ -445,11 +456,11 @@ canvas {
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .bg-white\/10 {
-    background-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.3) !important;
   }
 
   .border-white\/20 {
-    border-color: rgba(255, 255, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
   }
 }
 
@@ -458,4 +469,25 @@ canvas {
   .no-print {
     display: none !important;
   }
+}
+
+/* Enhanced text contrast and readability */
+.text-shadow-light {
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+}
+
+.text-shadow-dark {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Better window contrast */
+.window-glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .window-glass {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
