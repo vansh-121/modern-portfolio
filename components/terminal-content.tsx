@@ -22,43 +22,43 @@ export function TerminalContent() {
 
   const githubProjects = [
     {
-      name: "e-commerce-platform",
-      description: "Full-stack e-commerce with Next.js & Stripe",
-      url: "https://github.com/yourusername/e-commerce-platform",
-      demo: "https://ecommerce-demo.vercel.app",
-      stars: 124,
-      forks: 23,
+      name: "modern-portfolio",
+      description: "macOS-inspired portfolio with Three.js animations",
+      url: "https://github.com/vansh-121/modern-portfolio",
+      demo: "https://vanshsethi.netlify.app/",
+      stars: 45,
+      forks: 12,
       language: "TypeScript",
       status: "🟢 Live",
     },
     {
-      name: "task-management-app",
-      description: "Real-time collaborative task manager",
-      url: "https://github.com/yourusername/task-management",
+      name: "ecommerce-platform",
+      description: "Full-stack e-commerce with React & Node.js",
+      url: "https://github.com/vansh-121/ecommerce-platform",
+      demo: "https://ecommerce-demo.vercel.app",
+      stars: 32,
+      forks: 8,
+      language: "JavaScript",
+      status: "🟢 Live",
+    },
+    {
+      name: "task-manager-app",
+      description: "Real-time collaborative task management",
+      url: "https://github.com/vansh-121/task-manager",
       demo: "https://taskmanager-demo.vercel.app",
-      stars: 89,
-      forks: 15,
+      stars: 28,
+      forks: 6,
       language: "React",
       status: "🟢 Live",
     },
     {
       name: "weather-dashboard",
       description: "Beautiful weather app with maps integration",
-      url: "https://github.com/yourusername/weather-dashboard",
+      url: "https://github.com/vansh-121/weather-dashboard",
       demo: "https://weather-demo.vercel.app",
-      stars: 67,
-      forks: 12,
+      stars: 19,
+      forks: 4,
       language: "Vue.js",
-      status: "🟢 Live",
-    },
-    {
-      name: "portfolio-website",
-      description: "This macOS-inspired portfolio you're viewing!",
-      url: "https://github.com/yourusername/portfolio",
-      demo: "https://portfolio-demo.vercel.app",
-      stars: 156,
-      forks: 34,
-      language: "Next.js",
       status: "🟢 Live",
     },
   ]
@@ -67,21 +67,21 @@ export function TerminalContent() {
     frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Vue.js", "Three.js"],
     backend: ["Node.js", "Python", "PostgreSQL", "MongoDB", "Express", "FastAPI"],
     tools: ["Git", "Docker", "AWS", "Vercel", "Figma", "VS Code"],
-    mobile: ["React Native", "Flutter", "Swift", "Kotlin"],
+    mobile: ["React Native", "Flutter", "Expo"],
   }
 
   const asciiArt = `
     ╔══════════════════════════════════════╗
-    ║           JOHN DOE - DEV             ║
+    ║           VANSH SETHI - DEV          ║
     ║                                      ║
-    ║    ████████╗███████╗██████╗ ███╗     ║
-    ║    ╚══██╔══╝██╔════╝██╔══██╗████╗    ║
-    ║       ██║   █████╗  ██████╔╝██╔██╗   ║
-    ║       ██║   ██╔══╝  ██╔══██╗██║╚██╗  ║
-    ║       ██║   ███████╗██║  ██║██║ ╚██╗ ║
-    ║       ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ║
+    ║    ██╗   ██╗███████╗                 ║
+    ║    ██║   ██║██╔════╝                 ║
+    ║    ██║   ██║███████╗                 ║
+    ║    ╚██╗ ██╔╝╚════██║                 ║
+    ║     ╚████╔╝ ███████║                 ║
+    ║      ╚═══╝  ╚══════╝                 ║
     ║                                      ║
-    ║        Full Stack Developer          ║
+    ║    Full Stack Developer & Designer   ║
     ╚══════════════════════════════════════╝
   `
 
@@ -135,7 +135,7 @@ export function TerminalContent() {
                 <span className="text-blue-400">clear</span> - Clear terminal
               </div>
               <div>
-                <span className="text-blue-400">matrix</span> - Enter the matrix 😎
+                <span className="text-blue-400">social</span> - Show social links
               </div>
             </div>
           </div>
@@ -145,12 +145,13 @@ export function TerminalContent() {
       case "whoami":
         output = (
           <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <div className="text-green-400 font-bold">John Doe</div>
-            <div>🚀 Full Stack Developer</div>
-            <div>📍 San Francisco, CA</div>
-            <div>💼 5+ years experience</div>
+            <div className="text-green-400 font-bold">Vansh Sethi</div>
+            <div>🚀 Full Stack Developer & UI/UX Designer</div>
+            <div>📍 India</div>
+            <div>💼 3+ years experience in web development</div>
             <div>🎯 Passionate about creating amazing user experiences</div>
             <div>🌟 Available for new opportunities</div>
+            <div>🔗 Portfolio: https://vanshsethi.netlify.app/</div>
           </div>
         )
         break
@@ -229,11 +230,23 @@ export function TerminalContent() {
         output = (
           <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
             <div className="text-green-400 font-bold">📧 Contact Information:</div>
-            <div>Email: john.doe@email.com</div>
-            <div>Phone: +1 (555) 123-4567</div>
-            <div>LinkedIn: linkedin.com/in/johndoe</div>
-            <div>GitHub: github.com/johndoe</div>
-            <div>Website: johndoe.dev</div>
+            <div>Email: vanshsethi121@gmail.com</div>
+            <div>LinkedIn: linkedin.com/in/vansh-sethi-vs/</div>
+            <div>GitHub: github.com/vansh-121</div>
+            <div>Portfolio: vanshsethi.netlify.app</div>
+            <div>Location: India</div>
+          </div>
+        )
+        break
+
+      case "social":
+        output = (
+          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
+            <div className="text-green-400 font-bold">🌐 Social Links:</div>
+            <div>🔗 Portfolio: https://vanshsethi.netlify.app/</div>
+            <div>💼 LinkedIn: https://www.linkedin.com/in/vansh-sethi-vs/</div>
+            <div>🐙 GitHub: https://github.com/vansh-121</div>
+            <div>📧 Email: vanshsethi121@gmail.com</div>
           </div>
         )
         break
@@ -249,8 +262,8 @@ export function TerminalContent() {
             <div>OS: Portfolio OS (macOS inspired)</div>
             <div>Shell: zsh 5.8.1</div>
             <div>Terminal: Portfolio Terminal</div>
-            <div>CPU: Apple M2 Pro</div>
-            <div>Memory: 16GB</div>
+            <div>Developer: Vansh Sethi</div>
+            <div>Stack: React, Next.js, TypeScript, Three.js</div>
             <div>Uptime: {Math.floor(Date.now() / 1000 / 60)} minutes</div>
             <div>Theme: {document.documentElement.classList.contains("dark") ? "Dark" : "Light"}</div>
           </div>
@@ -274,7 +287,7 @@ export function TerminalContent() {
       case "cat readme":
         output = (
           <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <div className="text-green-400 font-bold"># John Doe - Portfolio</div>
+            <div className="text-green-400 font-bold"># Vansh Sethi - Portfolio</div>
             <div>Welcome to my interactive portfolio!</div>
             <div>This is a macOS-inspired portfolio built with:</div>
             <div className="ml-2 md:ml-4">- Next.js & React</div>
@@ -282,17 +295,7 @@ export function TerminalContent() {
             <div className="ml-2 md:ml-4">- Tailwind CSS for styling</div>
             <div className="ml-2 md:ml-4">- TypeScript for type safety</div>
             <div className="mt-1 md:mt-2">Type 'help' for available commands.</div>
-          </div>
-        )
-        break
-
-      case "matrix":
-        output = (
-          <div className="text-green-400 space-y-1 text-xs md:text-sm">
-            <div>Wake up, Neo...</div>
-            <div>The Matrix has you...</div>
-            <div>Follow the white rabbit 🐰</div>
-            <div className="text-xs mt-1 md:mt-2 overflow-x-auto">01001000 01100101 01101100 01101100 01101111</div>
+            <div className="mt-1 md:mt-2">Visit: https://vanshsethi.netlify.app/</div>
           </div>
         )
         break
@@ -340,9 +343,10 @@ export function TerminalContent() {
           input: "",
           output: (
             <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-              <div className="text-green-400 font-bold">Welcome to Portfolio Terminal v2.0</div>
+              <div className="text-green-400 font-bold">Welcome to Vansh's Portfolio Terminal v2.0</div>
               <div>Type 'help' to see available commands.</div>
               <div>Type 'projects' to see my GitHub repositories.</div>
+              <div>Type 'social' to see my social links.</div>
             </div>
           ),
           timestamp: new Date(),
@@ -360,7 +364,7 @@ export function TerminalContent() {
     <div className="h-full bg-black text-green-400 font-mono text-xs md:text-sm flex flex-col">
       {/* Terminal Header */}
       <div className="bg-gray-800 px-2 md:px-4 py-1 md:py-2 text-white text-xs flex items-center justify-between">
-        <div>Terminal — zsh — 80×24</div>
+        <div>Terminal — vansh@portfolio — 80×24</div>
         <div className="flex space-x-1 md:space-x-2">
           <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full"></div>
           <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full"></div>
@@ -378,7 +382,7 @@ export function TerminalContent() {
           <div key={index} className="space-y-1">
             {command.input && (
               <div className="flex items-center space-x-1 md:space-x-2 flex-wrap">
-                <span className="text-blue-400 text-xs md:text-sm">johndoe@portfolio</span>
+                <span className="text-blue-400 text-xs md:text-sm">vansh@portfolio</span>
                 <span className="text-white">:</span>
                 <span className="text-purple-400">~</span>
                 <span className="text-white">$</span>
@@ -391,7 +395,7 @@ export function TerminalContent() {
 
         {/* Current Input Line */}
         <form onSubmit={handleSubmit} className="flex items-center space-x-1 md:space-x-2 flex-wrap">
-          <span className="text-blue-400 text-xs md:text-sm">johndoe@portfolio</span>
+          <span className="text-blue-400 text-xs md:text-sm">vansh@portfolio</span>
           <span className="text-white">:</span>
           <span className="text-purple-400">~</span>
           <span className="text-white">$</span>
