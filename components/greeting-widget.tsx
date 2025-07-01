@@ -5,14 +5,25 @@ import { useTheme } from "next-themes"
 
 export function GreetingWidget() {
   const [mounted, setMounted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const { theme } = useTheme()
   const isDark = theme === "dark"
 
   useEffect(() => {
+    const checkDevice = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
     setMounted(true)
+    checkDevice()
+    window.addEventListener("resize", checkDevice)
+    return () => window.removeEventListener("resize", checkDevice)
   }, [])
 
   if (!mounted) return null
+
+  // Hide on mobile to save space
+  if (isMobile) return null
 
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl px-4 text-center z-0 pointer-events-none">
@@ -31,7 +42,7 @@ export function GreetingWidget() {
           )}
 
           <h1
-            className={`relative text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tight leading-tight`}
+            className="relative text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tight leading-tight"
             style={{
               fontFamily: "var(--font-display)",
               letterSpacing: "-0.03em",

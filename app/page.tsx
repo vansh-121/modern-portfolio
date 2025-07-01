@@ -34,8 +34,9 @@ export default function Portfolio() {
   const [isTablet, setIsTablet] = useState(false)
   const [windows, setWindows] = useState<WindowState[]>([])
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
+  const [activeWindow, setActiveWindow] = useState<string | null>(null)
 
-  const [highestZIndex, setHighestZIndex] = useState(100) // Start with higher base z-index
+  const [highestZIndex, setHighestZIndex] = useState(100)
 
   // Enhanced device detection and responsive handling
   useEffect(() => {
@@ -50,12 +51,12 @@ export default function Portfolio() {
       setIsTablet(tablet)
       setOrientation(newOrientation)
 
-      // Enhanced responsive sizing
+      // Mobile-first responsive sizing
       const getResponsiveSize = (baseWidth: number, baseHeight: number) => {
         if (mobile) {
           return {
             width: width,
-            height: height - (newOrientation === "landscape" ? 64 : 88),
+            height: height - (newOrientation === "landscape" ? 80 : 120),
           }
         } else if (tablet) {
           return {
@@ -72,7 +73,7 @@ export default function Portfolio() {
 
       const getResponsivePosition = (baseX: number, baseY: number) => {
         if (mobile) {
-          return { x: 0, y: newOrientation === "landscape" ? 32 : 32 }
+          return { x: 0, y: newOrientation === "landscape" ? 40 : 40 }
         } else if (tablet) {
           return {
             x: Math.min(baseX * 0.5, width - 400),
@@ -153,7 +154,7 @@ export default function Portfolio() {
     checkDevice()
     window.addEventListener("resize", checkDevice)
     window.addEventListener("orientationchange", () => {
-      setTimeout(checkDevice, 100) // Delay to ensure proper orientation detection
+      setTimeout(checkDevice, 100)
     })
 
     return () => {
@@ -162,39 +163,43 @@ export default function Portfolio() {
     }
   }, [])
 
-  // Authentic macOS boot sequence
+  // Authentic macOS boot sequence with mobile optimization
   useEffect(() => {
-    // Force loading state and prevent any premature transitions
     setIsLoading(true)
     setLoadingProgress(0)
 
     const isMobileDevice = window.innerWidth < 768
     const isTabletDevice = window.innerWidth >= 768 && window.innerWidth < 1024
 
-    // Realistic boot timing
-    const minLoadingTime = isMobileDevice ? 6000 : isTabletDevice ? 5000 : 4500
+    // Faster loading for mobile
+    const minLoadingTime = isMobileDevice ? 3000 : isTabletDevice ? 4000 : 4500
     const startTime = Date.now()
 
-    // Prevent any interaction during loading
     document.body.style.overflow = "hidden"
     document.body.style.pointerEvents = "none"
     document.body.style.userSelect = "none"
 
-    // Authentic macOS boot progress pattern
-    // - Starts slow
-    // - Accelerates in the middle
-    // - Slows down at the end with a pause at ~95%
-    const loadingSteps = [
-      { progress: 0, delay: 800 },
-      { progress: 5, delay: 500 },
-      { progress: 15, delay: 700 },
-      { progress: 30, delay: 600 },
-      { progress: 50, delay: 500 },
-      { progress: 70, delay: 400 },
-      { progress: 85, delay: 300 },
-      { progress: 95, delay: 1200 }, // Authentic pause at 95%
-      { progress: 100, delay: 500 },
-    ]
+    // Faster loading steps for mobile
+    const loadingSteps = isMobileDevice
+      ? [
+          { progress: 0, delay: 400 },
+          { progress: 20, delay: 300 },
+          { progress: 50, delay: 400 },
+          { progress: 80, delay: 300 },
+          { progress: 95, delay: 600 },
+          { progress: 100, delay: 300 },
+        ]
+      : [
+          { progress: 0, delay: 800 },
+          { progress: 5, delay: 500 },
+          { progress: 15, delay: 700 },
+          { progress: 30, delay: 600 },
+          { progress: 50, delay: 500 },
+          { progress: 70, delay: 400 },
+          { progress: 85, delay: 300 },
+          { progress: 95, delay: 1200 },
+          { progress: 100, delay: 500 },
+        ]
 
     let timeoutId: NodeJS.Timeout
     let stepIndex = 0
@@ -209,27 +214,22 @@ export default function Portfolio() {
           runLoadingSequence()
         }, step.delay)
       } else {
-        // Ensure minimum loading time has passed
         const elapsedTime = Date.now() - startTime
         const remainingTime = Math.max(0, minLoadingTime - elapsedTime)
 
         timeoutId = setTimeout(() => {
-          // Final transition with fade effect
           setLoadingProgress(100)
 
-          // Additional delay before showing desktop
           setTimeout(() => {
             setIsLoading(false)
-            // Re-enable interactions
             document.body.style.overflow = "auto"
             document.body.style.pointerEvents = "auto"
             document.body.style.userSelect = "auto"
-          }, 800)
+          }, 400)
         }, remainingTime)
       }
     }
 
-    // Start loading sequence after a brief initialization
     const initTimer = setTimeout(() => {
       runLoadingSequence()
     }, 200)
@@ -237,24 +237,39 @@ export default function Portfolio() {
     return () => {
       if (timeoutId) clearTimeout(timeoutId)
       if (initTimer) clearTimeout(initTimer)
-      // Cleanup in case of unmount
       document.body.style.overflow = "auto"
       document.body.style.pointerEvents = "auto"
       document.body.style.userSelect = "auto"
     }
-  }, []) // Remove isMobile dependency to prevent re-runs
+  }, [])
 
   const openWindow = (id: string) => {
-    setWindows((prev) =>
-      prev.map((window) =>
-        window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
-      ),
-    )
+    // On mobile, close other windows first
+    if (isMobile) {
+      setWindows((prev) =>
+        prev.map((window) => ({
+          ...window,
+          isOpen: window.id === id,
+          isMinimized: false,
+          zIndex: window.id === id ? highestZIndex + 1 : window.zIndex,
+        })),
+      )
+      setActiveWindow(id)
+    } else {
+      setWindows((prev) =>
+        prev.map((window) =>
+          window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
+        ),
+      )
+    }
     setHighestZIndex((prev) => prev + 1)
   }
 
   const closeWindow = (id: string) => {
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, isOpen: false } : window)))
+    if (activeWindow === id) {
+      setActiveWindow(null)
+    }
   }
 
   const minimizeWindow = (id: string) => {
@@ -270,12 +285,12 @@ export default function Portfolio() {
               isMaximized: !window.isMaximized,
               position: window.isMaximized
                 ? window.position
-                : { x: 0, y: isMobile ? (orientation === "landscape" ? 32 : 32) : 40 },
+                : { x: 0, y: isMobile ? (orientation === "landscape" ? 40 : 40) : 40 },
               size: window.isMaximized
                 ? window.size
                 : {
                     width: window.innerWidth || (isMobile ? window.innerWidth : 1200),
-                    height: (window.innerHeight || 800) - (isMobile ? (orientation === "landscape" ? 64 : 88) : 140),
+                    height: (window.innerHeight || 800) - (isMobile ? (orientation === "landscape" ? 80 : 120) : 140),
                   },
             }
           : window,
@@ -288,15 +303,16 @@ export default function Portfolio() {
       prev.map((window) => (window.id === id ? { ...window, zIndex: highestZIndex + 1, isMinimized: false } : window)),
     )
     setHighestZIndex((prev) => prev + 1)
+    setActiveWindow(id)
   }
 
   const updateWindowPosition = (id: string, position: { x: number; y: number }) => {
-    if (isMobile) return // Don't update position on mobile
+    if (isMobile) return
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, position } : window)))
   }
 
   const updateWindowSize = (id: string, size: { width: number; height: number }) => {
-    if (isMobile) return // Don't update size on mobile
+    if (isMobile) return
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, size } : window)))
   }
 
@@ -325,28 +341,38 @@ export default function Portfolio() {
 
   return (
     <div className="h-screen w-full overflow-hidden relative">
-      {/* Three.js Background - Optimized for all devices */}
+      {/* Three.js Background - Optimized for mobile */}
       <ThreeBackground />
 
-      {/* Greeting Widget - Centered with low z-index */}
-      <GreetingWidget />
+      {/* Greeting Widget - Hidden on mobile to save space */}
+      {!isMobile && <GreetingWidget />}
 
-      {/* Music Widget - Position at the bottom right corner, smaller and more subtle */}
-      <div className="absolute bottom-20 md:bottom-24 right-4 md:right-8 w-72 md:w-80 max-w-xs z-10">
+      {/* Music Widget - Repositioned for mobile */}
+      <div
+        className={`absolute z-10 ${
+          isMobile ? "bottom-20 right-2 w-64" : "bottom-20 md:bottom-24 right-4 md:right-8 w-72 md:w-80 max-w-xs"
+        }`}
+      >
         <MusicWidget />
       </div>
 
-      {/* Menu Bar - Responsive with high z-index */}
+      {/* Menu Bar - Mobile optimized */}
       <MenuBar />
 
-      {/* Desktop Area - Adaptive to orientation */}
+      {/* Desktop Area - Mobile responsive */}
       <div
-        className={`absolute inset-0 ${orientation === "landscape" && isMobile ? "top-8 bottom-12" : "top-8 bottom-14 md:bottom-20"}`}
+        className={`absolute inset-0 ${
+          isMobile
+            ? orientation === "landscape"
+              ? "top-10 bottom-16"
+              : "top-10 bottom-20"
+            : "top-8 bottom-14 md:bottom-20"
+        }`}
       >
-        {/* Welcome Widget - Hidden on small mobile landscape */}
-        {!(isMobile && orientation === "landscape") && <WelcomeWidget />}
+        {/* Welcome Widget - Hidden on mobile */}
+        {!isMobile && <WelcomeWidget />}
 
-        {/* Windows - Fully responsive with proper z-index */}
+        {/* Windows - Mobile optimized */}
         {windows.map(
           (window) =>
             window.isOpen &&
@@ -372,7 +398,7 @@ export default function Portfolio() {
         )}
       </div>
 
-      {/* Dock - Responsive and adaptive with high z-index */}
+      {/* Dock - Mobile optimized */}
       <Dock onOpenWindow={openWindow} windows={windows} />
     </div>
   )

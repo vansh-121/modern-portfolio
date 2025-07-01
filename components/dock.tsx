@@ -50,30 +50,33 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
     }
   }
 
-  // Adjust dock position for mobile landscape
-  const dockPosition =
-    isMobile && orientation === "landscape"
-      ? "fixed bottom-1 left-1/2 transform -translate-x-1/2 z-40"
-      : "fixed bottom-2 md:bottom-4 left-1/2 transform -translate-x-1/2 z-40"
+  // Mobile-first responsive positioning
+  const dockClasses = isMobile
+    ? `fixed bottom-2 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-2`
+    : `fixed bottom-2 md:bottom-4 left-1/2 transform -translate-x-1/2 z-50`
 
   return (
-    <div className={dockPosition}>
-      <div className="bg-white/10 backdrop-blur-md rounded-xl md:rounded-2xl p-1.5 md:p-2 lg:p-3 border border-white/20 shadow-2xl">
-        <div className="flex items-center space-x-0.5 md:space-x-1 lg:space-x-2 overflow-x-auto scrollbar-none">
+    <div className={dockClasses}>
+      <div
+        className={`
+        bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20 shadow-2xl
+        ${isMobile ? "w-full" : ""}
+      `}
+      >
+        <div
+          className={`
+          flex items-center justify-center overflow-x-auto scrollbar-none
+          ${isMobile ? "space-x-2 px-2" : "space-x-1 lg:space-x-2"}
+        `}
+        >
           {dockItems.map((item) => {
             const { isOpen, isMinimized } = getWindowState(item.id)
             const Icon = item.icon
 
-            // Responsive sizing
-            const buttonSize =
-              isMobile && orientation === "landscape"
-                ? "h-10 w-10"
-                : isMobile
-                  ? "h-12 w-12"
-                  : "h-12 w-12 md:h-16 md:w-16"
+            // Mobile-optimized button sizing
+            const buttonSize = isMobile ? "h-12 w-12 min-w-[48px]" : "h-12 w-12 md:h-16 md:w-16"
 
-            const iconSize =
-              isMobile && orientation === "landscape" ? "h-4 w-4" : isMobile ? "h-5 w-5" : "h-5 w-5 md:h-8 md:w-8"
+            const iconSize = isMobile ? "h-5 w-5" : "h-5 w-5 md:h-8 md:w-8"
 
             return (
               <div key={item.id} className="relative group flex-shrink-0">
@@ -82,15 +85,19 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
                   size="lg"
                   className={`
                     ${buttonSize} rounded-lg md:rounded-xl transition-all duration-300 ease-out
-                    hover:scale-110 md:hover:scale-125 hover:bg-white/20 active:scale-95
+                    hover:scale-110 hover:bg-white/20 active:scale-95
                     transform-gpu will-change-transform
-                    ${isOpen && !isMinimized ? "bg-white/20 shadow-lg scale-105 md:scale-110" : ""}
+                    ${isOpen && !isMinimized ? "bg-white/20 shadow-lg scale-105" : ""}
                     ${isMinimized ? "bg-yellow-500/30" : ""}
+                    ${isMobile ? "touch-manipulation" : ""}
                   `}
                   onClick={() => onOpenWindow(item.id)}
                 >
                   <div
-                    className={`p-1 md:p-1.5 lg:p-2 rounded-md md:rounded-lg bg-gradient-to-br ${item.color} shadow-lg`}
+                    className={`
+                      p-1.5 lg:p-2 rounded-md md:rounded-lg bg-gradient-to-br ${item.color} shadow-lg
+                      ${isMobile ? "p-1" : ""}
+                    `}
                   >
                     <Icon className={`${iconSize} text-white drop-shadow-lg`} />
                   </div>
@@ -98,21 +105,33 @@ export const Dock = memo(function Dock({ onOpenWindow, windows }: DockProps) {
 
                 {/* Active indicator */}
                 {isOpen && !isMinimized && (
-                  <div className="absolute -bottom-0.5 md:-bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 bg-white rounded-full shadow-lg animate-pulse" />
+                  <div
+                    className={`
+                    absolute left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-lg animate-pulse
+                    ${isMobile ? "-bottom-0.5 w-1 h-1" : "-bottom-1 w-1.5 h-1.5 lg:w-2 lg:h-2"}
+                  `}
+                  />
                 )}
 
                 {/* Minimized indicator */}
                 {isMinimized && (
-                  <div className="absolute -bottom-0.5 md:-bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 md:w-1.5 md:h-1.5 lg:w-2 lg:h-2 bg-yellow-400 rounded-full shadow-lg" />
+                  <div
+                    className={`
+                    absolute left-1/2 transform -translate-x-1/2 bg-yellow-400 rounded-full shadow-lg
+                    ${isMobile ? "-bottom-0.5 w-1 h-1" : "-bottom-1 w-1.5 h-1.5 lg:w-2 lg:h-2"}
+                  `}
+                  />
                 )}
 
                 {/* Tooltip - Hidden on mobile */}
-                <div className="hidden lg:block absolute bottom-16 lg:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
-                  <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl backdrop-blur-sm">
-                    {item.label}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90" />
+                {!isMobile && (
+                  <div className="hidden lg:block absolute bottom-16 lg:bottom-20 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none scale-75 group-hover:scale-100">
+                    <div className="bg-black/90 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl backdrop-blur-sm">
+                      {item.label}
+                      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90" />
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )
           })}
