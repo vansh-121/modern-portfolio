@@ -76,7 +76,7 @@ export function ThreeBackground() {
         // Pink/magenta
         color = new THREE.Color().setHSL(0.85, 0.6, 0.7)
       }
-      
+
       colors[i * 3] = color.r
       colors[i * 3 + 1] = color.g
       colors[i * 3 + 2] = color.b
@@ -98,58 +98,58 @@ export function ThreeBackground() {
         pixelRatio: { value: renderer.getPixelRatio() },
       },
       vertexShader: `
-        attribute float size;
-        attribute vec3 customColor;
-        attribute vec3 velocity;
-        attribute float phase;
-        varying vec3 vColor;
-        varying float vAlpha;
-        varying float vGlow;
-        uniform float time;
+      attribute float size;
+      attribute vec3 customColor;
+      attribute vec3 velocity;
+      attribute float phase;
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vGlow;
+      uniform float time;
+      
+      void main() {
+        vColor = customColor;
+        vec3 pos = position;
         
-        void main() {
-          vColor = customColor;
-          vec3 pos = position;
-          
-          // Floating animation with wave motion
-          pos += velocity * time * 8.0;
-          pos.y += sin(pos.x * 0.01 + time * 0.5 + phase) * 3.0;
-          pos.x += cos(pos.z * 0.01 + time * 0.3 + phase) * 2.0;
-          pos.z += sin(pos.y * 0.008 + time * 0.4 + phase) * 2.5;
-          
-          // Dynamic pulsing with individual phases
-          float pulse = sin(time * 1.5 + phase + length(pos) * 0.01) * 0.5 + 0.5;
-          vAlpha = 0.4 + pulse * 0.6;
-          vGlow = pulse;
-          
-          vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-          float distance = length(mvPosition.xyz);
-          gl_PointSize = size * (300.0 / distance) * (0.8 + pulse * 0.4);
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
+        // Floating animation with wave motion
+        pos += velocity * time * 8.0;
+        pos.y += sin(pos.x * 0.01 + time * 0.5 + phase) * 3.0;
+        pos.x += cos(pos.z * 0.01 + time * 0.3 + phase) * 2.0;
+        pos.z += sin(pos.y * 0.008 + time * 0.4 + phase) * 2.5;
+        
+        // Dynamic pulsing with individual phases
+        float pulse = sin(time * 1.5 + phase + length(pos) * 0.01) * 0.5 + 0.5;
+        vAlpha = 0.4 + pulse * 0.6;
+        vGlow = pulse;
+        
+        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+        float distance = length(mvPosition.xyz);
+        gl_PointSize = size * (300.0 / distance) * (0.8 + pulse * 0.4);
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
       fragmentShader: `
-        varying vec3 vColor;
-        varying float vAlpha;
-        varying float vGlow;
+      varying vec3 vColor;
+      varying float vAlpha;
+      varying float vGlow;
+      
+      void main() {
+        vec2 center = gl_PointCoord - vec2(0.5);
+        float dist = length(center);
         
-        void main() {
-          vec2 center = gl_PointCoord - vec2(0.5);
-          float dist = length(center);
-          
-          // Soft circular gradient
-          float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
-          
-          // Enhanced glow effect
-          float glow = 1.0 - smoothstep(0.0, 0.8, dist);
-          vec3 glowColor = vColor + vec3(0.3, 0.3, 0.5) * vGlow;
-          
-          // Final color with enhanced brightness
-          vec3 finalColor = mix(vColor, glowColor, vGlow * 0.7);
-          
-          gl_FragColor = vec4(finalColor, alpha * vAlpha * 0.9);
-        }
-      `,
+        // Soft circular gradient
+        float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+        
+        // Enhanced glow effect
+        float glow = 1.0 - smoothstep(0.0, 0.8, dist);
+        vec3 glowColor = vColor + vec3(0.3, 0.3, 0.5) * vGlow;
+        
+        // Final color with enhanced brightness
+        vec3 finalColor = mix(vColor, glowColor, vGlow * 0.7);
+        
+        gl_FragColor = vec4(finalColor, alpha * vAlpha * 0.9);
+      }
+    `,
       transparent: true,
       blending: THREE.AdditiveBlending,
     })
@@ -164,7 +164,7 @@ export function ThreeBackground() {
     for (let i = 0; i < shapeCount; i++) {
       let shapeGeometry
       const shapeType = Math.random()
-      
+
       if (shapeType < 0.4) {
         shapeGeometry = new THREE.BoxGeometry(2, 2, 2)
       } else if (shapeType < 0.7) {
@@ -184,16 +184,8 @@ export function ThreeBackground() {
       })
 
       const mesh = new THREE.Mesh(shapeGeometry, shapeMaterial)
-      mesh.position.set(
-        (Math.random() - 0.5) * 80,
-        (Math.random() - 0.5) * 80,
-        (Math.random() - 0.5) * 80
-      )
-      mesh.rotation.set(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
-      )
+      mesh.position.set((Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80)
+      mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
 
       scene.add(mesh)
       shapes.push(mesh)
@@ -326,10 +318,10 @@ export function ThreeBackground() {
     <div
       ref={mountRef}
       className="fixed inset-0 -z-10 transition-all duration-1000"
-      style={{ 
-        background: backgroundGradient,
+      style={{
+        backgroundImage: backgroundGradient,
         backgroundSize: "400% 400%, 200% 200%",
-        animation: "gradientShift 15s ease infinite"
+        animation: "gradientShift 15s ease infinite",
       }}
     />
   )
