@@ -121,8 +121,8 @@ export function ThreeBackground() {
           vColor = customColor;
           vec3 pos = position;
           
-          // Space-like orbital motion
-          float orbitalAngle = time * orbitalSpeed + phase;
+          // Faster space-like orbital motion
+          float orbitalAngle = time * orbitalSpeed * 2.0 + phase;  // Added * 2.0
           pos.x += cos(orbitalAngle) * orbitalRadius * 0.3;
           pos.z += sin(orbitalAngle) * orbitalRadius * 0.3;
           
@@ -132,8 +132,8 @@ export function ThreeBackground() {
           pos.x += cos(pos.z * 0.01 + time * 0.4 + phase) * 3.0;
           pos.z += sin(pos.y * 0.006 + time * 0.5 + phase) * 3.5;
           
-          // Galactic rotation effect
-          float galaxyRotation = time * 0.1;
+          // Faster galactic rotation effect
+          float galaxyRotation = time * 0.25;  // Increased from 0.1
           float cosRot = cos(galaxyRotation);
           float sinRot = sin(galaxyRotation);
           float newX = pos.x * cosRot - pos.z * sinRot;
@@ -237,11 +237,11 @@ export function ThreeBackground() {
       shapeData.push({
         mesh,
         rotationSpeed: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.025,
-          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.06, // Increased from 0.02
+          (Math.random() - 0.5) * 0.08, // Increased from 0.025
+          (Math.random() - 0.5) * 0.06, // Increased from 0.02
         ),
-        orbitalSpeed: (Math.random() - 0.5) * 0.01,
+        orbitalSpeed: (Math.random() - 0.5) * 0.03, // Increased from 0.01
         orbitalRadius: Math.random() * 20 + 15,
         initialPosition: initialPos.clone(),
       })
@@ -297,10 +297,10 @@ export function ThreeBackground() {
         material.uniforms.time.value = time
       }
 
-      // Galactic rotation of particle system
-      particles.rotation.y = time * 0.05
-      particles.rotation.x = Math.sin(time * 0.3) * 0.1
-      particles.rotation.z = Math.cos(time * 0.2) * 0.05
+      // Faster galactic rotation of particle system
+      particles.rotation.y = time * 0.15 // Increased from 0.05
+      particles.rotation.x = Math.sin(time * 0.5) * 0.2 // Increased oscillation
+      particles.rotation.z = Math.cos(time * 0.4) * 0.12 // Increased rotation
 
       // Complex shape animations with orbital motion
       shapeData.forEach((data, index) => {
@@ -322,9 +322,9 @@ export function ThreeBackground() {
         mesh.position.x += Math.cos(time * 0.4 + index * 0.3) * 0.015
       })
 
-      // Camera subtle movement for immersion
-      camera.position.x = Math.sin(time * 0.1) * 2
-      camera.position.y = Math.cos(time * 0.15) * 1.5
+      // Enhanced camera movement for more immersion
+      camera.position.x = Math.sin(time * 0.2) * 3 // Increased from 0.1 and 2
+      camera.position.y = Math.cos(time * 0.25) * 2.5 // Increased from 0.15 and 1.5
       camera.lookAt(0, 0, 0)
 
       renderer.render(scene, camera)
