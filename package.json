@@ -41,6 +41,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "latest",
+<<<<<<< HEAD
     "date-fns": "^3.0.0",
     "embla-carousel-react": "latest",
     "input-otp": "latest",
@@ -50,6 +51,17 @@
     "react": "^19",
     "react-day-picker": "latest",
     "react-dom": "^19",
+=======
+    "date-fns": "4.1.0",
+    "embla-carousel-react": "latest",
+    "input-otp": "latest",
+    "lucide-react": "^0.454.0",
+    "next": "14.2.16",
+    "next-themes": "latest",
+    "react": "^18",
+    "react-day-picker": "latest",
+    "react-dom": "^18",
+>>>>>>> master
     "react-hook-form": "latest",
     "react-resizable-panels": "latest",
     "recharts": "latest",
@@ -62,8 +74,13 @@
   },
   "devDependencies": {
     "@types/node": "^22",
+<<<<<<< HEAD
     "@types/react": "^19",
     "@types/react-dom": "^19",
+=======
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+>>>>>>> master
     "postcss": "^8.5",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
