@@ -131,26 +131,8 @@ export const Window = memo(function Window({
   // Mobile windows are always maximized
   const effectivelyMaximized = isMaximized || isMobile
 
-  // Mobile-specific positioning and sizing
-  const getWindowStyles = () => {
-    if (isMobile) {
-      return {
-        left: 0,
-        top: orientation === "landscape" ? 40 : 40,
-        width: "100vw",
-        height: orientation === "landscape" ? "calc(100vh - 80px)" : "calc(100vh - 120px)",
-        zIndex: Math.max(10, zIndex),
-      }
-    }
-
-    return {
-      left: effectivelyMaximized ? 0 : position.x,
-      top: effectivelyMaximized ? 40 : position.y,
-      width: effectivelyMaximized ? "100vw" : size.width,
-      height: effectivelyMaximized ? "calc(100vh - 140px)" : size.height,
-      zIndex: Math.max(10, zIndex),
-    }
-  }
+  // Get proper z-index for windows
+  const windowZIndex = Math.max(100, zIndex)
 
   return (
     <div
@@ -159,37 +141,45 @@ export const Window = memo(function Window({
         absolute overflow-hidden transition-all duration-300 ease-out transform-gpu will-change-transform
         ${
           isMobile
-            ? "bg-white/98 backdrop-blur-sm rounded-none shadow-xl border-0"
-            : "bg-white/95 backdrop-blur-md rounded-xl shadow-2xl border border-white/20"
+            ? "bg-white/98 backdrop-blur-sm rounded-none shadow-xl border-0 safe-area-inset-top safe-area-inset-bottom"
+            : "window-glass rounded-xl shadow-2xl border border-white/20"
         }
         ${isDragging && !isMobile ? "cursor-grabbing scale-105" : "cursor-default"}
         ${isResizing ? "select-none" : ""}
       `}
-      style={getWindowStyles()}
+      style={{
+        left: effectivelyMaximized ? 0 : position.x,
+        top: effectivelyMaximized ? (isMobile ? 40 : 40) : position.y,
+        width: effectivelyMaximized ? "100vw" : size.width,
+        height: effectivelyMaximized ? (isMobile ? "calc(100vh - 120px)" : "calc(100vh - 140px)") : size.height,
+        zIndex: windowZIndex,
+      }}
       onMouseDown={handleMouseDown}
     >
       {/* Window Header - Mobile optimized */}
       <div
         className={`
-        window-header flex items-center justify-between bg-gradient-to-r from-gray-50/80 to-gray-100/80 
-        border-b border-gray-200/50 backdrop-blur-sm
-        ${isMobile ? "h-10 px-3" : "h-10 px-4"}
-        ${!isMobile ? "cursor-grab active:cursor-grabbing" : ""}
-      `}
+          window-header flex items-center justify-between bg-gradient-to-r from-gray-50/80 to-gray-100/80 
+          border-b border-gray-200/50 backdrop-blur-sm
+          ${isMobile ? "h-12 px-4" : "h-10 px-4"}
+          ${!isMobile ? "cursor-grab active:cursor-grabbing" : ""}
+        `}
       >
         {/* Traffic Lights - Mobile optimized */}
-        <div className={`flex items-center ${isMobile ? "space-x-2" : "space-x-2"}`}>
+        <div className={`flex items-center ${isMobile ? "space-x-3" : "space-x-2"}`}>
           <Button
             variant="ghost"
             size="sm"
             className={`
               p-0 rounded-full bg-red-500 hover:bg-red-600 border border-red-600 transition-all duration-200 group
-              ${isMobile ? "h-4 w-4" : "h-3 w-3"}
+              ${isMobile ? "h-5 w-5 min-h-[20px] min-w-[20px]" : "h-3 w-3"}
             `}
             onClick={onClose}
           >
             <X
-              className={`text-red-900 opacity-0 group-hover:opacity-100 transition-opacity ${isMobile ? "h-2 w-2" : "h-2 w-2"}`}
+              className={`text-red-900 opacity-0 group-hover:opacity-100 transition-opacity ${
+                isMobile ? "h-3 w-3" : "h-2 w-2"
+              }`}
             />
           </Button>
 
@@ -218,10 +208,11 @@ export const Window = memo(function Window({
         {/* Window Title - Mobile optimized */}
         <div
           className={`
-          absolute left-1/2 transform -translate-x-1/2 font-semibold text-gray-700 
-          bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
-          ${isMobile ? "text-sm" : "text-sm"}
-        `}
+            absolute left-1/2 transform -translate-x-1/2 font-semibold text-gray-700 
+            bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent
+            macos-text
+            ${isMobile ? "text-base" : "text-sm"}
+          `}
         >
           {title}
         </div>
@@ -230,9 +221,12 @@ export const Window = memo(function Window({
       {/* Window Content - Mobile optimized scrolling */}
       <div
         className={`
-        h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent
-        ${isMobile ? "p-4 pb-6 -webkit-overflow-scrolling-touch" : "p-6 pb-8"}
-      `}
+          h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent
+          ${isMobile ? "p-4 pb-6 -webkit-overflow-scrolling-touch" : "p-6 pb-8"}
+        `}
+        style={{
+          height: isMobile ? "calc(100% - 48px)" : "calc(100% - 40px)",
+        }}
       >
         {children}
       </div>

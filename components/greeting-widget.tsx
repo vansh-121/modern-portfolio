@@ -24,14 +24,15 @@ export function GreetingWidget() {
 
   return (
     <div
-      className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center z-0 pointer-events-none ${
-        isMobile ? "px-4 max-w-sm" : "max-w-4xl px-4"
-      }`}
+      className={`
+        absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full text-center pointer-events-none
+        ${isMobile ? "px-4 max-w-sm z-content" : "max-w-4xl px-4 z-content"}
+      `}
     >
       <div className={isMobile ? "mb-8" : "mb-16 md:mb-20"}>
         {/* Main greeting with glassmorphism background */}
         <div className="relative">
-          {/* Glassmorphism container for light theme */}
+          {/* Glassmorphism container for light theme - desktop only */}
           {!isDark && !isMobile && (
             <div
               className="absolute inset-0 -m-8 rounded-3xl backdrop-blur-md border border-white/30"
@@ -43,11 +44,11 @@ export function GreetingWidget() {
           )}
 
           <h1
-            className={`relative font-bold mb-4 tracking-tight leading-tight ${
-              isMobile ? "text-2xl sm:text-3xl" : "text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
-            }`}
+            className={`
+              relative font-bold mb-4 tracking-tight leading-tight macos-display
+              ${isMobile ? "text-3xl sm:text-4xl" : "text-4xl md:text-5xl lg:text-6xl xl:text-7xl"}
+            `}
             style={{
-              fontFamily: "var(--font-display)",
               letterSpacing: "-0.03em",
             }}
           >
@@ -77,13 +78,15 @@ export function GreetingWidget() {
 
           {/* Animated underline with glow */}
           <div
-            className={`absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-1.5 rounded-full animate-pulse ${
-              isMobile ? "w-20" : "w-32 md:w-48"
-            } ${
-              isDark
-                ? "bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400"
-                : "bg-gradient-to-r from-white via-blue-200 to-purple-200"
-            }`}
+            className={`
+              absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-1.5 rounded-full animate-pulse
+              ${isMobile ? "w-24" : "w-32 md:w-48"}
+              ${
+                isDark
+                  ? "bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400"
+                  : "bg-gradient-to-r from-white via-blue-200 to-purple-200"
+              }
+            `}
             style={{
               boxShadow: isDark
                 ? "0 0 20px rgba(102, 126, 234, 0.5)"
@@ -95,11 +98,12 @@ export function GreetingWidget() {
         {/* Enhanced subtitle */}
         <div className={`relative space-y-3 ${isMobile ? "mt-6" : "mt-8"}`}>
           <p
-            className={`max-w-2xl mx-auto font-bold ${isMobile ? "text-sm" : "text-lg md:text-xl lg:text-2xl"} ${
-              isDark ? "text-gray-100" : "text-white"
-            }`}
+            className={`
+              max-w-2xl mx-auto font-bold macos-text
+              ${isMobile ? "text-base" : "text-lg md:text-xl lg:text-2xl"}
+              ${isDark ? "text-gray-100" : "text-white"}
+            `}
             style={{
-              fontFamily: "var(--font-system)",
               textShadow: isDark
                 ? "0 2px 15px rgba(0,0,0,0.7), 0 0 30px rgba(102, 126, 234, 0.3)"
                 : "0 2px 15px rgba(102, 126, 234, 0.7), 0 4px 30px rgba(118, 75, 162, 0.5), 0 1px 5px rgba(0, 0, 0, 0.3)",
@@ -113,13 +117,15 @@ export function GreetingWidget() {
             {["React", "Next.js", "Node.js", "TypeScript", "Python", "AWS"].map((tech, index) => (
               <span
                 key={tech}
-                className={`rounded-full font-semibold backdrop-blur-md transition-all duration-300 hover:scale-105 hover:rotate-1 ${
-                  isMobile ? "px-2 py-1 text-xs" : "px-4 py-2 text-xs md:text-sm"
-                } ${
-                  isDark
-                    ? "bg-gray-900/80 border border-gray-600/60 text-gray-100"
-                    : "text-white border border-white/40"
-                }`}
+                className={`
+                  rounded-full font-semibold backdrop-blur-md transition-all duration-300 hover:scale-105 hover:rotate-1 macos-text
+                  ${isMobile ? "px-3 py-1.5 text-xs" : "px-4 py-2 text-xs md:text-sm"}
+                  ${
+                    isDark
+                      ? "bg-gray-900/80 border border-gray-600/60 text-gray-100"
+                      : "text-white border border-white/40"
+                  }
+                `}
                 style={{
                   animationDelay: `${index * 0.15}s`,
                   animation: "fadeInUp 0.8s ease-out forwards",
@@ -141,9 +147,11 @@ export function GreetingWidget() {
           {/* Call to action with enhanced styling */}
           <div className={isMobile ? "mt-4" : "mt-8"}>
             <p
-              className={`italic font-semibold ${
-                isMobile ? "text-xs" : "text-sm md:text-base"
-              } ${isDark ? "text-gray-200" : "text-white"}`}
+              className={`
+                italic font-semibold macos-text
+                ${isMobile ? "text-sm" : "text-sm md:text-base"}
+                ${isDark ? "text-gray-200" : "text-white"}
+              `}
               style={{
                 textShadow: isDark
                   ? "0 2px 10px rgba(0,0,0,0.6), 0 0 20px rgba(102, 126, 234, 0.3)"
