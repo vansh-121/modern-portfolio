@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Volume2, VolumeX, Wifi, Battery, Search } from "lucide-react"
+import { Mic, MicOff, Volume2, Wifi, Battery } from "lucide-react"
 import { ThemeSelector } from "@/components/theme-selector"
-import { VoiceControlIndicator } from "@/components/voice-control-indicator"
+import { DarkModeToggle } from "@/components/dark-mode-toggle"
 
 interface MenuBarProps {
   voiceControl: {
@@ -14,13 +14,12 @@ interface MenuBarProps {
     stopListening: () => void
     transcript: string
   }
+  onNavigate: (section: string) => void
 }
 
-export function MenuBar({ voiceControl }: MenuBarProps) {
+export function MenuBar({ voiceControl, onNavigate }: MenuBarProps) {
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [batteryLevel, setBatteryLevel] = useState(85)
-  const [isOnline, setIsOnline] = useState(true)
-  const [volume, setVolume] = useState(75)
+  const [batteryLevel, setBatteryLevel] = useState(100)
 
   // Update time every second
   useEffect(() => {
@@ -31,123 +30,88 @@ export function MenuBar({ voiceControl }: MenuBarProps) {
     return () => clearInterval(timer)
   }, [])
 
-  // Monitor online status
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener("online", handleOnline)
-    window.addEventListener("offline", handleOffline)
-
-    return () => {
-      window.removeEventListener("online", handleOnline)
-      window.removeEventListener("offline", handleOffline)
-    }
-  }, [])
-
-  // Simulate battery drain
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setBatteryLevel((prev) => Math.max(0, prev - Math.random() * 0.1))
-    }, 30000)
-
-    return () => clearInterval(timer)
-  }, [])
-
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    })
-  }
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
     })
   }
 
-  const getBatteryColor = () => {
-    if (batteryLevel > 50) return "text-green-400"
-    if (batteryLevel > 20) return "text-yellow-400"
-    return "text-red-400"
-  }
+  const navigationItems = [
+    { label: "About", id: "about" },
+    { label: "Projects", id: "projects" },
+    { label: "LinkedIn", id: "linkedin", external: "https://linkedin.com" },
+    { label: "GitHub", id: "github", external: "https://github.com" },
+    { label: "Medium", id: "medium", external: "https://medium.com" },
+    { label: "Contact", id: "contact" },
+  ]
 
-  const getBatteryIcon = () => {
-    const level = Math.floor(batteryLevel / 25)
-    const bars = "█".repeat(level) + "░".repeat(4 - level)
-    return bars
+  const handleNavClick = (item: any) => {
+    if (item.external) {
+      window.open(item.external, "_blank")
+    } else {
+      onNavigate(item.id)
+    }
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-8 bg-black/80 backdrop-blur-md border-b border-gray-700/50 z-50 flex items-center justify-between px-4 text-white text-xs">
-      {/* Left side - Logo and menu */}
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-purple-500 rounded-sm flex items-center justify-center">
-            <span className="text-[8px] font-bold text-white">P</span>
-          </div>
-          <span className="font-medium hidden sm:inline">Portfolio</span>
-        </div>
+    <div className="fixed top-0 left-0 right-0 h-8 bg-black/20 backdrop-blur-md border-b border-white/10 z-50 flex items-center justify-between px-4 text-white text-sm">
+      {/* Left side - Portfolio OS and Navigation */}
+      <div className="flex items-center space-x-6">
+        <span className="font-medium text-blue-400">Portfolio OS</span>
 
-        <div className="hidden md:flex items-center space-x-3 text-gray-300">
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
-            File
-          </Button>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
-            Edit
-          </Button>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
-            View
-          </Button>
-          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
-            Window
-          </Button>
+        <div className="flex items-center space-x-4">
+          {navigationItems.map((item) => (
+            <Button
+              key={item.id}
+              variant="ghost"
+              size="sm"
+              onClick={() => handleNavClick(item)}
+              className="h-6 px-2 text-xs font-normal hover:bg-white/10 text-white/90 hover:text-white"
+            >
+              {item.label}
+            </Button>
+          ))}
         </div>
-      </div>
-
-      {/* Center - Search and theme selector */}
-      <div className="flex items-center space-x-2">
-        <div className="hidden sm:flex items-center space-x-1 bg-white/10 rounded px-2 py-1">
-          <Search className="h-3 w-3 text-gray-400" />
-          <span className="text-gray-400 text-xs">Spotlight Search</span>
-        </div>
-        <ThemeSelector />
       </div>
 
       {/* Right side - System indicators */}
       <div className="flex items-center space-x-3">
         {/* Voice Control */}
-        <VoiceControlIndicator voiceControl={voiceControl} />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={voiceControl.isListening ? voiceControl.stopListening : voiceControl.startListening}
+          className={`h-6 w-6 p-0 hover:bg-white/10 ${voiceControl.isListening ? "text-red-400" : "text-white/70"}`}
+          disabled={!voiceControl.isSupported}
+        >
+          {voiceControl.isListening ? <MicOff className="h-3 w-3" /> : <Mic className="h-3 w-3" />}
+        </Button>
+
+        {/* Dark Mode Toggle */}
+        <DarkModeToggle />
+
+        {/* Theme Selector */}
+        <ThemeSelector />
 
         {/* Volume */}
-        <div className="hidden sm:flex items-center space-x-1">
-          {volume > 0 ? <Volume2 className="h-3 w-3 text-gray-300" /> : <VolumeX className="h-3 w-3 text-gray-300" />}
-          <span className="text-xs text-gray-300">{Math.round(volume)}%</span>
-        </div>
+        <Volume2 className="h-3 w-3 text-white/70" />
 
         {/* WiFi */}
-        <div className="flex items-center space-x-1">
-          <Wifi className={`h-3 w-3 ${isOnline ? "text-green-400" : "text-red-400"}`} />
-          <span className="hidden sm:inline text-xs text-gray-300">{isOnline ? "Connected" : "Offline"}</span>
-        </div>
+        <Wifi className="h-3 w-3 text-white/70" />
 
         {/* Battery */}
-        <div className="hidden sm:flex items-center space-x-1">
-          <Battery className={`h-3 w-3 ${getBatteryColor()}`} />
-          <span className={`text-xs font-mono ${getBatteryColor()}`}>
-            {getBatteryIcon()} {Math.round(batteryLevel)}%
-          </span>
+        <div className="flex items-center space-x-1">
+          <Battery className="h-3 w-3 text-white/70" />
+          <span className="text-xs text-white/70">{batteryLevel}%</span>
         </div>
 
-        {/* Date and Time */}
-        <div className="flex flex-col items-end">
-          <span className="text-xs font-medium">{formatTime(currentTime)}</span>
-          <span className="text-[10px] text-gray-400 hidden sm:inline">{formatDate(currentTime)}</span>
-        </div>
+        {/* Time */}
+        <span className="text-xs font-medium text-white">{formatTime(currentTime)}</span>
       </div>
     </div>
   )

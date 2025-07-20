@@ -1,528 +1,209 @@
-/* macOS System Fonts - No external imports needed */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --chart-1: 12 76% 61%;
+  --chart-2: 173 58% 39%;
+  --chart-3: 197 37% 24%;
+  --chart-4: 43 74% 66%;
+  --chart-5: 27 87% 67%;
+  --radius: 0.5rem;
 
-    /* macOS System Font Stack */
-    --font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-  }
+  /* Theme colors for background */
+  --theme-primary: #1a1a2e;
+  --theme-secondary: #16213e;
+  --theme-accent: #0f3460;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  html {
-    font-family: var(--font-system);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-system);
-    /* Prevent zoom on mobile */
-    touch-action: manipulation;
-    /* Prevent overscroll bounce */
-    overscroll-behavior: none;
-  }
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
 }
 
-/* macOS-specific boot loader styles */
-.macos-boot {
-  font-family: var(--font-system);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
-
-.macos-display {
-  font-family: var(--font-display);
-  font-weight: 300;
-  letter-spacing: -0.01em;
-}
-
-.macos-text {
-  font-family: var(--font-system);
-  font-weight: 400;
-}
-
-.macos-mono {
-  font-family: var(--font-mono);
-}
-
-/* Prevent any scrolling during boot */
-.boot-loading {
-  overflow: hidden !important;
-  height: 100vh !important;
-  position: fixed !important;
-  width: 100% !important;
-}
-
-/* Enhanced mobile boot loading */
-@media (max-width: 768px) {
-  html {
-    /* Prevent zoom on input focus */
-    font-size: 16px;
-  }
-
-  body {
-    /* Improve touch scrolling */
-    -webkit-overflow-scrolling: touch;
-    /* Prevent pull-to-refresh */
-    overscroll-behavior-y: contain;
-  }
-
-  .boot-loading {
-    -webkit-overflow-scrolling: none !important;
-    overscroll-behavior: none !important;
-    touch-action: none !important;
-  }
-
-  /* Optimize viewport for mobile */
-  .mobile-optimized {
-    -webkit-text-size-adjust: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-/* Landscape mobile optimizations */
-@media (max-width: 768px) and (orientation: landscape) {
-  body {
-    /* Reduce spacing in landscape */
-    --spacing-scale: 0.75;
-  }
-
-  .landscape-compact {
-    padding: calc(var(--spacing-scale, 1) * 0.5rem);
-  }
-}
-
-/* Enhanced dark mode styles with better contrast */
-.dark .bg-white\/95 {
-  background-color: rgba(15, 23, 42, 0.95) !important;
-}
-
-.dark .bg-white\/10 {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-.dark .text-gray-900 {
-  color: rgb(248 250 252) !important;
-}
-
-.dark .text-gray-700 {
-  color: rgb(226 232 240) !important;
-}
-
-.dark .text-gray-600 {
-  color: rgb(203 213 225) !important;
-}
-
-.dark .border-gray-200\/50 {
-  border-color: rgba(71, 85, 105, 0.5) !important;
-}
-
-.dark .bg-gray-100\/50 {
-  background-color: rgba(51, 65, 85, 0.5) !important;
-}
-
-/* Enhanced glassmorphism effects */
-.bg-white\/95 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-.bg-white\/10 {
-  background-color: rgba(255, 255, 255, 0.15) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Enhanced scrollbar */
-.scrollbar-thin {
-  scrollbar-width: thin;
-}
-
-.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-  background-color: rgb(209 213 219);
-  border-radius: 0.375rem;
-}
-
-.dark .scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
-  background-color: rgb(75 85 99);
-}
-
-.scrollbar-track-transparent::-webkit-scrollbar-track {
-  background-color: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-}
-
-/* Hide scrollbar for dock on mobile */
-.scrollbar-none {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-
-/* Performance optimizations */
-.transform-gpu {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-.will-change-transform {
-  will-change: transform;
-}
-
-/* Smooth animations */
 * {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  border-color: hsl(var(--border));
 }
 
-/* Enhanced glassmorphism effects */
-.backdrop-blur-md {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+body {
+  color: hsl(var(--foreground));
+  background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary), var(--theme-accent));
+  font-feature-settings: "rlig" 1, "calt" 1;
 }
 
-.backdrop-blur-sm {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+/* macOS-style boot animation */
+.macos-boot {
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Boot loader animations */
-@keyframes orbit {
-  from {
-    transform: rotate(0deg) translateX(40px) rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg) translateX(40px) rotate(-360deg);
-  }
-}
-
-@keyframes gradientShift {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%) skewX(-12deg);
-  }
-  100% {
-    transform: translateX(200%) skewX(-12deg);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.4;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 0.8;
-  }
-}
-
-@keyframes fadeInUp {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translate3d(0, 20px, 0);
   }
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
   }
 }
 
-@keyframes bounce {
-  0%,
-  20%,
-  53%,
-  80%,
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Glass morphism effects */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Terminal styles */
+.terminal-text {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Matrix effect */
+@keyframes matrix-fall {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 1;
+  }
   100% {
-    transform: translate3d(0, 0, 0);
-  }
-  40%,
-  43% {
-    transform: translate3d(0, -8px, 0);
-  }
-  70% {
-    transform: translate3d(0, -4px, 0);
-  }
-  90% {
-    transform: translate3d(0, -2px, 0);
+    transform: translateY(100vh);
+    opacity: 0;
   }
 }
 
-@keyframes twinkle {
+.matrix-char {
+  animation: matrix-fall linear infinite;
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}
+
+/* Particle effects */
+@keyframes particle-float {
   0%,
   100% {
-    opacity: 0.2;
-    transform: scale(1) translateZ(0);
+    transform: translateY(0px);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.5) translateZ(0);
+    transform: translateY(-20px);
   }
 }
 
-/* Animation classes */
-.animate-fadeInUp {
-  animation: fadeInUp 0.8s ease-out;
+.particle {
+  animation: particle-float 3s ease-in-out infinite;
 }
 
-.animate-bounce-subtle {
-  animation: bounce 1s ease-in-out;
+/* Voice control pulse */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
-.animate-twinkle {
-  animation: twinkle 3s ease-in-out infinite;
+.voice-pulse {
+  animation: pulse 1s ease-in-out infinite;
 }
 
-.animate-shimmer {
-  animation: shimmer 2s ease-in-out infinite;
+/* Window animations */
+.window-enter {
+  animation: windowSlideIn 0.3s ease-out;
 }
 
-.animate-float {
-  animation: float 4s ease-in-out infinite;
+@keyframes windowSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
-/* Terminal specific styles */
-.dark .bg-black {
-  background-color: #0f172a !important;
+/* Dock hover effects */
+.dock-item {
+  transition: transform 0.2s ease-out;
 }
 
-.dark .bg-gray-800 {
-  background-color: #1e293b !important;
+.dock-item:hover {
+  transform: scale(1.2) translateY(-10px);
 }
 
-/* Smooth theme transitions */
+/* Theme transition */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Enhanced mobile touch improvements */
-@media (max-width: 768px) {
-  /* Larger touch targets */
-  button,
-  .cursor-pointer {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Prevent text selection on UI elements */
-  .select-none {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* Improve tap highlighting */
-  * {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  }
-
-  /* Hardware acceleration for better performance */
-  * {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-
-  /* Reduce blur for better mobile performance */
-  .backdrop-blur-md {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-
-  .backdrop-blur-sm {
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
-}
-
-/* Responsive text utilities */
-@media (max-width: 640px) {
-  .text-responsive {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-}
-
-@media (min-width: 641px) {
-  .text-responsive {
-    font-size: 1rem;
-    line-height: 1.5rem;
-  }
-}
-
-/* Safe area handling for mobile devices */
-@supports (padding: max(0px)) {
-  .safe-area-inset-top {
-    padding-top: max(0.5rem, env(safe-area-inset-top));
-  }
-
-  .safe-area-inset-bottom {
-    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
-  }
-}
-
-/* Optimize rendering */
-canvas {
-  display: block;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  .transform-gpu {
-    transform: none !important;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .bg-white\/10 {
-    background-color: rgba(255, 255, 255, 0.3) !important;
-  }
-
-  .border-white\/20 {
-    border-color: rgba(255, 255, 255, 0.5) !important;
-  }
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
-/* Enhanced text contrast and readability */
-.text-shadow-light {
-  text-shadow: 0 2px 8px rgba(255, 255, 255, 0.9);
-}
-
-.text-shadow-dark {
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
-}
-
-/* Better window contrast with enhanced glassmorphism */
-.window-glass {
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15), 0 16px 64px rgba(118, 75, 162, 0.1);
-}
-
-.dark .window-glass {
-  background: rgba(15, 23, 42, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2), 0 16px 64px rgba(118, 75, 162, 0.15);
-}
-
-/* Enhanced gradient animations */
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Glow effects for enhanced visual appeal */
-.glow-blue {
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.3), 0 0 40px rgba(102, 126, 234, 0.2);
-}
-
-.glow-purple {
-  box-shadow: 0 0 20px rgba(118, 75, 162, 0.3), 0 0 40px rgba(118, 75, 162, 0.2);
-}
-
-.dark .glow-blue {
-  box-shadow: 0 0 30px rgba(102, 126, 234, 0.4), 0 0 60px rgba(102, 126, 234, 0.3);
-}
-
-.dark .glow-purple {
-  box-shadow: 0 0 30px rgba(118, 75, 162, 0.4), 0 0 60px rgba(118, 75, 162, 0.3);
+/* Prevent theme transition on background */
+body {
+  transition: none !important;
 }
