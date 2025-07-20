@@ -41,7 +41,6 @@ export const MenuBar = memo(function MenuBar({ voiceControl }: MenuBarProps) {
     return () => clearInterval(interval)
   }, [])
 
-  // Replace the menuItems array with portfolio-related links
   const menuItems = [
     { label: "About", action: () => console.log("About clicked") },
     { label: "Projects", action: () => console.log("Projects clicked") },
@@ -50,8 +49,6 @@ export const MenuBar = memo(function MenuBar({ voiceControl }: MenuBarProps) {
     { label: "Medium", action: () => window.open("https://medium.com", "_blank") },
     { label: "Contact", action: () => console.log("Contact clicked") },
   ]
-
-  console.log("MenuBar render with voiceControl:", !!voiceControl)
 
   return (
     <>

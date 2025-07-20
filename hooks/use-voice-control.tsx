@@ -16,6 +16,7 @@ export interface UseVoiceControlReturn {
   startListening: () => void
   stopListening: () => void
   toggleListening: () => void
+  error: string | null
 }
 
 export function useVoiceControl({
@@ -31,114 +32,152 @@ export function useVoiceControl({
   const [isSupported, setIsSupported] = useState(false)
   const [transcript, setTranscript] = useState("")
   const [confidence, setConfidence] = useState(0)
+  const [error, setError] = useState<string | null>(null)
 
   const recognitionRef = useRef<any>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const isStartingRef = useRef(false)
+  const isInitializingRef = useRef(false)
 
-  // Initialize SpeechRecognition
+  // Check browser support and initialize
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    // Check for Speech Recognition support
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
-    if (!SpeechRecognitionCtor) {
-      console.log("Speech recognition not supported")
+    if (!SpeechRecognition) {
+      console.log("Speech Recognition not supported in this browser")
       setIsSupported(false)
+      setError("Speech recognition not supported in this browser")
       return
     }
 
-    console.log("Speech recognition supported")
+    console.log("Speech Recognition is supported")
     setIsSupported(true)
-    const recognition = new SpeechRecognitionCtor()
+    setError(null)
 
+    // Create recognition instance
+    const recognition = new SpeechRecognition()
+
+    // Configure recognition settings
     recognition.continuous = false
     recognition.interimResults = true
     recognition.lang = "en-US"
     recognition.maxAlternatives = 1
 
+    // Event handlers
     recognition.onstart = () => {
-      console.log("Voice recognition started")
+      console.log("Speech recognition started successfully")
       setIsListening(true)
       setTranscript("")
       setConfidence(0)
-      isStartingRef.current = false
+      setError(null)
+      isInitializingRef.current = false
     }
 
     recognition.onresult = (event: any) => {
-      const result = event.results[event.results.length - 1]
-      const text = result[0].transcript.toLowerCase().trim()
-      const conf = result[0].confidence || 0.8
+      console.log("Speech recognition result received")
 
-      console.log("Voice result:", text, "confidence:", conf)
-      setTranscript(text)
-      setConfidence(conf)
+      if (event.results && event.results.length > 0) {
+        const result = event.results[event.results.length - 1]
+        const transcript = result[0].transcript.toLowerCase().trim()
+        const confidence = result[0].confidence || 0.8
 
-      if (result.isFinal && text.length > 0) {
-        console.log("Final transcript:", text)
+        console.log("Transcript:", transcript, "Confidence:", confidence)
 
-        // Find matching command
-        const match = commands.find((cmd) => {
-          const cmdLower = cmd.command.toLowerCase()
-          return (
-            text.includes(cmdLower) ||
-            cmdLower.includes(text) ||
-            text.split(" ").some((word) => cmdLower.includes(word))
-          )
-        })
+        setTranscript(transcript)
+        setConfidence(confidence)
 
-        if (match && conf > 0.5) {
-          console.log("Command matched:", match.command)
-          match.action()
-          onCommandRecognized?.(match.command)
-        } else if (text.length > 1) {
-          onError?.(
-            `Command "${text}" not recognized. Try: ${commands
+        // Process final results
+        if (result.isFinal && transcript.length > 0) {
+          console.log("Processing final transcript:", transcript)
+
+          // Find matching command
+          const matchedCommand = commands.find((cmd) => {
+            const cmdLower = cmd.command.toLowerCase()
+            return (
+              transcript.includes(cmdLower) ||
+              cmdLower.includes(transcript) ||
+              transcript.split(" ").some((word) => cmdLower.includes(word) && word.length > 2)
+            )
+          })
+
+          if (matchedCommand && confidence > 0.4) {
+            console.log("Command matched:", matchedCommand.command)
+            try {
+              matchedCommand.action()
+              onCommandRecognized?.(matchedCommand.command)
+            } catch (err) {
+              console.error("Error executing command:", err)
+            }
+          } else if (transcript.length > 2) {
+            const errorMsg = `Command "${transcript}" not recognized. Try: ${commands
               .slice(0, 3)
               .map((c) => c.command)
-              .join(", ")}`,
-          )
+              .join(", ")}`
+            console.log(errorMsg)
+            onError?.(errorMsg)
+          }
         }
       }
     }
 
     recognition.onerror = (event: any) => {
-      console.log("Speech recognition error:", event.error)
+      console.error("Speech recognition error:", event.error, event)
+
       setIsListening(false)
-      isStartingRef.current = false
+      isInitializingRef.current = false
+
+      let errorMessage = ""
 
       switch (event.error) {
         case "not-allowed":
-          onError?.("Microphone access denied. Please allow microphone permissions.")
+          errorMessage = "Microphone access denied. Please allow microphone permissions in your browser settings."
           break
         case "no-speech":
-          onError?.("No speech detected. Try speaking louder.")
+          errorMessage = "No speech detected. Please try speaking more clearly."
           break
         case "aborted":
-          // Don't show error for aborted - this is usually intentional
+          errorMessage = "Speech recognition was aborted. Please try again."
+          break
+        case "audio-capture":
+          errorMessage = "No microphone found. Please check your microphone connection."
           break
         case "network":
-          onError?.("Network error. Check your internet connection.")
+          errorMessage = "Network error occurred. Please check your internet connection."
+          break
+        case "service-not-allowed":
+          errorMessage = "Speech recognition service not allowed. Please check browser permissions."
           break
         default:
-          onError?.(`Voice recognition error: ${event.error}`)
+          errorMessage = `Speech recognition error: ${event.error}`
       }
+
+      setError(errorMessage)
+      onError?.(errorMessage)
     }
 
     recognition.onend = () => {
-      console.log("Voice recognition ended")
+      console.log("Speech recognition ended")
       setIsListening(false)
-      isStartingRef.current = false
+      isInitializingRef.current = false
+
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
+        timeoutRef.current = null
       }
     }
 
     recognitionRef.current = recognition
 
     return () => {
+      console.log("Cleaning up speech recognition")
       if (recognitionRef.current) {
-        recognitionRef.current.abort()
+        try {
+          recognitionRef.current.abort()
+        } catch (err) {
+          console.log("Error aborting recognition:", err)
+        }
       }
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
@@ -148,53 +187,96 @@ export function useVoiceControl({
 
   const startListening = useCallback(async () => {
     console.log("Attempting to start listening...")
-    if (!recognitionRef.current || isListening || isStartingRef.current) {
-      console.log("Cannot start - already listening or starting")
+
+    if (!recognitionRef.current) {
+      console.error("Recognition not initialized")
+      setError("Speech recognition not initialized")
+      return
+    }
+
+    if (isListening || isInitializingRef.current) {
+      console.log("Already listening or initializing")
       return
     }
 
     try {
-      // Request microphone permission first
+      // Clear any previous errors
+      setError(null)
+
+      // Request microphone permission explicitly
       console.log("Requesting microphone permission...")
-      await navigator.mediaDevices.getUserMedia({ audio: true })
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      })
+
       console.log("Microphone permission granted")
 
-      isStartingRef.current = true
-      recognitionRef.current.start()
-      console.log("Speech recognition started")
+      // Stop the stream immediately as we just needed permission
+      stream.getTracks().forEach((track) => track.stop())
 
-      // Auto-stop after 8 seconds
+      // Set initializing flag
+      isInitializingRef.current = true
+
+      // Start recognition
+      console.log("Starting speech recognition...")
+      recognitionRef.current.start()
+
+      // Set timeout to auto-stop after 10 seconds
       timeoutRef.current = setTimeout(() => {
+        console.log("Auto-stopping recognition after timeout")
         if (recognitionRef.current && isListening) {
-          console.log("Auto-stopping recognition after timeout")
           recognitionRef.current.stop()
         }
-      }, 8000)
+      }, 10000)
     } catch (error: any) {
-      console.log("Error starting voice recognition:", error)
-      isStartingRef.current = false
+      console.error("Error starting speech recognition:", error)
+      isInitializingRef.current = false
+
+      let errorMessage = ""
+
       if (error.name === "NotAllowedError") {
-        onError?.("Microphone access denied. Please allow microphone permissions and try again.")
+        errorMessage = "Microphone access denied. Please allow microphone permissions and try again."
+      } else if (error.name === "NotFoundError") {
+        errorMessage = "No microphone found. Please connect a microphone and try again."
+      } else if (error.name === "NotReadableError") {
+        errorMessage = "Microphone is being used by another application. Please close other apps and try again."
       } else {
-        onError?.("Could not access microphone. Please check your settings.")
+        errorMessage = `Failed to access microphone: ${error.message || error.name || "Unknown error"}`
       }
+
+      setError(errorMessage)
+      onError?.(errorMessage)
     }
   }, [isListening, onError])
 
   const stopListening = useCallback(() => {
-    console.log("Stopping voice recognition...")
-    if (recognitionRef.current && (isListening || isStartingRef.current)) {
-      recognitionRef.current.stop()
-    }
+    console.log("Stopping speech recognition...")
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
-    isStartingRef.current = false
+
+    if (recognitionRef.current && (isListening || isInitializingRef.current)) {
+      try {
+        recognitionRef.current.stop()
+      } catch (err) {
+        console.log("Error stopping recognition:", err)
+      }
+    }
+
+    isInitializingRef.current = false
+    setError(null)
   }, [isListening])
 
   const toggleListening = useCallback(() => {
-    console.log("Toggle listening - current state:", isListening)
-    if (isListening || isStartingRef.current) {
+    console.log("Toggling listening state. Current:", isListening)
+
+    if (isListening || isInitializingRef.current) {
       stopListening()
     } else {
       startListening()
@@ -209,5 +291,6 @@ export function useVoiceControl({
     startListening,
     stopListening,
     toggleListening,
+    error,
   }
 }

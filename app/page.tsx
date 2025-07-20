@@ -47,7 +47,7 @@ export default function Portfolio() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const { setTheme } = useTheme()
 
-  const [highestZIndex, setHighestZIndex] = useState(100) // Start with higher base z-index
+  const [highestZIndex, setHighestZIndex] = useState(100)
 
   // Notification system
   const showNotification = (message: string, type: "success" | "error" | "info" = "info") => {
@@ -59,15 +59,28 @@ export default function Portfolio() {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
+  // Window management functions
+  function openWindow(id: string) {
+    console.log("Opening window:", id)
+    setWindows((prev) =>
+      prev.map((window) =>
+        window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
+      ),
+    )
+    setHighestZIndex((prev) => prev + 1)
+  }
+
   // Voice control setup
   const voiceCommands = createVoiceCommands(openWindow, setTheme, showNotification)
 
   const voiceControl = useVoiceControl({
     commands: voiceCommands,
     onCommandRecognized: (command) => {
-      showNotification(`✓ "${command}" executed!`, "success")
+      console.log("Voice command recognized:", command)
+      showNotification(`✓ Command "${command}" executed!`, "success")
     },
     onError: (error) => {
+      console.error("Voice control error:", error)
       showNotification(error, "error")
     },
   })
@@ -85,7 +98,6 @@ export default function Portfolio() {
       setIsTablet(tablet)
       setOrientation(newOrientation)
 
-      // Enhanced responsive sizing
       const getResponsiveSize = (baseWidth: number, baseHeight: number) => {
         if (mobile) {
           return {
@@ -188,7 +200,7 @@ export default function Portfolio() {
     checkDevice()
     window.addEventListener("resize", checkDevice)
     window.addEventListener("orientationchange", () => {
-      setTimeout(checkDevice, 100) // Delay to ensure proper orientation detection
+      setTimeout(checkDevice, 100)
     })
 
     return () => {
@@ -197,28 +209,20 @@ export default function Portfolio() {
     }
   }, [])
 
-  // Authentic macOS boot sequence
+  // Boot sequence
   useEffect(() => {
-    // Force loading state and prevent any premature transitions
     setIsLoading(true)
     setLoadingProgress(0)
 
     const isMobileDevice = window.innerWidth < 768
     const isTabletDevice = window.innerWidth >= 768 && window.innerWidth < 1024
-
-    // Realistic boot timing
     const minLoadingTime = isMobileDevice ? 6000 : isTabletDevice ? 5000 : 4500
     const startTime = Date.now()
 
-    // Prevent any interaction during loading
     document.body.style.overflow = "hidden"
     document.body.style.pointerEvents = "none"
     document.body.style.userSelect = "none"
 
-    // Authentic macOS boot progress pattern
-    // - Starts slow
-    // - Accelerates in the middle
-    // - Slows down at the end with a pause at ~95%
     const loadingSteps = [
       { progress: 0, delay: 800 },
       { progress: 5, delay: 500 },
@@ -227,7 +231,7 @@ export default function Portfolio() {
       { progress: 50, delay: 500 },
       { progress: 70, delay: 400 },
       { progress: 85, delay: 300 },
-      { progress: 95, delay: 1200 }, // Authentic pause at 95%
+      { progress: 95, delay: 1200 },
       { progress: 100, delay: 500 },
     ]
 
@@ -237,33 +241,27 @@ export default function Portfolio() {
     const runLoadingSequence = () => {
       if (stepIndex < loadingSteps.length) {
         const step = loadingSteps[stepIndex]
-
         timeoutId = setTimeout(() => {
           setLoadingProgress(step.progress)
           stepIndex++
           runLoadingSequence()
         }, step.delay)
       } else {
-        // Ensure minimum loading time has passed
         const elapsedTime = Date.now() - startTime
         const remainingTime = Math.max(0, minLoadingTime - elapsedTime)
 
         timeoutId = setTimeout(() => {
-          // Final transition with fade effect
           setLoadingProgress(100)
-
-          // Additional delay before showing desktop
           setTimeout(() => {
             setIsLoading(false)
-            // Re-enable interactions
             document.body.style.overflow = "auto"
             document.body.style.pointerEvents = "auto"
             document.body.style.userSelect = "auto"
 
-            // Show welcome message for voice control
+            // Show voice control welcome message
             if (voiceControl.isSupported) {
               setTimeout(() => {
-                showNotification("🎤 Voice control ready! Click the microphone to start", "info")
+                showNotification("🎤 Voice control ready! Click the microphone and say 'Hello'", "info")
               }, 2000)
             }
           }, 800)
@@ -271,7 +269,6 @@ export default function Portfolio() {
       }
     }
 
-    // Start loading sequence after a brief initialization
     const initTimer = setTimeout(() => {
       runLoadingSequence()
     }, 200)
@@ -279,21 +276,11 @@ export default function Portfolio() {
     return () => {
       if (timeoutId) clearTimeout(timeoutId)
       if (initTimer) clearTimeout(initTimer)
-      // Cleanup in case of unmount
       document.body.style.overflow = "auto"
       document.body.style.pointerEvents = "auto"
       document.body.style.userSelect = "auto"
     }
-  }, []) // Remove isMobile dependency to prevent re-runs
-
-  function openWindow(id: string) {
-    setWindows((prev) =>
-      prev.map((window) =>
-        window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
-      ),
-    )
-    setHighestZIndex((prev) => prev + 1)
-  }
+  }, [voiceControl.isSupported])
 
   const closeWindow = (id: string) => {
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, isOpen: false } : window)))
@@ -333,12 +320,12 @@ export default function Portfolio() {
   }
 
   const updateWindowPosition = (id: string, position: { x: number; y: number }) => {
-    if (isMobile) return // Don't update position on mobile
+    if (isMobile) return
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, position } : window)))
   }
 
   const updateWindowSize = (id: string, size: { width: number; height: number }) => {
-    if (isMobile) return // Don't update size on mobile
+    if (isMobile) return
     setWindows((prev) => prev.map((window) => (window.id === id ? { ...window, size } : window)))
   }
 
@@ -367,7 +354,6 @@ export default function Portfolio() {
 
   return (
     <div className="h-screen w-full overflow-hidden relative">
-      {/* Three.js Background - Optimized for all devices */}
       <ThreeBackground />
 
       {/* Voice Notifications */}
@@ -380,25 +366,19 @@ export default function Portfolio() {
         />
       ))}
 
-      {/* Greeting Widget - Centered with low z-index */}
       <GreetingWidget />
 
-      {/* Music Widget - Position at the bottom right corner, smaller and more subtle */}
       <div className="absolute bottom-20 md:bottom-24 right-4 md:right-8 w-72 md:w-80 max-w-xs z-10">
         <MusicWidget />
       </div>
 
-      {/* Menu Bar - Responsive with high z-index */}
       <MenuBar voiceControl={voiceControl} />
 
-      {/* Desktop Area - Adaptive to orientation */}
       <div
         className={`absolute inset-0 ${orientation === "landscape" && isMobile ? "top-8 bottom-12" : "top-8 bottom-14 md:bottom-20"}`}
       >
-        {/* Welcome Widget - Hidden on small mobile landscape */}
         {!(isMobile && orientation === "landscape") && <WelcomeWidget />}
 
-        {/* Windows - Fully responsive with proper z-index */}
         {windows.map(
           (window) =>
             window.isOpen &&
@@ -424,7 +404,6 @@ export default function Portfolio() {
         )}
       </div>
 
-      {/* Dock - Responsive and adaptive with high z-index */}
       <Dock onOpenWindow={openWindow} windows={windows} />
     </div>
   )
