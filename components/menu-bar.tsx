@@ -1,131 +1,154 @@
 "use client"
 
-import { useState, useEffect, memo } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, Battery, Wifi, Volume2, Menu, X } from "lucide-react"
-import { useTheme } from "next-themes"
+import { Volume2, VolumeX, Wifi, Battery, Search } from "lucide-react"
+import { ThemeSelector } from "@/components/theme-selector"
 import { VoiceControlIndicator } from "@/components/voice-control-indicator"
-import type { UseVoiceControlReturn } from "@/hooks/use-voice-control"
 
 interface MenuBarProps {
-  voiceControl?: UseVoiceControlReturn
+  voiceControl: {
+    isListening: boolean
+    isSupported: boolean
+    startListening: () => void
+    stopListening: () => void
+    transcript: string
+  }
 }
 
-export const MenuBar = memo(function MenuBar({ voiceControl }: MenuBarProps) {
-  const [currentTime, setCurrentTime] = useState("")
-  const [currentDate, setCurrentDate] = useState("")
-  const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const { theme, setTheme } = useTheme()
+export function MenuBar({ voiceControl }: MenuBarProps) {
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [batteryLevel, setBatteryLevel] = useState(85)
+  const [isOnline, setIsOnline] = useState(true)
+  const [volume, setVolume] = useState(75)
 
+  // Update time every second
   useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date()
-      setCurrentTime(
-        now.toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        }),
-      )
-      setCurrentDate(
-        now.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-      )
-    }
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
 
-    updateDateTime()
-    const interval = setInterval(updateDateTime, 1000)
-    return () => clearInterval(interval)
+    return () => clearInterval(timer)
   }, [])
 
-  const menuItems = [
-    { label: "About", action: () => console.log("About clicked") },
-    { label: "Projects", action: () => console.log("Projects clicked") },
-    { label: "LinkedIn", action: () => window.open("https://linkedin.com", "_blank") },
-    { label: "GitHub", action: () => window.open("https://github.com", "_blank") },
-    { label: "Medium", action: () => window.open("https://medium.com", "_blank") },
-    { label: "Contact", action: () => console.log("Contact clicked") },
-  ]
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+
+    window.addEventListener("online", handleOnline)
+    window.addEventListener("offline", handleOffline)
+
+    return () => {
+      window.removeEventListener("online", handleOnline)
+      window.removeEventListener("offline", handleOffline)
+    }
+  }, [])
+
+  // Simulate battery drain
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBatteryLevel((prev) => Math.max(0, prev - Math.random() * 0.1))
+    }, 30000)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+  }
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    })
+  }
+
+  const getBatteryColor = () => {
+    if (batteryLevel > 50) return "text-green-400"
+    if (batteryLevel > 20) return "text-yellow-400"
+    return "text-red-400"
+  }
+
+  const getBatteryIcon = () => {
+    const level = Math.floor(batteryLevel / 25)
+    const bars = "█".repeat(level) + "░".repeat(4 - level)
+    return bars
+  }
 
   return (
-    <>
-      <div className="fixed top-0 left-0 right-0 h-8 md:h-8 bg-black/20 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-2 md:px-4 text-white text-xs md:text-sm font-medium z-50">
-        {/* Left side - App menu */}
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-xs md:text-sm">
-            Portfolio OS
-          </span>
-          <div className="hidden md:flex items-center space-x-4">
-            {menuItems.map((item) => (
-              <span
-                key={item.label}
-                className="text-white/70 hover:text-white cursor-pointer transition-colors"
-                onClick={item.action}
-              >
-                {item.label}
-              </span>
-            ))}
+    <div className="fixed top-0 left-0 right-0 h-8 bg-black/80 backdrop-blur-md border-b border-gray-700/50 z-50 flex items-center justify-between px-4 text-white text-xs">
+      {/* Left side - Logo and menu */}
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <div className="w-4 h-4 bg-gradient-to-br from-blue-400 to-purple-500 rounded-sm flex items-center justify-center">
+            <span className="text-[8px] font-bold text-white">P</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden h-6 w-6 p-0 text-white hover:bg-white/10"
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-          >
-            {showMobileMenu ? <X className="h-3 w-3" /> : <Menu className="h-3 w-3" />}
-          </Button>
+          <span className="font-medium hidden sm:inline">Portfolio</span>
         </div>
 
-        {/* Right side - System indicators */}
-        <div className="flex items-center space-x-1 md:space-x-3">
-          {/* Voice Control Indicator */}
-          {voiceControl && <VoiceControlIndicator voiceControl={voiceControl} />}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-5 w-5 md:h-6 md:w-6 p-0 text-white hover:bg-white/10 transition-all duration-200"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? <Sun className="h-3 w-3 md:h-4 md:w-4" /> : <Moon className="h-3 w-3 md:h-4 md:w-4" />}
+        <div className="hidden md:flex items-center space-x-3 text-gray-300">
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
+            File
           </Button>
-
-          <div className="hidden sm:flex items-center space-x-1">
-            <Volume2 className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
-            <Wifi className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
-            <Battery className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
-            <span className="text-xs opacity-80 hidden md:inline">100%</span>
-          </div>
-
-          <div className="text-right">
-            <div className="text-xs leading-none opacity-90 hidden sm:block">{currentDate}</div>
-            <div className="text-xs leading-none font-mono">{currentTime}</div>
-          </div>
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
+            Edit
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
+            View
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-xs hover:bg-white/10">
+            Window
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      {showMobileMenu && (
-        <div className="fixed top-8 left-0 right-0 bg-black/90 backdrop-blur-md border-b border-white/10 z-40 md:hidden">
-          <div className="p-4 space-y-3">
-            {menuItems.map((item) => (
-              <button
-                key={item.label}
-                className="block w-full text-left text-white/70 hover:text-white transition-colors py-2"
-                onClick={() => {
-                  item.action()
-                  setShowMobileMenu(false)
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
+      {/* Center - Search and theme selector */}
+      <div className="flex items-center space-x-2">
+        <div className="hidden sm:flex items-center space-x-1 bg-white/10 rounded px-2 py-1">
+          <Search className="h-3 w-3 text-gray-400" />
+          <span className="text-gray-400 text-xs">Spotlight Search</span>
         </div>
-      )}
-    </>
+        <ThemeSelector />
+      </div>
+
+      {/* Right side - System indicators */}
+      <div className="flex items-center space-x-3">
+        {/* Voice Control */}
+        <VoiceControlIndicator voiceControl={voiceControl} />
+
+        {/* Volume */}
+        <div className="hidden sm:flex items-center space-x-1">
+          {volume > 0 ? <Volume2 className="h-3 w-3 text-gray-300" /> : <VolumeX className="h-3 w-3 text-gray-300" />}
+          <span className="text-xs text-gray-300">{Math.round(volume)}%</span>
+        </div>
+
+        {/* WiFi */}
+        <div className="flex items-center space-x-1">
+          <Wifi className={`h-3 w-3 ${isOnline ? "text-green-400" : "text-red-400"}`} />
+          <span className="hidden sm:inline text-xs text-gray-300">{isOnline ? "Connected" : "Offline"}</span>
+        </div>
+
+        {/* Battery */}
+        <div className="hidden sm:flex items-center space-x-1">
+          <Battery className={`h-3 w-3 ${getBatteryColor()}`} />
+          <span className={`text-xs font-mono ${getBatteryColor()}`}>
+            {getBatteryIcon()} {Math.round(batteryLevel)}%
+          </span>
+        </div>
+
+        {/* Date and Time */}
+        <div className="flex flex-col items-end">
+          <span className="text-xs font-medium">{formatTime(currentTime)}</span>
+          <span className="text-[10px] text-gray-400 hidden sm:inline">{formatDate(currentTime)}</span>
+        </div>
+      </div>
+    </div>
   )
-})
+}

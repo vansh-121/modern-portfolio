@@ -19,6 +19,7 @@ import { VoiceNotification } from "@/components/voice-notification"
 import { useVoiceControl } from "@/hooks/use-voice-control"
 import { createVoiceCommands } from "@/lib/voice-commands"
 import { useTheme } from "next-themes"
+import { CursorTrail } from "@/components/cursor-trail"
 
 interface WindowState {
   id: string
@@ -355,6 +356,7 @@ export default function Portfolio() {
   return (
     <div className="h-screen w-full overflow-hidden relative">
       <ThreeBackground />
+      <CursorTrail />
 
       {/* Voice Notifications */}
       {notifications.map((notification) => (

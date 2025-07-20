@@ -53,9 +53,10 @@
     "react-resizable-panels": "latest",
     "recharts": "latest",
     "sonner": "latest",
+    "speech-recognition": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "three": "latest",
+    "three": "^0.158.0",
     "vaul": "latest"
   },
   "devDependencies": {

@@ -2,414 +2,370 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { ExternalLink, Github, Star, GitFork } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { useTheme } from "next-themes"
 
-interface Command {
-  input: string
-  output: string | React.JSX.Element
+interface TerminalLine {
+  id: string
+  type: "input" | "output" | "error" | "system"
+  content: string
   timestamp: Date
 }
 
+const ASCII_ART = {
+  matrix: [
+    "01001000 01100101 01101100 01101100 01101111",
+    "01010111 01101111 01110010 01101100 01100100",
+    "01001101 01100001 01110100 01110010 01101001",
+    "01111000 00100000 01001101 01101111 01100100",
+    "01100101 00100000 01000001 01100011 01110100",
+    "01101001 01110110 01100001 01110100 01100101",
+    "01100100 00100001 00100000 01000101 01101110",
+    "01110100 01100101 01110010 00100000 01110100",
+    "01101000 01100101 00100000 01001101 01100001",
+    "01110100 01110010 01101001 01111000 00101110",
+  ],
+  logo: [
+    "    ____             __  ____      ___      ",
+    "   / __ \\____  _____/ /_/ __/___  / (_)___  ",
+    "  / /_/ / __ \\/ ___/ __/ /_/ __ \\/ / / __ \\ ",
+    " / ____/ /_/ / /  / /_/ __/ /_/ / / / /_/ / ",
+    "/_/    \\____/_/   \\__/_/  \\____/_/_/\\____/  ",
+    "                                           ",
+    "Welcome to the Interactive Portfolio Terminal",
+  ],
+}
+
+const JOKES = [
+  "Why do programmers prefer dark mode? Because light attracts bugs! 🐛",
+  "How many programmers does it take to change a light bulb? None, that's a hardware problem! 💡",
+  "Why do Java developers wear glasses? Because they can't C# 👓",
+  "What's a programmer's favorite hangout place? Foo Bar! 🍺",
+  "Why did the programmer quit his job? He didn't get arrays! 📊",
+]
+
+const FACTS = [
+  "The first computer bug was an actual bug - a moth trapped in a Harvard Mark II computer in 1947! 🦋",
+  "The term 'debugging' was coined by Admiral Grace Hopper! 👩‍💻",
+  "JavaScript was created in just 10 days by Brendan Eich in 1995! ⚡",
+  "The first 1GB hard drive cost $40,000 in 1980! 💰",
+  "Python is named after Monty Python's Flying Circus! 🐍",
+]
+
 export function TerminalContent() {
-  const [commands, setCommands] = useState<Command[]>([])
+  const [lines, setLines] = useState<TerminalLine[]>([])
   const [currentInput, setCurrentInput] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
+  const [commandHistory, setCommandHistory] = useState<string[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [isMatrixMode, setIsMatrixMode] = useState(false)
+  const [matrixInterval, setMatrixInterval] = useState<NodeJS.Timeout | null>(null)
+  const [gameState, setGameState] = useState<any>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { setTheme } = useTheme()
 
-  const githubProjects = [
-    {
-      name: "modern-portfolio",
-      description: "macOS-inspired portfolio with Three.js animations",
-      url: "https://github.com/vansh-121/modern-portfolio",
-      demo: "https://vanshsethi.netlify.app/",
-      stars: 45,
-      forks: 12,
-      language: "TypeScript",
-      status: "🟢 Live",
-    },
-    {
-      name: "ecommerce-platform",
-      description: "Full-stack e-commerce with React & Node.js",
-      url: "https://github.com/vansh-121/ecommerce-platform",
-      demo: "https://ecommerce-demo.vercel.app",
-      stars: 32,
-      forks: 8,
-      language: "JavaScript",
-      status: "🟢 Live",
-    },
-    {
-      name: "task-manager-app",
-      description: "Real-time collaborative task management",
-      url: "https://github.com/vansh-121/task-manager",
-      demo: "https://taskmanager-demo.vercel.app",
-      stars: 28,
-      forks: 6,
-      language: "React",
-      status: "🟢 Live",
-    },
-    {
-      name: "weather-dashboard",
-      description: "Beautiful weather app with maps integration",
-      url: "https://github.com/vansh-121/weather-dashboard",
-      demo: "https://weather-demo.vercel.app",
-      stars: 19,
-      forks: 4,
-      language: "Vue.js",
-      status: "🟢 Live",
-    },
-  ]
-
-  const skills = {
-    frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Vue.js", "Three.js"],
-    backend: ["Node.js", "Python", "PostgreSQL", "MongoDB", "Express", "FastAPI"],
-    tools: ["Git", "Docker", "AWS", "Vercel", "Figma", "VS Code"],
-    mobile: ["React Native", "Flutter", "Expo"],
-  }
-
-  const asciiArt = `
-    ╔══════════════════════════════════════╗
-    ║           VANSH SETHI - DEV          ║
-    ║                                      ║
-    ║    ██╗   ██╗███████╗                 ║
-    ║    ██║   ██║██╔════╝                 ║
-    ║    ██║   ██║███████╗                 ║
-    ║    ╚██╗ ██╔╝╚════██║                 ║
-    ║     ╚████╔╝ ███████║                 ║
-    ║      ╚═══╝  ╚══════╝                 ║
-    ║                                      ║
-    ║    Full Stack Developer & Designer   ║
-    ╚══════════════════════════════════════╝
-  `
-
-  const typeWriter = useCallback(async (text: string, delay = 50) => {
-    setIsTyping(true)
-    for (let i = 0; i <= text.length; i++) {
-      setCurrentInput(text.slice(0, i))
-      await new Promise((resolve) => setTimeout(resolve, delay))
-    }
-    setIsTyping(false)
-  }, [])
-
-  const executeCommand = useCallback((input: string) => {
-    const cmd = input.toLowerCase().trim()
-    let output: string | React.JSX.Element = ""
-
-    switch (cmd) {
-      case "help":
-        output = (
-          <div className="space-y-1">
-            <div className="text-green-400 font-bold">Available Commands:</div>
-            <div className="ml-2 md:ml-4 space-y-1 text-xs md:text-sm">
-              <div>
-                <span className="text-blue-400">help</span> - Show this help message
-              </div>
-              <div>
-                <span className="text-blue-400">whoami</span> - Display user information
-              </div>
-              <div>
-                <span className="text-blue-400">projects</span> - List GitHub projects
-              </div>
-              <div>
-                <span className="text-blue-400">skills</span> - Show technical skills
-              </div>
-              <div>
-                <span className="text-blue-400">contact</span> - Display contact information
-              </div>
-              <div>
-                <span className="text-blue-400">ascii</span> - Show ASCII art
-              </div>
-              <div>
-                <span className="text-blue-400">neofetch</span> - System information
-              </div>
-              <div>
-                <span className="text-blue-400">cat [file]</span> - Display file contents
-              </div>
-              <div>
-                <span className="text-blue-400">ls</span> - List directory contents
-              </div>
-              <div>
-                <span className="text-blue-400">clear</span> - Clear terminal
-              </div>
-              <div>
-                <span className="text-blue-400">social</span> - Show social links
-              </div>
-            </div>
-          </div>
-        )
-        break
-
-      case "whoami":
-        output = (
-          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <div className="text-green-400 font-bold">Vansh Sethi</div>
-            <div>🚀 Full Stack Developer & UI/UX Designer</div>
-            <div>📍 India</div>
-            <div>💼 3+ years experience in web development</div>
-            <div>🎯 Passionate about creating amazing user experiences</div>
-            <div>🌟 Available for new opportunities</div>
-            <div>🔗 Portfolio: https://vanshsethi.netlify.app/</div>
-          </div>
-        )
-        break
-
-      case "projects":
-        output = (
-          <div className="space-y-2 md:space-y-3">
-            <div className="text-green-400 font-bold text-sm md:text-base">🚀 GitHub Projects:</div>
-            {githubProjects.map((project, index) => (
-              <div key={index} className="border border-gray-600 rounded p-2 md:p-3 space-y-1 md:space-y-2">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 md:gap-2">
-                  <div className="text-blue-400 font-bold text-sm md:text-base">{project.name}</div>
-                  <div className="flex items-center space-x-1 md:space-x-2">
-                    <Badge variant="outline" className="text-xs">
-                      {project.language}
-                    </Badge>
-                    <span className="text-xs">{project.status}</span>
-                  </div>
-                </div>
-                <div className="text-gray-300 text-xs md:text-sm">{project.description}</div>
-                <div className="flex flex-wrap items-center space-x-2 md:space-x-4 text-xs md:text-sm">
-                  <div className="flex items-center space-x-1">
-                    <Star className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                    <span>{project.stars}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <GitFork className="w-2.5 h-2.5 md:w-3 md:h-3" />
-                    <span>{project.forks}</span>
-                  </div>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="h-auto p-0 text-blue-400 hover:text-blue-300 text-xs"
-                    onClick={() => window.open(project.url, "_blank")}
-                  >
-                    <Github className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
-                    Code
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="h-auto p-0 text-green-400 hover:text-green-300 text-xs"
-                    onClick={() => window.open(project.demo, "_blank")}
-                  >
-                    <ExternalLink className="w-2.5 h-2.5 md:w-3 md:h-3 mr-1" />
-                    Demo
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )
-        break
-
-      case "skills":
-        output = (
-          <div className="space-y-2 md:space-y-3">
-            <div className="text-green-400 font-bold text-sm md:text-base">💻 Technical Skills:</div>
-            {Object.entries(skills).map(([category, skillList]) => (
-              <div key={category}>
-                <div className="text-blue-400 font-semibold capitalize text-sm md:text-base">{category}:</div>
-                <div className="ml-2 md:ml-4 flex flex-wrap gap-1 md:gap-2 mt-1">
-                  {skillList.map((skill) => (
-                    <Badge key={skill} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )
-        break
-
-      case "contact":
-        output = (
-          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <div className="text-green-400 font-bold">📧 Contact Information:</div>
-            <div>Email: vanshsethi121@gmail.com</div>
-            <div>LinkedIn: linkedin.com/in/vansh-sethi-vs/</div>
-            <div>GitHub: github.com/vansh-121</div>
-            <div>Portfolio: vanshsethi.netlify.app</div>
-            <div>Location: India</div>
-          </div>
-        )
-        break
-
-      case "social":
-        output = (
-          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <div className="text-green-400 font-bold">🌐 Social Links:</div>
-            <div>🔗 Portfolio: https://vanshsethi.netlify.app/</div>
-            <div>💼 LinkedIn: https://www.linkedin.com/in/vansh-sethi-vs/</div>
-            <div>🐙 GitHub: https://github.com/vansh-121</div>
-            <div>📧 Email: vanshsethi121@gmail.com</div>
-          </div>
-        )
-        break
-
-      case "ascii":
-        output = <pre className="text-blue-400 text-xs leading-tight overflow-x-auto">{asciiArt}</pre>
-        break
-
-      case "neofetch":
-        output = (
-          <div className="space-y-1 text-xs md:text-sm">
-            <div className="text-green-400 font-bold">System Information:</div>
-            <div>OS: Portfolio OS (macOS inspired)</div>
-            <div>Shell: zsh 5.8.1</div>
-            <div>Terminal: Portfolio Terminal</div>
-            <div>Developer: Vansh Sethi</div>
-            <div>Stack: React, Next.js, TypeScript, Three.js</div>
-            <div>Uptime: {Math.floor(Date.now() / 1000 / 60)} minutes</div>
-            <div>Theme: {document.documentElement.classList.contains("dark") ? "Dark" : "Light"}</div>
-          </div>
-        )
-        break
-
-      case "ls":
-        output = (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 text-xs md:text-sm">
-            <div className="text-blue-400">projects/</div>
-            <div className="text-blue-400">about/</div>
-            <div className="text-blue-400">resume/</div>
-            <div className="text-blue-400">contact/</div>
-            <div className="text-green-400">README.md</div>
-            <div className="text-green-400">package.json</div>
-          </div>
-        )
-        break
-
-      case "cat readme.md":
-      case "cat readme":
-        output = (
-          <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-            <div className="text-green-400 font-bold"># Vansh Sethi - Portfolio</div>
-            <div>Welcome to my interactive portfolio!</div>
-            <div>This is a macOS-inspired portfolio built with:</div>
-            <div className="ml-2 md:ml-4">- Next.js & React</div>
-            <div className="ml-2 md:ml-4">- Three.js for 3D animations</div>
-            <div className="ml-2 md:ml-4">- Tailwind CSS for styling</div>
-            <div className="ml-2 md:ml-4">- TypeScript for type safety</div>
-            <div className="mt-1 md:mt-2">Type 'help' for available commands.</div>
-            <div className="mt-1 md:mt-2">Visit: https://vanshsethi.netlify.app/</div>
-          </div>
-        )
-        break
-
-      case "clear":
-        setCommands([])
-        return
-
-      case "":
-        break
-
-      default:
-        output = `Command not found: ${input}. Type 'help' for available commands.`
-    }
-
-    if (input.trim()) {
-      setCommands((prev) => [
-        ...prev,
-        {
-          input,
-          output,
-          timestamp: new Date(),
-        },
-      ])
+  // Auto-focus input
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
     }
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    executeCommand(currentInput)
-    setCurrentInput("")
-  }
-
+  // Scroll to bottom when new lines are added
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight
     }
-  }, [commands])
+  }, [lines])
 
+  // Initialize terminal
   useEffect(() => {
-    // Welcome message
-    setTimeout(() => {
-      setCommands([
-        {
-          input: "",
-          output: (
-            <div className="space-y-1 md:space-y-2 text-xs md:text-sm">
-              <div className="text-green-400 font-bold">Welcome to Vansh's Portfolio Terminal v2.0</div>
-              <div>Type 'help' to see available commands.</div>
-              <div>Type 'projects' to see my GitHub repositories.</div>
-              <div>Type 'social' to see my social links.</div>
-            </div>
-          ),
-          timestamp: new Date(),
-        },
-      ])
-    }, 500)
+    addLine("system", ASCII_ART.logo.join("\n"))
+    addLine("system", "Type 'help' to see available commands")
+    addLine("system", "Try 'matrix', 'weather', 'github', or 'surprise'!")
+  }, [])
 
-    // Auto-demo
-    setTimeout(() => {
-      typeWriter("help")
-    }, 2000)
-  }, [typeWriter])
+  const addLine = (type: TerminalLine["type"], content: string) => {
+    const newLine: TerminalLine = {
+      id: Date.now().toString() + Math.random(),
+      type,
+      content,
+      timestamp: new Date(),
+    }
+    setLines((prev) => [...prev, newLine])
+  }
+
+  const executeCommand = async (command: string) => {
+    const cmd = command.toLowerCase().trim()
+    addLine("input", `$ ${command}`)
+
+    // Add to history
+    if (command.trim()) {
+      setCommandHistory((prev) => [...prev, command])
+    }
+
+    switch (cmd) {
+      case "help":
+        addLine("output", "Available commands:")
+        addLine("output", "  help          - Show this help message")
+        addLine("output", "  clear         - Clear terminal")
+        addLine("output", "  matrix        - Enter the Matrix")
+        addLine("output", "  weather       - Get weather info")
+        addLine("output", "  spotify       - Show now playing")
+        addLine("output", "  github        - Show GitHub activity")
+        addLine("output", "  snake         - Play Snake game")
+        addLine("output", "  tetris        - Play Tetris")
+        addLine("output", "  joke          - Tell a programming joke")
+        addLine("output", "  fact          - Share a tech fact")
+        addLine("output", "  surprise      - Random surprise")
+        addLine("output", "  hack          - Activate hacker mode")
+        addLine("output", "  konami        - Try the Konami code")
+        addLine("output", "  whoami        - About this terminal")
+        addLine("output", "  date          - Show current date/time")
+        addLine("output", "  theme <name>  - Change theme (cosmic, retro, minimal, hacker, sunset)")
+        break
+
+      case "clear":
+        setLines([])
+        break
+
+      case "matrix":
+        setIsMatrixMode(true)
+        setTheme("hacker")
+        addLine("system", "🔴 ENTERING THE MATRIX...")
+        addLine("output", ASCII_ART.matrix.join("\n"))
+        addLine("system", "Matrix mode activated! Theme changed to hacker.")
+
+        // Start matrix animation
+        let matrixCount = 0
+        const interval = setInterval(() => {
+          const randomBinary = Array.from({ length: 50 }, () => (Math.random() > 0.5 ? "1" : "0")).join("")
+          addLine("system", `${randomBinary}`)
+          matrixCount++
+          if (matrixCount > 10) {
+            clearInterval(interval)
+            addLine("system", "Matrix sequence complete. Welcome to the real world.")
+            setIsMatrixMode(false)
+          }
+        }, 200)
+        setMatrixInterval(interval)
+        break
+
+      case "weather":
+        addLine("system", "🌤️ Fetching weather data...")
+        setTimeout(() => {
+          addLine("output", "📍 Current Weather:")
+          addLine("output", "Location: San Francisco, CA")
+          addLine("output", "Temperature: 72°F (22°C)")
+          addLine("output", "Condition: Partly Cloudy")
+          addLine("output", "Humidity: 65%")
+          addLine("output", "Wind: 8 mph NW")
+          addLine("system", "💡 Tip: This is demo data. Connect to a weather API for real data!")
+        }, 1000)
+        break
+
+      case "spotify":
+        addLine("system", "🎵 Checking Spotify...")
+        setTimeout(() => {
+          addLine("output", "🎧 Now Playing:")
+          addLine("output", "Track: Synthwave Dreams")
+          addLine("output", "Artist: Neon Nights")
+          addLine("output", "Album: Digital Horizons")
+          addLine("output", "Duration: 3:42 / 4:15")
+          addLine("output", "🔊 ████████░░ 80%")
+          addLine("system", "💡 Connect to Spotify API for real playback data!")
+        }, 800)
+        break
+
+      case "github":
+        addLine("system", "📊 Fetching GitHub activity...")
+        setTimeout(() => {
+          addLine("output", "🐙 Recent GitHub Activity:")
+          addLine("output", "📝 Pushed to portfolio-v2 (2 hours ago)")
+          addLine("output", "⭐ Starred react-three-fiber (5 hours ago)")
+          addLine("output", "🔀 Merged PR #42 in awesome-project (1 day ago)")
+          addLine("output", "📦 Created new repo: ai-terminal (2 days ago)")
+          addLine("output", "🐛 Fixed issue #123 in web-app (3 days ago)")
+          addLine("system", "💡 Connect to GitHub API for real activity data!")
+        }, 1200)
+        break
+
+      case "snake":
+        addLine("system", "🐍 Initializing Snake Game...")
+        addLine("output", "┌─────────────────────┐")
+        addLine("output", "│ 🐍 SNAKE GAME      │")
+        addLine("output", "│                     │")
+        addLine("output", "│   ●●●○              │")
+        addLine("output", "│                     │")
+        addLine("output", "│         🍎          │")
+        addLine("output", "│                     │")
+        addLine("output", "└─────────────────────┘")
+        addLine("output", "Use WASD keys to move!")
+        addLine("system", "🎮 Game ready! (This is a demo - implement full game logic)")
+        break
+
+      case "tetris":
+        addLine("system", "🧩 Loading Tetris...")
+        addLine("output", "┌─────────────┐")
+        addLine("output", "│ 🧩 TETRIS   │")
+        addLine("output", "│             │")
+        addLine("output", "│      ██     │")
+        addLine("output", "│      ██     │")
+        addLine("output", "│             │")
+        addLine("output", "│ ██████████  │")
+        addLine("output", "└─────────────┘")
+        addLine("output", "Score: 1337")
+        addLine("system", "🎮 Game loaded! (Demo mode)")
+        break
+
+      case "joke":
+        const randomJoke = JOKES[Math.floor(Math.random() * JOKES.length)]
+        addLine("output", `😄 ${randomJoke}`)
+        break
+
+      case "fact":
+        const randomFact = FACTS[Math.floor(Math.random() * FACTS.length)]
+        addLine("output", `🤓 ${randomFact}`)
+        break
+
+      case "surprise":
+        const surprises = [
+          "🎉 You found an easter egg! Here's a cookie: 🍪",
+          "✨ *Sparkles appear around your cursor*",
+          "🦄 A wild unicorn appears! It grants you +10 coding skills!",
+          "🎭 The terminal is now in party mode! 🎊",
+          "🔮 The magic 8-ball says: 'Your code will compile on the first try!'",
+          "🚀 Launching surprise rocket... 3... 2... 1... 🌟",
+        ]
+        const surprise = surprises[Math.floor(Math.random() * surprises.length)]
+        addLine("system", surprise)
+        break
+
+      case "hack":
+        setTheme("hacker")
+        addLine("system", "🔴 HACKER MODE ACTIVATED")
+        addLine("output", "Access granted...")
+        addLine("output", "Bypassing firewall... ████████████ 100%")
+        addLine("output", "Decrypting mainframe... ████████████ 100%")
+        addLine("output", "Welcome, Neo. 😎")
+        break
+
+      case "konami":
+        addLine("system", "🎮 Konami Code detected!")
+        addLine("output", "↑ ↑ ↓ ↓ ← → ← → B A")
+        addLine("system", "🎊 30 extra lives granted!")
+        addLine("system", "🔓 Secret developer mode unlocked!")
+        break
+
+      case "whoami":
+        addLine("output", "🤖 Interactive Portfolio Terminal v2.0")
+        addLine("output", "Built with React, TypeScript, and Three.js")
+        addLine("output", "Features: Voice control, 3D graphics, games")
+        addLine("output", "Created by: Your Friendly Developer")
+        break
+
+      case "date":
+        addLine("output", new Date().toString())
+        break
+
+      default:
+        if (cmd.startsWith("theme ")) {
+          const themeName = cmd.split(" ")[1]
+          const validThemes = ["cosmic", "retro", "minimal", "hacker", "sunset", "ocean"]
+
+          if (validThemes.includes(themeName)) {
+            setTheme(themeName)
+            addLine("system", `🎨 Theme changed to: ${themeName}`)
+          } else {
+            addLine("error", `❌ Invalid theme. Available: ${validThemes.join(", ")}`)
+          }
+        } else if (cmd.includes("sudo")) {
+          addLine("error", "❌ Nice try! But this isn't a real terminal 😏")
+        } else if (cmd.includes("rm -rf")) {
+          addLine("error", "🚨 DANGER: Command blocked for safety!")
+          addLine("system", "😅 Don't worry, your files are safe!")
+        } else {
+          addLine("error", `❌ Command not found: ${command}`)
+          addLine("system", "💡 Type 'help' to see available commands")
+        }
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      if (currentInput.trim()) {
+        executeCommand(currentInput)
+      }
+      setCurrentInput("")
+      setHistoryIndex(-1)
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault()
+      if (commandHistory.length > 0) {
+        const newIndex = historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1)
+        setHistoryIndex(newIndex)
+        setCurrentInput(commandHistory[newIndex])
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault()
+      if (historyIndex !== -1) {
+        const newIndex = Math.min(commandHistory.length - 1, historyIndex + 1)
+        if (newIndex === commandHistory.length - 1) {
+          setHistoryIndex(-1)
+          setCurrentInput("")
+        } else {
+          setHistoryIndex(newIndex)
+          setCurrentInput(commandHistory[newIndex])
+        }
+      }
+    }
+  }
+
+  const getLineColor = (type: TerminalLine["type"]) => {
+    switch (type) {
+      case "input":
+        return "text-green-400"
+      case "output":
+        return "text-blue-300"
+      case "error":
+        return "text-red-400"
+      case "system":
+        return "text-yellow-300"
+      default:
+        return "text-gray-300"
+    }
+  }
 
   return (
-    <div className="h-full bg-black text-green-400 font-mono text-xs md:text-sm flex flex-col">
-      {/* Terminal Header */}
-      <div className="bg-gray-800 px-2 md:px-4 py-1 md:py-2 text-white text-xs flex items-center justify-between">
-        <div>Terminal — vansh@portfolio — 80×24</div>
-        <div className="flex space-x-1 md:space-x-2">
-          <div className="w-2 h-2 md:w-3 md:h-3 bg-red-500 rounded-full"></div>
-          <div className="w-2 h-2 md:w-3 md:h-3 bg-yellow-500 rounded-full"></div>
-          <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full"></div>
-        </div>
-      </div>
-
-      {/* Terminal Content */}
-      <div
-        ref={terminalRef}
-        className="flex-1 p-2 md:p-4 overflow-y-auto space-y-1 md:space-y-2"
-        onClick={() => inputRef.current?.focus()}
-      >
-        {commands.map((command, index) => (
-          <div key={index} className="space-y-1">
-            {command.input && (
-              <div className="flex items-center space-x-1 md:space-x-2 flex-wrap">
-                <span className="text-blue-400 text-xs md:text-sm">vansh@portfolio</span>
-                <span className="text-white">:</span>
-                <span className="text-purple-400">~</span>
-                <span className="text-white">$</span>
-                <span className="text-green-400 break-all">{command.input}</span>
-              </div>
-            )}
-            {command.output && <div className="ml-2 md:ml-4 text-gray-300">{command.output}</div>}
+    <div className="h-full bg-black text-green-400 font-mono text-sm overflow-hidden flex flex-col">
+      <div ref={terminalRef} className="flex-1 overflow-y-auto p-4 space-y-1" onClick={() => inputRef.current?.focus()}>
+        {lines.map((line) => (
+          <div key={line.id} className={`whitespace-pre-wrap ${getLineColor(line.type)}`}>
+            {line.content}
           </div>
         ))}
 
-        {/* Current Input Line */}
-        <form onSubmit={handleSubmit} className="flex items-center space-x-1 md:space-x-2 flex-wrap">
-          <span className="text-blue-400 text-xs md:text-sm">vansh@portfolio</span>
-          <span className="text-white">:</span>
-          <span className="text-purple-400">~</span>
-          <span className="text-white">$</span>
+        <div className="flex items-center">
+          <span className="text-green-400 mr-2">$</span>
           <input
             ref={inputRef}
             type="text"
             value={currentInput}
             onChange={(e) => setCurrentInput(e.target.value)}
-            className="flex-1 min-w-0 bg-transparent outline-none text-green-400 text-xs md:text-sm"
-            autoFocus
+            onKeyDown={handleKeyDown}
+            className="flex-1 bg-transparent outline-none text-green-400 caret-green-400"
+            placeholder="Type a command..."
+            autoComplete="off"
             spellCheck={false}
           />
-          {isTyping && <span className="animate-pulse">|</span>}
-        </form>
+          <span className="animate-pulse text-green-400">█</span>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-700 p-2 text-xs text-gray-500">
+        <div className="flex justify-between">
+          <span>Interactive Terminal v2.0</span>
+          <span>{new Date().toLocaleTimeString()}</span>
+        </div>
       </div>
     </div>
   )
