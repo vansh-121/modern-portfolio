@@ -17,7 +17,7 @@ export function VoiceNotification({ message, type, onClose }: VoiceNotificationP
     const timer = setTimeout(() => {
       setIsVisible(false)
       setTimeout(onClose, 300)
-    }, 5000) // Show for 5 seconds
+    }, 5000)
 
     return () => clearTimeout(timer)
   }, [onClose])
@@ -30,15 +30,15 @@ export function VoiceNotification({ message, type, onClose }: VoiceNotificationP
   const config = {
     success: {
       icon: CheckCircle,
-      className: "bg-green-600/95 border-green-500 text-white",
+      className: "bg-green-600/95 border-green-500 text-white shadow-lg shadow-green-500/20",
     },
     error: {
       icon: AlertCircle,
-      className: "bg-red-600/95 border-red-500 text-white",
+      className: "bg-red-600/95 border-red-500 text-white shadow-lg shadow-red-500/20",
     },
     info: {
       icon: Info,
-      className: "bg-blue-600/95 border-blue-500 text-white",
+      className: "bg-blue-600/95 border-blue-500 text-white shadow-lg shadow-blue-500/20",
     },
   }
 
@@ -51,9 +51,7 @@ export function VoiceNotification({ message, type, onClose }: VoiceNotificationP
         isVisible ? "translate-x-0 opacity-100 scale-100" : "translate-x-full opacity-0 scale-95",
       )}
     >
-      <div
-        className={cn("flex items-start space-x-3 px-4 py-3 rounded-lg backdrop-blur-md border shadow-lg", className)}
-      >
+      <div className={cn("flex items-start space-x-3 px-4 py-3 rounded-lg backdrop-blur-md border", className)}>
         <Icon className="h-5 w-5 flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium leading-relaxed break-words">{message}</p>

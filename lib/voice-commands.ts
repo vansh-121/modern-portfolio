@@ -6,58 +6,66 @@ export function createVoiceCommands(
   showNotification: (message: string, type?: "success" | "error" | "info") => void,
 ): VoiceCommand[] {
   return [
-    // Test command
+    // Test commands
     {
       command: "hello",
       action: () => {
-        console.log("Voice command executed: hello")
-        showNotification("Hello! Voice control is working! 🎤", "success")
+        console.log("🎉 Voice command executed: hello")
+        showNotification("Hello! Voice control is working perfectly! 🎤✨", "success")
       },
       description: "Test voice recognition",
     },
     {
       command: "hi",
       action: () => {
-        console.log("Voice command executed: hi")
-        showNotification("Hi there! Voice control is active!", "success")
+        console.log("👋 Voice command executed: hi")
+        showNotification("Hi there! Voice control is active and ready!", "success")
       },
       description: "Greeting command",
+    },
+    {
+      command: "test",
+      action: () => {
+        console.log("🧪 Voice command executed: test")
+        showNotification("Voice test successful! All systems working!", "success")
+      },
+      description: "Test voice system",
     },
 
     // Window commands - Projects
     {
       command: "open projects",
       action: () => {
-        console.log("Voice command executed: open projects")
+        console.log("📁 Voice command executed: open projects")
         openWindow("projects")
-        showNotification("Opening projects", "success")
+        showNotification("Opening projects window", "success")
       },
       description: "Open projects window",
     },
     {
       command: "projects",
       action: () => {
-        console.log("Voice command executed: projects")
-        openWindow("projects")
-        showNotification("Opening projects", "success")
-      },
-      description: "Open projects",
-    },
-    {
-      command: "show projects",
-      action: () => {
-        console.log("Voice command executed: show projects")
+        console.log("📁 Voice command executed: projects")
         openWindow("projects")
         showNotification("Showing projects", "success")
       },
       description: "Show projects",
+    },
+    {
+      command: "show projects",
+      action: () => {
+        console.log("📁 Voice command executed: show projects")
+        openWindow("projects")
+        showNotification("Displaying projects", "success")
+      },
+      description: "Display projects",
     },
 
     // Window commands - About
     {
       command: "about me",
       action: () => {
-        console.log("Voice command executed: about me")
+        console.log("👤 Voice command executed: about me")
         openWindow("about")
         showNotification("Opening about section", "success")
       },
@@ -66,18 +74,18 @@ export function createVoiceCommands(
     {
       command: "about",
       action: () => {
-        console.log("Voice command executed: about")
+        console.log("👤 Voice command executed: about")
         openWindow("about")
-        showNotification("Opening about section", "success")
+        showNotification("Showing about information", "success")
       },
-      description: "Open about",
+      description: "Show about",
     },
     {
       command: "open about",
       action: () => {
-        console.log("Voice command executed: open about")
+        console.log("👤 Voice command executed: open about")
         openWindow("about")
-        showNotification("Opening about section", "success")
+        showNotification("Opening about window", "success")
       },
       description: "Open about window",
     },
@@ -86,7 +94,7 @@ export function createVoiceCommands(
     {
       command: "resume",
       action: () => {
-        console.log("Voice command executed: resume")
+        console.log("📄 Voice command executed: resume")
         openWindow("resume")
         showNotification("Opening resume", "success")
       },
@@ -95,18 +103,27 @@ export function createVoiceCommands(
     {
       command: "open resume",
       action: () => {
-        console.log("Voice command executed: open resume")
+        console.log("📄 Voice command executed: open resume")
         openWindow("resume")
-        showNotification("Opening resume", "success")
+        showNotification("Displaying resume", "success")
       },
       description: "Open resume window",
+    },
+    {
+      command: "show resume",
+      action: () => {
+        console.log("📄 Voice command executed: show resume")
+        openWindow("resume")
+        showNotification("Showing resume", "success")
+      },
+      description: "Show resume",
     },
 
     // Window commands - Services
     {
       command: "services",
       action: () => {
-        console.log("Voice command executed: services")
+        console.log("🛠️ Voice command executed: services")
         openWindow("services")
         showNotification("Opening services", "success")
       },
@@ -115,9 +132,9 @@ export function createVoiceCommands(
     {
       command: "open services",
       action: () => {
-        console.log("Voice command executed: open services")
+        console.log("🛠️ Voice command executed: open services")
         openWindow("services")
-        showNotification("Opening services", "success")
+        showNotification("Displaying services", "success")
       },
       description: "Open services window",
     },
@@ -126,27 +143,27 @@ export function createVoiceCommands(
     {
       command: "contact",
       action: () => {
-        console.log("Voice command executed: contact")
+        console.log("📞 Voice command executed: contact")
         openWindow("contact")
-        showNotification("Opening contact", "success")
+        showNotification("Opening contact information", "success")
       },
       description: "Open contact",
     },
     {
       command: "contact me",
       action: () => {
-        console.log("Voice command executed: contact me")
+        console.log("📞 Voice command executed: contact me")
         openWindow("contact")
-        showNotification("Opening contact", "success")
+        showNotification("Showing contact details", "success")
       },
-      description: "Open contact window",
+      description: "Show contact info",
     },
     {
       command: "open contact",
       action: () => {
-        console.log("Voice command executed: open contact")
+        console.log("📞 Voice command executed: open contact")
         openWindow("contact")
-        showNotification("Opening contact", "success")
+        showNotification("Opening contact window", "success")
       },
       description: "Open contact window",
     },
@@ -155,7 +172,7 @@ export function createVoiceCommands(
     {
       command: "terminal",
       action: () => {
-        console.log("Voice command executed: terminal")
+        console.log("💻 Voice command executed: terminal")
         openWindow("terminal")
         showNotification("Opening terminal", "success")
       },
@@ -164,9 +181,9 @@ export function createVoiceCommands(
     {
       command: "open terminal",
       action: () => {
-        console.log("Voice command executed: open terminal")
+        console.log("💻 Voice command executed: open terminal")
         openWindow("terminal")
-        showNotification("Opening terminal", "success")
+        showNotification("Launching terminal", "success")
       },
       description: "Open terminal window",
     },
@@ -175,7 +192,7 @@ export function createVoiceCommands(
     {
       command: "dark mode",
       action: () => {
-        console.log("Voice command executed: dark mode")
+        console.log("🌙 Voice command executed: dark mode")
         setTheme("dark")
         showNotification("Switched to dark mode", "success")
       },
@@ -184,30 +201,48 @@ export function createVoiceCommands(
     {
       command: "light mode",
       action: () => {
-        console.log("Voice command executed: light mode")
+        console.log("☀️ Voice command executed: light mode")
         setTheme("light")
         showNotification("Switched to light mode", "success")
       },
       description: "Enable light theme",
+    },
+    {
+      command: "dark theme",
+      action: () => {
+        console.log("🌙 Voice command executed: dark theme")
+        setTheme("dark")
+        showNotification("Dark theme activated", "success")
+      },
+      description: "Activate dark theme",
+    },
+    {
+      command: "light theme",
+      action: () => {
+        console.log("☀️ Voice command executed: light theme")
+        setTheme("light")
+        showNotification("Light theme activated", "success")
+      },
+      description: "Activate light theme",
     },
 
     // Utility commands
     {
       command: "help",
       action: () => {
-        console.log("Voice command executed: help")
-        showNotification("Available commands: hello, open projects, about me, dark mode, contact", "info")
+        console.log("❓ Voice command executed: help")
+        showNotification("Available: hello, open projects, about me, dark mode, contact", "info")
       },
       description: "Show help",
     },
     {
       command: "surprise me",
       action: () => {
-        console.log("Voice command executed: surprise me")
+        console.log("🎲 Voice command executed: surprise me")
         const windows = ["projects", "about", "resume", "services", "contact", "terminal"]
         const randomWindow = windows[Math.floor(Math.random() * windows.length)]
         openWindow(randomWindow)
-        showNotification(`Surprise! Opening ${randomWindow}`, "success")
+        showNotification(`Surprise! Opening ${randomWindow} 🎉`, "success")
       },
       description: "Open random window",
     },

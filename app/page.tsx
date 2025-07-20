@@ -61,7 +61,7 @@ export default function Portfolio() {
 
   // Window management functions
   function openWindow(id: string) {
-    console.log("Opening window:", id)
+    console.log("🪟 Opening window:", id)
     setWindows((prev) =>
       prev.map((window) =>
         window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
@@ -76,11 +76,11 @@ export default function Portfolio() {
   const voiceControl = useVoiceControl({
     commands: voiceCommands,
     onCommandRecognized: (command) => {
-      console.log("Voice command recognized:", command)
-      showNotification(`✓ Command "${command}" executed!`, "success")
+      console.log("🎤 Voice command recognized:", command)
+      showNotification(`✅ Command "${command}" executed successfully!`, "success")
     },
     onError: (error) => {
-      console.error("Voice control error:", error)
+      console.error("🚨 Voice control error:", error)
       showNotification(error, "error")
     },
   })
@@ -261,7 +261,7 @@ export default function Portfolio() {
             // Show voice control welcome message
             if (voiceControl.isSupported) {
               setTimeout(() => {
-                showNotification("🎤 Voice control ready! Click the microphone and say 'Hello'", "info")
+                showNotification("🎤 Voice control ready! Click the microphone and say 'Hello' to test", "info")
               }, 2000)
             }
           }, 800)
