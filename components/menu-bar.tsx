@@ -4,8 +4,19 @@ import { useState, useEffect, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun, Battery, Wifi, Volume2, Menu, X } from "lucide-react"
 import { useTheme } from "next-themes"
+import { VoiceControlIndicator } from "@/components/voice-control-indicator"
 
-export const MenuBar = memo(function MenuBar() {
+interface MenuBarProps {
+  voiceControl?: {
+    isListening: boolean
+    isSupported: boolean
+    transcript: string
+    confidence: number
+    onToggle: () => void
+  }
+}
+
+export const MenuBar = memo(function MenuBar({ voiceControl }: MenuBarProps) {
   const [currentTime, setCurrentTime] = useState("")
   const [currentDate, setCurrentDate] = useState("")
   const [showMobileMenu, setShowMobileMenu] = useState(false)
@@ -76,6 +87,17 @@ export const MenuBar = memo(function MenuBar() {
 
         {/* Right side - System indicators */}
         <div className="flex items-center space-x-1 md:space-x-3">
+          {/* Voice Control Indicator */}
+          {voiceControl && (
+            <VoiceControlIndicator
+              isListening={voiceControl.isListening}
+              isSupported={voiceControl.isSupported}
+              transcript={voiceControl.transcript}
+              confidence={voiceControl.confidence}
+              onToggle={voiceControl.onToggle}
+            />
+          )}
+
           <Button
             variant="ghost"
             size="sm"

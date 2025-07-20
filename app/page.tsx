@@ -15,6 +15,10 @@ import { WelcomeWidget } from "@/components/welcome-widget"
 import { TerminalContent } from "@/components/terminal-content"
 import { GreetingWidget } from "@/components/greeting-widget"
 import { MusicWidget } from "@/components/music-widget"
+import { VoiceNotification } from "@/components/voice-notification"
+import { useVoiceControl } from "@/hooks/use-voice-control"
+import { createVoiceCommands } from "@/lib/voice-commands"
+import { useTheme } from "next-themes"
 
 interface WindowState {
   id: string
@@ -27,6 +31,12 @@ interface WindowState {
   zIndex: number
 }
 
+interface Notification {
+  id: string
+  message: string
+  type: "success" | "error" | "info"
+}
+
 export default function Portfolio() {
   const [isLoading, setIsLoading] = useState(true)
   const [loadingProgress, setLoadingProgress] = useState(0)
@@ -34,8 +44,33 @@ export default function Portfolio() {
   const [isTablet, setIsTablet] = useState(false)
   const [windows, setWindows] = useState<WindowState[]>([])
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const { setTheme } = useTheme()
 
   const [highestZIndex, setHighestZIndex] = useState(100) // Start with higher base z-index
+
+  // Notification system
+  const showNotification = (message: string, type: "success" | "error" | "info" = "info") => {
+    const id = Date.now().toString()
+    setNotifications((prev) => [...prev, { id, message, type }])
+  }
+
+  const removeNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  }
+
+  // Voice control setup
+  const voiceCommands = createVoiceCommands(openWindow, setTheme, showNotification)
+
+  const voiceControl = useVoiceControl({
+    commands: voiceCommands,
+    onCommandRecognized: (command) => {
+      showNotification(`Command "${command}" executed!`, "success")
+    },
+    onError: (error) => {
+      showNotification(`Voice error: ${error}`, "error")
+    },
+  })
 
   // Enhanced device detection and responsive handling
   useEffect(() => {
@@ -224,6 +259,13 @@ export default function Portfolio() {
             document.body.style.overflow = "auto"
             document.body.style.pointerEvents = "auto"
             document.body.style.userSelect = "auto"
+
+            // Show welcome message for voice control
+            if (voiceControl.isSupported) {
+              setTimeout(() => {
+                showNotification("Voice control is ready! Click the microphone or say 'Hello'", "info")
+              }, 2000)
+            }
           }, 800)
         }, remainingTime)
       }
@@ -244,7 +286,7 @@ export default function Portfolio() {
     }
   }, []) // Remove isMobile dependency to prevent re-runs
 
-  const openWindow = (id: string) => {
+  function openWindow(id: string) {
     setWindows((prev) =>
       prev.map((window) =>
         window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
@@ -328,6 +370,16 @@ export default function Portfolio() {
       {/* Three.js Background - Optimized for all devices */}
       <ThreeBackground />
 
+      {/* Voice Notifications */}
+      {notifications.map((notification) => (
+        <VoiceNotification
+          key={notification.id}
+          message={notification.message}
+          type={notification.type}
+          onClose={() => removeNotification(notification.id)}
+        />
+      ))}
+
       {/* Greeting Widget - Centered with low z-index */}
       <GreetingWidget />
 
@@ -337,7 +389,7 @@ export default function Portfolio() {
       </div>
 
       {/* Menu Bar - Responsive with high z-index */}
-      <MenuBar />
+      <MenuBar voiceControl={voiceControl} />
 
       {/* Desktop Area - Adaptive to orientation */}
       <div
