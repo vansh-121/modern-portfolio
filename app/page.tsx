@@ -59,9 +59,9 @@ export default function Portfolio() {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
-  // Window management functions
+  // Window management
   function openWindow(id: string) {
-    console.log("🪟 Opening window:", id)
+    console.log("Opening window:", id)
     setWindows((prev) =>
       prev.map((window) =>
         window.id === id ? { ...window, isOpen: true, isMinimized: false, zIndex: highestZIndex + 1 } : window,
@@ -76,16 +76,16 @@ export default function Portfolio() {
   const voiceControl = useVoiceControl({
     commands: voiceCommands,
     onCommandRecognized: (command) => {
-      console.log("🎤 Voice command recognized:", command)
-      showNotification(`✅ Command "${command}" executed successfully!`, "success")
+      console.log("✅ Voice command recognized:", command)
+      showNotification(`Command "${command}" executed!`, "success")
     },
     onError: (error) => {
-      console.error("🚨 Voice control error:", error)
+      console.error("❌ Voice error:", error)
       showNotification(error, "error")
     },
   })
 
-  // Enhanced device detection and responsive handling
+  // Device detection
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth
@@ -258,10 +258,10 @@ export default function Portfolio() {
             document.body.style.pointerEvents = "auto"
             document.body.style.userSelect = "auto"
 
-            // Show voice control welcome message
+            // Show voice control welcome
             if (voiceControl.isSupported) {
               setTimeout(() => {
-                showNotification("🎤 Voice control ready! Click the microphone and say 'Hello' to test", "info")
+                showNotification("🎤 Voice control ready! Click mic and say 'Hello'", "info")
               }, 2000)
             }
           }, 800)
