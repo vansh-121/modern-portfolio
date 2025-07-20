@@ -4,8 +4,14 @@ import { useState, useEffect, memo } from "react"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun, Battery, Wifi, Volume2, Menu, X } from "lucide-react"
 import { useTheme } from "next-themes"
+import { VoiceControlIndicator } from "@/components/voice-control-indicator"
+import type { UseVoiceControlReturn } from "@/hooks/use-voice-control"
 
-export const MenuBar = memo(function MenuBar() {
+interface MenuBarProps {
+  voiceControl?: UseVoiceControlReturn
+}
+
+export const MenuBar = memo(function MenuBar({ voiceControl }: MenuBarProps) {
   const [currentTime, setCurrentTime] = useState("")
   const [currentDate, setCurrentDate] = useState("")
   const [showMobileMenu, setShowMobileMenu] = useState(false)
@@ -35,7 +41,6 @@ export const MenuBar = memo(function MenuBar() {
     return () => clearInterval(interval)
   }, [])
 
-  // Replace the menuItems array with portfolio-related links
   const menuItems = [
     { label: "About", action: () => console.log("About clicked") },
     { label: "Projects", action: () => console.log("Projects clicked") },
@@ -76,6 +81,9 @@ export const MenuBar = memo(function MenuBar() {
 
         {/* Right side - System indicators */}
         <div className="flex items-center space-x-1 md:space-x-3">
+          {/* Voice Control Indicator */}
+          {voiceControl && <VoiceControlIndicator voiceControl={voiceControl} />}
+
           <Button
             variant="ghost"
             size="sm"
