@@ -54,11 +54,11 @@
     "react-resizable-panels": "latest",
     "recharts": "latest",
     "sonner": "latest",
-    "speech-recognition": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "three": "latest",
-    "vaul": "latest"
+    "vaul": "latest",
+    "web-speech-api": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

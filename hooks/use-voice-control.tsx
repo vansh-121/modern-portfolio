@@ -1,121 +1,135 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import SpeechRecognition from "speech-recognition"
+import type { SpeechRecognition } from "web-speech-api"
 
-interface VoiceCommand {
+/**
+ * VoiceCommand
+ * ─────────────
+ * command      – the phrase to match (lower-case)
+ * action       – callback executed when phrase matches
+ * description  – short help string
+ */
+export interface VoiceCommand {
   command: string
   action: () => void
   description: string
 }
 
-interface UseVoiceControlProps {
-  commands: VoiceCommand[]
-  onCommandRecognized?: (command: string) => void
-  onError?: (error: string) => void
+export interface UseVoiceControlReturn {
+  isListening: boolean
+  isSupported: boolean
+  transcript: string
+  confidence: number
+  startListening: () => void
+  stopListening: () => void
+  toggleListening: () => void
 }
 
-export function useVoiceControl({ commands, onCommandRecognized, onError }: UseVoiceControlProps) {
+/**
+ * useVoiceControl
+ * A thin wrapper around the native Web Speech API (no external package).
+ */
+export function useVoiceControl({
+  commands,
+  onCommandRecognized,
+  onError,
+}: {
+  commands: VoiceCommand[]
+  onCommandRecognized?: (cmd: string) => void
+  onError?: (err: string) => void
+}): UseVoiceControlReturn {
   const [isListening, setIsListening] = useState(false)
   const [isSupported, setIsSupported] = useState(false)
   const [transcript, setTranscript] = useState("")
   const [confidence, setConfidence] = useState(0)
-  const recognitionRef = useRef<any | null>(null)
+
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
+  // ─── Initialise SpeechRecognition ─────────────────────────────────────────
   useEffect(() => {
-    // Check if speech recognition is supported
-    setIsSupported(!!SpeechRecognition)
+    if (typeof window === "undefined") return
 
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition()
-      recognition.continuous = false
-      recognition.interimResults = true
-      recognition.lang = "en-US"
-      recognition.maxAlternatives = 1
+    const SpeechRecognitionCtor =
+      // Safari (webkit) + other browsers
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
-      recognition.onstart = () => {
-        setIsListening(true)
-        setTranscript("")
-        setConfidence(0)
-      }
-
-      recognition.onresult = (event) => {
-        const result = event.results[event.results.length - 1]
-        const transcript = result[0].transcript.toLowerCase().trim()
-        const confidence = result[0].confidence
-
-        setTranscript(transcript)
-        setConfidence(confidence)
-
-        if (result.isFinal) {
-          // Find matching command
-          const matchedCommand = commands.find(
-            (cmd) => transcript.includes(cmd.command.toLowerCase()) || cmd.command.toLowerCase().includes(transcript),
-          )
-
-          if (matchedCommand && confidence > 0.7) {
-            matchedCommand.action()
-            onCommandRecognized?.(matchedCommand.command)
-          } else if (transcript.length > 0) {
-            onError?.(`Command "${transcript}" not recognized`)
-          }
-
-          setIsListening(false)
-        }
-      }
-
-      recognition.onerror = (event) => {
-        setIsListening(false)
-        onError?.(event.error)
-      }
-
-      recognition.onend = () => {
-        setIsListening(false)
-      }
-
-      recognitionRef.current = recognition
+    if (!SpeechRecognitionCtor) {
+      setIsSupported(false)
+      return
     }
+
+    setIsSupported(true)
+    const recognition: SpeechRecognition = new SpeechRecognitionCtor()
+    recognition.continuous = false
+    recognition.interimResults = true
+    recognition.lang = "en-US"
+    recognition.maxAlternatives = 1
+
+    recognition.onstart = () => {
+      setIsListening(true)
+      setTranscript("")
+      setConfidence(0)
+    }
+
+    recognition.onresult = (event) => {
+      const result = event.results[event.results.length - 1]
+      const text = result[0].transcript.toLowerCase().trim()
+      const conf = result[0].confidence
+      setTranscript(text)
+      setConfidence(conf)
+
+      if (result.isFinal) {
+        const match = commands.find((cmd) => text.includes(cmd.command) || cmd.command.includes(text))
+
+        if (match && conf > 0.6) {
+          match.action()
+          onCommandRecognized?.(match.command)
+        } else {
+          onError?.(`Unrecognised command: "${text}"`)
+        }
+
+        stopListening()
+      }
+    }
+
+    recognition.onerror = (e) => {
+      onError?.(e.error)
+      stopListening()
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+    }
+
+    recognitionRef.current = recognition
 
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.abort()
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
+      recognitionRef.current?.abort()
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [commands, onCommandRecognized, onError])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commands])
 
+  // ─── Helpers ──────────────────────────────────────────────────────────────
   const startListening = useCallback(() => {
-    if (recognitionRef.current && !isListening) {
-      try {
-        recognitionRef.current.start()
-        // Auto-stop after 5 seconds
-        timeoutRef.current = setTimeout(() => {
-          stopListening()
-        }, 5000)
-      } catch (error) {
-        onError?.("Failed to start voice recognition")
-      }
-    }
-  }, [isListening, onError])
-
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current && isListening) {
-      recognitionRef.current.stop()
-    }
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
+    if (!recognitionRef.current || isListening) return
+    try {
+      recognitionRef.current.start()
+      timeoutRef.current = setTimeout(stopListening, 5000) // auto-stop
+    } catch {
+      /* ignored – .start() can throw if called too quickly */
     }
   }, [isListening])
 
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop()
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+  }, [])
+
   const toggleListening = useCallback(() => {
-    if (isListening) {
-      stopListening()
-    } else {
-      startListening()
-    }
+    isListening ? stopListening() : startListening()
   }, [isListening, startListening, stopListening])
 
   return {

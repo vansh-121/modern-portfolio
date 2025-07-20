@@ -1,114 +1,73 @@
-export interface VoiceCommand {
-  command: string
-  action: () => void
-  description: string
-  aliases?: string[]
-}
+import type { VoiceCommand } from "@/hooks/use-voice-control"
 
+/**
+ * createVoiceCommands
+ * Returns an array of command mappings used by the voice hook.
+ */
 export function createVoiceCommands(
   openWindow: (id: string) => void,
   setTheme: (theme: string) => void,
-  showNotification: (message: string) => void,
+  notify: (msg: string, type?: "success" | "error" | "info") => void,
 ): VoiceCommand[] {
   return [
-    // Window commands
     {
       command: "open projects",
+      description: "Open projects window",
       action: () => openWindow("projects"),
-      description: "Open the projects window",
-      aliases: ["show projects", "projects", "my work"],
     },
     {
-      command: "open about",
+      command: "show about",
+      description: "Open about me window",
       action: () => openWindow("about"),
-      description: "Open the about me window",
-      aliases: ["show about", "about me", "who are you"],
     },
     {
       command: "open resume",
+      description: "Open resume window",
       action: () => openWindow("resume"),
-      description: "Open the resume window",
-      aliases: ["show resume", "cv", "curriculum"],
     },
     {
-      command: "open services",
+      command: "show services",
+      description: "Open services window",
       action: () => openWindow("services"),
-      description: "Open the services window",
-      aliases: ["show services", "what do you do"],
     },
     {
-      command: "open contact",
+      command: "contact me",
+      description: "Open contact window",
       action: () => openWindow("contact"),
-      description: "Open the contact window",
-      aliases: ["show contact", "contact me", "get in touch"],
     },
     {
       command: "open terminal",
+      description: "Open terminal window",
       action: () => openWindow("terminal"),
-      description: "Open the terminal window",
-      aliases: ["show terminal", "command line", "console"],
     },
-
-    // Theme commands
     {
       command: "dark mode",
+      description: "Enable dark theme",
       action: () => setTheme("dark"),
-      description: "Switch to dark theme",
-      aliases: ["dark theme", "night mode"],
     },
     {
       command: "light mode",
+      description: "Enable light theme",
       action: () => setTheme("light"),
-      description: "Switch to light theme",
-      aliases: ["light theme", "day mode"],
     },
-
-    // Fun commands
     {
       command: "hello",
-      action: () => showNotification("Hello! Welcome to my portfolio!"),
-      description: "Say hello",
-      aliases: ["hi", "hey", "greetings"],
+      description: "Friendly greeting",
+      action: () => notify("Hello there! 👋", "info"),
     },
     {
       command: "help",
-      action: () => showNotification("Try saying: Open projects, Dark mode, Hello, or About me"),
-      description: "Show available commands",
-      aliases: ["what can you do", "commands"],
+      description: "List available voice commands",
+      action: () =>
+        notify("Try: open projects, show about, open resume, light mode, dark mode, contact me, open terminal", "info"),
     },
     {
       command: "surprise me",
+      description: "Opens a random window",
       action: () => {
-        const windows = ["projects", "about", "resume", "services", "contact", "terminal"]
-        const randomWindow = windows[Math.floor(Math.random() * windows.length)]
-        openWindow(randomWindow)
-        showNotification(`Surprise! Opening ${randomWindow}`)
+        const ids = ["projects", "about", "resume", "services", "contact", "terminal"]
+        openWindow(ids[Math.floor(Math.random() * ids.length)])
       },
-      description: "Open a random window",
-      aliases: ["random", "pick something"],
     },
   ]
-}
-
-export function findCommand(transcript: string, commands: VoiceCommand[]): VoiceCommand | null {
-  const normalizedTranscript = transcript.toLowerCase().trim()
-
-  return (
-    commands.find((cmd) => {
-      // Check main command
-      if (normalizedTranscript.includes(cmd.command.toLowerCase())) {
-        return true
-      }
-
-      // Check aliases
-      if (cmd.aliases) {
-        return cmd.aliases.some(
-          (alias) =>
-            normalizedTranscript.includes(alias.toLowerCase()) || alias.toLowerCase().includes(normalizedTranscript),
-        )
-      }
-
-      return false
-    }) || null
-  )
 }

@@ -1,145 +1,208 @@
 "use client"
 
-import { useState, useEffect, memo } from "react"
+import {
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Bold,
+  Italic,
+  Underline,
+  ListOrdered,
+  ListOrderedIcon as ListUnordered,
+  Code,
+  Image,
+  Link,
+  Quote,
+  SeparatorHorizontal,
+  Redo,
+  Undo,
+  Download,
+  Copy,
+  Trash,
+  Plus,
+  Text,
+  Heading1,
+  Heading2,
+  Heading3,
+  Heading4,
+  Heading5,
+  Heading6,
+} from "lucide-react"
+
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, Battery, Wifi, Volume2, Menu, X } from "lucide-react"
-import { useTheme } from "next-themes"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Separator } from "@/components/ui/separator"
 import { VoiceControlIndicator } from "@/components/voice-control-indicator"
 
 interface MenuBarProps {
-  voiceControl?: {
-    isListening: boolean
-    isSupported: boolean
-    transcript: string
-    confidence: number
-    onToggle: () => void
-  }
+  onBoldClick: () => void
+  onItalicClick: () => void
+  onUnderlineClick: () => void
+  onAlignLeftClick: () => void
+  onAlignCenterClick: () => void
+  onAlignRightClick: () => void
+  onOrderedListClick: () => void
+  onUnorderedListClick: () => void
+  onCodeClick: () => void
+  onImageClick: () => void
+  onLinkClick: () => void
+  onQuoteClick: () => void
+  onSeparatorClick: () => void
+  onRedoClick: () => void
+  onUndoClick: () => void
+  onDownloadClick: () => void
+  onCopyClick: () => void
+  onTrashClick: () => void
+  onAddClick: () => void
+  onTextClick: () => void
+  onHeading1Click: () => void
+  onHeading2Click: () => void
+  onHeading3Click: () => void
+  onHeading4Click: () => void
+  onHeading5Click: () => void
+  onHeading6Click: () => void
+  voiceControl?: import("@/hooks/use-voice-control").UseVoiceControlReturn
 }
 
-export const MenuBar = memo(function MenuBar({ voiceControl }: MenuBarProps) {
-  const [currentTime, setCurrentTime] = useState("")
-  const [currentDate, setCurrentDate] = useState("")
-  const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const { theme, setTheme } = useTheme()
-
-  useEffect(() => {
-    const updateDateTime = () => {
-      const now = new Date()
-      setCurrentTime(
-        now.toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        }),
-      )
-      setCurrentDate(
-        now.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-      )
-    }
-
-    updateDateTime()
-    const interval = setInterval(updateDateTime, 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // Replace the menuItems array with portfolio-related links
-  const menuItems = [
-    { label: "About", action: () => console.log("About clicked") },
-    { label: "Projects", action: () => console.log("Projects clicked") },
-    { label: "LinkedIn", action: () => window.open("https://linkedin.com", "_blank") },
-    { label: "GitHub", action: () => window.open("https://github.com", "_blank") },
-    { label: "Medium", action: () => window.open("https://medium.com", "_blank") },
-    { label: "Contact", action: () => console.log("Contact clicked") },
-  ]
-
+export function MenuBar({
+  onBoldClick,
+  onItalicClick,
+  onUnderlineClick,
+  onAlignLeftClick,
+  onAlignCenterClick,
+  onAlignRightClick,
+  onOrderedListClick,
+  onUnorderedListClick,
+  onCodeClick,
+  onImageClick,
+  onLinkClick,
+  onQuoteClick,
+  onSeparatorClick,
+  onRedoClick,
+  onUndoClick,
+  onDownloadClick,
+  onCopyClick,
+  onTrashClick,
+  onAddClick,
+  onTextClick,
+  onHeading1Click,
+  onHeading2Click,
+  onHeading3Click,
+  onHeading4Click,
+  onHeading5Click,
+  onHeading6Click,
+  voiceControl,
+}: MenuBarProps) {
   return (
-    <>
-      <div className="fixed top-0 left-0 right-0 h-8 md:h-8 bg-black/20 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-2 md:px-4 text-white text-xs md:text-sm font-medium z-50">
-        {/* Left side - App menu */}
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <span className="font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent text-xs md:text-sm">
-            Portfolio OS
-          </span>
-          <div className="hidden md:flex items-center space-x-4">
-            {menuItems.map((item) => (
-              <span
-                key={item.label}
-                className="text-white/70 hover:text-white cursor-pointer transition-colors"
-                onClick={item.action}
-              >
-                {item.label}
-              </span>
-            ))}
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden h-6 w-6 p-0 text-white hover:bg-white/10"
-            onClick={() => setShowMobileMenu(!showMobileMenu)}
-          >
-            {showMobileMenu ? <X className="h-3 w-3" /> : <Menu className="h-3 w-3" />}
+    <div className="border-b">
+      <div className="container flex items-center space-x-2 py-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Plus className="mr-2 h-4 w-4" />
+              Add
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={onTextClick}>
+              <Text className="mr-2 h-4 w-4" />
+              Text
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={onHeading1Click}>
+              <Heading1 className="mr-2 h-4 w-4" />
+              Heading 1
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onHeading2Click}>
+              <Heading2 className="mr-2 h-4 w-4" />
+              Heading 2
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onHeading3Click}>
+              <Heading3 className="mr-2 h-4 w-4" />
+              Heading 3
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onHeading4Click}>
+              <Heading4 className="mr-2 h-4 w-4" />
+              Heading 4
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onHeading5Click}>
+              <Heading5 className="mr-2 h-4 w-4" />
+              Heading 5
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onHeading6Click}>
+              <Heading6 className="mr-2 h-4 w-4" />
+              Heading 6
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button variant="outline" size="sm" onClick={onBoldClick}>
+          <Bold className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onItalicClick}>
+          <Italic className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onUnderlineClick}>
+          <Underline className="h-4 w-4" />
+        </Button>
+        <Separator orientation="vertical" className="mx-2 h-5" />
+        <Button variant="outline" size="sm" onClick={onAlignLeftClick}>
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onAlignCenterClick}>
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onAlignRightClick}>
+          <AlignRight className="h-4 w-4" />
+        </Button>
+        <Separator orientation="vertical" className="mx-2 h-5" />
+        <Button variant="outline" size="sm" onClick={onOrderedListClick}>
+          <ListOrdered className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onUnorderedListClick}>
+          <ListUnordered className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onCodeClick}>
+          <Code className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onImageClick}>
+          <Image className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onLinkClick}>
+          <Link className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onQuoteClick}>
+          <Quote className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onSeparatorClick}>
+          <SeparatorHorizontal className="h-4 w-4" />
+        </Button>
+        <Separator orientation="vertical" className="mx-2 h-5" />
+        <Button variant="outline" size="sm" onClick={onUndoClick}>
+          <Undo className="h-4 w-4" />
+        </Button>
+        <Button variant="outline" size="sm" onClick={onRedoClick}>
+          <Redo className="h-4 w-4" />
+        </Button>
+        <Separator orientation="vertical" className="mx-2 h-5" />
+        <div className="ml-auto flex items-center space-x-2">
+          <Button variant="outline" size="sm" onClick={onDownloadClick}>
+            <Download className="h-4 w-4" />
           </Button>
-        </div>
-
-        {/* Right side - System indicators */}
-        <div className="flex items-center space-x-1 md:space-x-3">
-          {/* Voice Control Indicator */}
-          {voiceControl && (
-            <VoiceControlIndicator
-              isListening={voiceControl.isListening}
-              isSupported={voiceControl.isSupported}
-              transcript={voiceControl.transcript}
-              confidence={voiceControl.confidence}
-              onToggle={voiceControl.onToggle}
-            />
-          )}
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-5 w-5 md:h-6 md:w-6 p-0 text-white hover:bg-white/10 transition-all duration-200"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? <Sun className="h-3 w-3 md:h-4 md:w-4" /> : <Moon className="h-3 w-3 md:h-4 md:w-4" />}
+          <Button variant="outline" size="sm" onClick={onCopyClick}>
+            <Copy className="h-4 w-4" />
           </Button>
-
-          <div className="hidden sm:flex items-center space-x-1">
-            <Volume2 className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
-            <Wifi className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
-            <Battery className="h-3 w-3 md:h-4 md:w-4 opacity-80" />
-            <span className="text-xs opacity-80 hidden md:inline">100%</span>
-          </div>
-
-          <div className="text-right">
-            <div className="text-xs leading-none opacity-90 hidden sm:block">{currentDate}</div>
-            <div className="text-xs leading-none font-mono">{currentTime}</div>
-          </div>
+          <Button variant="outline" size="sm" onClick={onTrashClick}>
+            <Trash className="h-4 w-4" />
+          </Button>
+          <VoiceControlIndicator voiceControl={voiceControl!} className="ml-2" />
         </div>
       </div>
-
-      {/* Mobile Menu Dropdown */}
-      {showMobileMenu && (
-        <div className="fixed top-8 left-0 right-0 bg-black/90 backdrop-blur-md border-b border-white/10 z-40 md:hidden">
-          <div className="p-4 space-y-3">
-            {menuItems.map((item) => (
-              <button
-                key={item.label}
-                className="block w-full text-left text-white/70 hover:text-white transition-colors py-2"
-                onClick={() => {
-                  item.action()
-                  setShowMobileMenu(false)
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   )
-})
+}
