@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 import type { VoiceCommand } from "@/lib/voice-commands"
-import SpeechRecognition from "speech-recognition"
 
 interface UseVoiceControlOptions {
   commands: VoiceCommand[]
@@ -32,17 +31,18 @@ export function useVoiceControl({
   const [confidence, setConfidence] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Check browser support
   useEffect(() => {
-    const supported = !!SpeechRecognition
-    setIsSupported(supported)
+    const Speech =
+      typeof window !== "undefined"
+        ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+        : undefined
 
-    console.log("🎤 Speech recognition supported:", supported)
-
-    if (!supported) {
+    setIsSupported(!!Speech)
+    if (!Speech) {
       setError("Speech recognition not supported in this browser")
     }
   }, [])
@@ -83,7 +83,8 @@ export function useVoiceControl({
     try {
       console.log("🎤 Starting voice recognition...")
 
-      const recognition = new SpeechRecognition()
+      const Speech = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      const recognition = new Speech()
 
       // Configure recognition
       recognition.continuous = false
@@ -100,7 +101,7 @@ export function useVoiceControl({
         setConfidence(0)
       }
 
-      recognition.onresult = (event) => {
+      recognition.onresult = (event: any) => {
         console.log("📝 Recognition result event:", event)
 
         let finalTranscript = ""
@@ -140,7 +141,7 @@ export function useVoiceControl({
         }
       }
 
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         console.error("🚨 Recognition error:", event.error)
         let errorMessage = "Voice recognition error"
 

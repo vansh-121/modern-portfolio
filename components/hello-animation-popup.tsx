@@ -1,155 +1,79 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { X } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface HelloAnimationPopupProps {
   isVisible: boolean
   onClose: () => void
 }
 
-const greetings = [
-  { text: "Hello", language: "English", color: "text-blue-400" },
-  { text: "Hola", language: "Spanish", color: "text-red-400" },
-  { text: "Namaste", language: "Hindi", color: "text-orange-400" },
-  { text: "Bonjour", language: "French", color: "text-purple-400" },
-  { text: "Konnichiwa", language: "Japanese", color: "text-pink-400" },
-  { text: "Guten Tag", language: "German", color: "text-green-400" },
-  { text: "Ciao", language: "Italian", color: "text-yellow-400" },
-  { text: "Olá", language: "Portuguese", color: "text-cyan-400" },
+const GREETINGS = [
+  { text: "Hello", color: "text-blue-600" },
+  { text: "Hola", color: "text-rose-600" },
+  { text: "Namaste", color: "text-emerald-600" },
+  { text: "Bonjour", color: "text-fuchsia-600" },
+  { text: "こんにちは", color: "text-indigo-600" },
+  { text: "Hallo", color: "text-orange-600" },
+  { text: "Ciao", color: "text-teal-600" },
+  { text: "Olá", color: "text-yellow-500" },
 ]
 
 export function HelloAnimationPopup({ isVisible, onClose }: HelloAnimationPopupProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [animationPhase, setAnimationPhase] = useState<"enter" | "cycle" | "exit">("enter")
+  const [index, setIndex] = useState(0)
 
+  // Cycle through greetings every 1.2 s
   useEffect(() => {
     if (!isVisible) return
-
-    setCurrentIndex(0)
-    setAnimationPhase("enter")
-
-    // Enter animation
-    const enterTimer = setTimeout(() => {
-      setAnimationPhase("cycle")
-    }, 800)
-
-    // Cycle through greetings
-    const cycleTimer = setTimeout(() => {
-      let index = 0
-      const interval = setInterval(() => {
-        index = (index + 1) % greetings.length
-        setCurrentIndex(index)
-
-        if (index === greetings.length - 1) {
-          setTimeout(() => {
-            setAnimationPhase("exit")
-            setTimeout(onClose, 600)
-          }, 800)
-          clearInterval(interval)
-        }
-      }, 600)
-
-      return () => clearInterval(interval)
-    }, 1000)
-
-    return () => {
-      clearTimeout(enterTimer)
-      clearTimeout(cycleTimer)
-    }
-  }, [isVisible, onClose])
-
-  if (!isVisible) return null
-
-  const currentGreeting = greetings[currentIndex]
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % GREETINGS.length)
+    }, 1200)
+    return () => clearInterval(id)
+  }, [isVisible])
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
-      {/* Backdrop */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-500",
-          animationPhase === "enter"
-            ? "opacity-0 animate-in fade-in"
-            : animationPhase === "exit"
-              ? "opacity-0 animate-out fade-out"
-              : "opacity-100",
-        )}
-      />
-
-      {/* Main popup */}
-      <div
-        className={cn(
-          "relative bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl transition-all duration-700 transform",
-          animationPhase === "enter"
-            ? "scale-50 opacity-0 animate-in zoom-in-50 fade-in slide-in-from-bottom-10"
-            : animationPhase === "exit"
-              ? "scale-75 opacity-0 animate-out zoom-out-75 fade-out slide-out-to-top-10"
-              : "scale-100 opacity-100",
-        )}
-        style={{
-          width: "320px",
-          height: "200px",
-        }}
-      >
-        {/* Animated background gradient */}
-        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 animate-pulse" />
-
-        {/* Content */}
-        <div className="relative h-full flex flex-col items-center justify-center space-y-4 p-8">
-          {/* Main greeting text */}
-          <div
-            key={currentIndex}
-            className={cn(
-              "text-4xl font-bold transition-all duration-500 transform animate-in zoom-in-50 fade-in",
-              currentGreeting.color,
-            )}
-            style={{
-              textShadow: "0 0 20px rgba(255,255,255,0.5)",
-              fontFamily: "system-ui, -apple-system, sans-serif",
-            }}
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          key="hello-popup"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+        >
+          {/* Close button */}
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onClose}
+            className="absolute top-4 right-4 text-white hover:bg-white/10"
+            aria-label="Close greeting animation"
           >
-            {currentGreeting.text}
-          </div>
+            <X className="w-5 h-5" />
+          </Button>
 
-          {/* Language subtitle */}
-          <div
-            key={`lang-${currentIndex}`}
-            className="text-sm text-white/70 font-medium animate-in slide-in-from-bottom-2 fade-in duration-300"
+          {/* Animated greeting */}
+          <motion.div
+            key={index}
+            initial={{ scale: 0.5, opacity: 0, rotate: -15 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            exit={{ scale: 0.5, opacity: 0, rotate: 15 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            className="text-5xl md:text-7xl font-bold select-none"
           >
-            {currentGreeting.language}
-          </div>
+            <span className={GREETINGS[index].color}>{GREETINGS[index].text}</span>
+          </motion.div>
 
-          {/* Animated dots indicator */}
-          <div className="flex space-x-2 mt-4">
-            {greetings.map((_, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all duration-300",
-                  index === currentIndex ? "bg-white scale-125 shadow-lg" : "bg-white/30 scale-100",
-                )}
-              />
+          {/* Progress dots */}
+          <div className="absolute bottom-10 flex gap-2">
+            {GREETINGS.map((_, i) => (
+              <span key={i} className={`h-2 w-2 rounded-full ${i === index ? "bg-white" : "bg-white/30"}`} />
             ))}
           </div>
-        </div>
-
-        {/* Floating particles effect */}
-        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-white/40 rounded-full animate-bounce"
-              style={{
-                left: `${20 + i * 15}%`,
-                top: `${30 + (i % 2) * 40}%`,
-                animationDelay: `${i * 0.2}s`,
-                animationDuration: "2s",
-              }}
-            />
-          ))}
-        </div>
-      </div>
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
