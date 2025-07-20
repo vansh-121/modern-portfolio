@@ -1,6 +1,4 @@
 {
-  // Disable frozen-lockfile so pnpm can regenerate an up-to-date lockfile
   "installCommand": "pnpm install --no-frozen-lockfile",
-  // Keep the standard Next.js build
   "buildCommand": "pnpm run build"
 }
