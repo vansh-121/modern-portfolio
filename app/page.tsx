@@ -272,7 +272,7 @@ export default function Portfolio() {
             // Show voice control welcome
             if (voiceControl.isSupported) {
               setTimeout(() => {
-                showNotification("🎤 Voice control ready! Say 'Hello' to see the greeting animation", "info")
+                showNotification("🎤 Voice control ready! Say 'Hello' for a cool animation!", "info")
               }, 2000)
             }
           }, 800)

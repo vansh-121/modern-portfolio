@@ -3,10 +3,14 @@
 import { useState } from "react"
 import { Calendar, Wifi, Battery, VolumeX } from "lucide-react"
 import { VoiceControlIndicator } from "./voice-control-indicator"
-import type { UseVoiceControlReturn } from "@/hooks/use-voice-control"
 
 interface MenuBarProps {
-  voiceControl: UseVoiceControlReturn
+  voiceControl: {
+    isListening: boolean
+    isSupported: boolean
+    startListening: () => void
+    stopListening: () => void
+  }
 }
 
 export function MenuBar({ voiceControl }: MenuBarProps) {
@@ -22,9 +26,9 @@ export function MenuBar({ voiceControl }: MenuBarProps) {
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
+      hour: "numeric",
       minute: "2-digit",
-      hour12: false,
+      hour12: true,
     })
   }
 
@@ -36,31 +40,44 @@ export function MenuBar({ voiceControl }: MenuBarProps) {
     })
   }
 
+  const handleVoiceToggle = () => {
+    if (voiceControl.isListening) {
+      voiceControl.stopListening()
+    } else {
+      voiceControl.startListening()
+    }
+  }
+
   return (
-    <div className="fixed top-0 left-0 right-0 h-8 bg-black/20 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 text-white text-sm z-50">
-      {/* Left side - Apple menu and app name */}
-      <div className="flex items-center space-x-4">
-        <div className="text-white/90 font-medium">Portfolio</div>
-      </div>
-
-      {/* Right side - System indicators */}
-      <div className="flex items-center space-x-3">
-        {/* Voice Control Indicator */}
-        <VoiceControlIndicator voiceControl={voiceControl} />
-
-        {/* System icons */}
-        <div className="flex items-center space-x-2 text-white/70">
-          <Wifi className="h-4 w-4" />
-          <VolumeX className="h-4 w-4" />
-          <Battery className="h-4 w-4" />
+    <div className="fixed top-0 left-0 right-0 z-50 h-8 bg-black/20 backdrop-blur-md border-b border-white/10">
+      <div className="flex items-center justify-between h-full px-4">
+        {/* Left side - App menu */}
+        <div className="flex items-center space-x-4">
+          <div className="text-white text-sm font-medium">Portfolio</div>
         </div>
 
-        {/* Date and Time */}
-        <div className="flex items-center space-x-2 text-white/90">
-          <Calendar className="h-4 w-4" />
-          <span className="text-xs">
-            {formatDate(currentTime)} {formatTime(currentTime)}
-          </span>
+        {/* Right side - System indicators */}
+        <div className="flex items-center space-x-4">
+          {/* Voice Control */}
+          <VoiceControlIndicator
+            isListening={voiceControl.isListening}
+            isSupported={voiceControl.isSupported}
+            onClick={handleVoiceToggle}
+          />
+
+          {/* System icons */}
+          <div className="flex items-center space-x-2 text-white/70">
+            <Battery className="w-4 h-4" />
+            <Wifi className="w-4 h-4" />
+            <VolumeX className="w-4 h-4" />
+          </div>
+
+          {/* Date and time */}
+          <div className="flex items-center space-x-2 text-white text-xs">
+            <Calendar className="w-3 h-3" />
+            <span>{formatDate(currentTime)}</span>
+            <span>{formatTime(currentTime)}</span>
+          </div>
         </div>
       </div>
     </div>

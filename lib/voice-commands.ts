@@ -1,4 +1,4 @@
-export interface VoiceCommand {
+interface VoiceCommand {
   patterns: string[]
   action: () => void
   description: string
@@ -11,89 +11,73 @@ export function createVoiceCommands(
   showHelloAnimation?: () => void,
 ): VoiceCommand[] {
   return [
+    // Greeting commands
     {
       patterns: ["hello", "hi", "hey", "greetings"],
       action: () => {
         console.log("🎉 Hello command triggered!")
-        if (showHelloAnimation) {
-          showHelloAnimation()
-        } else {
-          showNotification("👋 Hello there! Voice control is working!", "success")
-        }
+        showHelloAnimation?.()
       },
-      description: "Test greeting command",
+      description: "Show greeting animation",
     },
+
+    // Window commands
     {
       patterns: ["open projects", "show projects", "projects"],
-      action: () => {
-        console.log("📁 Opening projects...")
-        openWindow("projects")
-        showNotification("📁 Opening Projects window", "success")
-      },
-      description: "Open projects window",
+      action: () => openWindow("projects"),
+      description: "Open Projects window",
     },
     {
-      patterns: ["about me", "about", "who are you"],
-      action: () => {
-        console.log("👤 Opening about...")
-        openWindow("about")
-        showNotification("👤 Opening About Me window", "success")
-      },
-      description: "Open about window",
+      patterns: ["open about", "show about", "about me"],
+      action: () => openWindow("about"),
+      description: "Open About window",
     },
     {
-      patterns: ["resume", "cv", "curriculum"],
-      action: () => {
-        console.log("📄 Opening resume...")
-        openWindow("resume")
-        showNotification("📄 Opening Resume window", "success")
-      },
-      description: "Open resume window",
+      patterns: ["open resume", "show resume", "resume"],
+      action: () => openWindow("resume"),
+      description: "Open Resume window",
     },
     {
-      patterns: ["services", "what do you do", "skills"],
-      action: () => {
-        console.log("⚡ Opening services...")
-        openWindow("services")
-        showNotification("⚡ Opening Services window", "success")
-      },
-      description: "Open services window",
+      patterns: ["open services", "show services", "services"],
+      action: () => openWindow("services"),
+      description: "Open Services window",
     },
     {
-      patterns: ["contact", "contact me", "get in touch"],
-      action: () => {
-        console.log("📞 Opening contact...")
-        openWindow("contact")
-        showNotification("📞 Opening Contact window", "success")
-      },
-      description: "Open contact window",
+      patterns: ["open contact", "show contact", "contact"],
+      action: () => openWindow("contact"),
+      description: "Open Contact window",
     },
     {
-      patterns: ["terminal", "console", "command line"],
-      action: () => {
-        console.log("💻 Opening terminal...")
-        openWindow("terminal")
-        showNotification("💻 Opening Terminal window", "success")
-      },
-      description: "Open terminal window",
+      patterns: ["open terminal", "show terminal", "terminal"],
+      action: () => openWindow("terminal"),
+      description: "Open Terminal window",
     },
+
+    // Theme commands
     {
-      patterns: ["dark mode", "dark theme", "switch theme"],
+      patterns: ["dark mode", "dark theme", "switch to dark"],
       action: () => {
-        console.log("🌙 Toggling theme...")
         setTheme("dark")
-        showNotification("🌙 Switched to dark mode", "success")
+        showNotification("Switched to dark mode", "success")
       },
-      description: "Switch to dark mode",
+      description: "Switch to dark theme",
     },
     {
-      patterns: ["light mode", "light theme", "bright mode"],
+      patterns: ["light mode", "light theme", "switch to light"],
       action: () => {
-        console.log("☀️ Toggling theme...")
         setTheme("light")
-        showNotification("☀️ Switched to light mode", "success")
+        showNotification("Switched to light mode", "success")
       },
-      description: "Switch to light mode",
+      description: "Switch to light theme",
+    },
+
+    // Help command
+    {
+      patterns: ["help", "what can you do", "commands"],
+      action: () => {
+        showNotification("Try: 'Hello', 'Open Projects', 'Dark Mode', or 'Light Mode'", "info")
+      },
+      description: "Show available commands",
     },
   ]
 }

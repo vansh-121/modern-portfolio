@@ -68,131 +68,116 @@ export function useVoiceControl({
     [commands],
   )
 
+  // Initialize speech recognition
+  const initializeRecognition = useCallback(() => {
+    if (!isSupported) return null
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+    const recognition = new SpeechRecognition()
+
+    recognition.continuous = false
+    recognition.interimResults = false
+    recognition.lang = "en-US"
+    recognition.maxAlternatives = 3
+
+    recognition.onstart = () => {
+      console.log("🎤 Voice recognition started")
+      setIsListening(true)
+    }
+
+    recognition.onend = () => {
+      console.log("🎤 Voice recognition ended")
+      setIsListening(false)
+      recognitionRef.current = null
+    }
+
+    recognition.onerror = (event) => {
+      console.error("🚨 Speech recognition error:", event.error)
+      setIsListening(false)
+      recognitionRef.current = null
+
+      let errorMessage = "Voice recognition failed"
+      switch (event.error) {
+        case "no-speech":
+          errorMessage = "No speech detected. Please try again."
+          break
+        case "audio-capture":
+          errorMessage = "Microphone not accessible. Please check permissions."
+          break
+        case "not-allowed":
+          errorMessage = "Microphone permission denied. Please allow access."
+          break
+        case "network":
+          errorMessage = "Network error. Please check your connection."
+          break
+        default:
+          errorMessage = `Voice recognition error: ${event.error}`
+      }
+
+      onError?.(errorMessage)
+    }
+
+    recognition.onresult = (event) => {
+      const results = Array.from(event.results)
+      const transcript = results
+        .map((result) => result[0].transcript)
+        .join("")
+        .toLowerCase()
+        .trim()
+
+      console.log("🎤 Heard:", transcript)
+
+      // Find matching command
+      const matchedCommand = commands.find((command) =>
+        command.patterns.some((pattern) => transcript.includes(pattern.toLowerCase())),
+      )
+
+      if (matchedCommand) {
+        console.log("✅ Command matched:", matchedCommand.description)
+        matchedCommand.action()
+        onCommandRecognized?.(transcript)
+      } else {
+        console.log("❌ No command matched for:", transcript)
+        onError?.(`Command "${transcript}" not recognized`)
+      }
+    }
+
+    return recognition
+  }, [isSupported, commands, onCommandRecognized, onError])
+
   // Start listening function
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     if (!isSupported) {
-      console.log("❌ Cannot start - not supported")
+      onError?.("Speech recognition not supported in this browser")
       return
     }
 
     if (isListening) {
-      console.log("⚠️ Already listening")
+      console.log("Already listening...")
       return
     }
 
     try {
-      console.log("🎤 Starting voice recognition...")
+      // Request microphone permission
+      await navigator.mediaDevices.getUserMedia({ audio: true })
 
-      const Speech = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-      const recognition = new Speech()
-
-      // Configure recognition
-      recognition.continuous = false
-      recognition.interimResults = true
-      recognition.lang = "en-US"
-      recognition.maxAlternatives = 1
-
-      // Event handlers
-      recognition.onstart = () => {
-        console.log("🎤 Recognition started")
-        setIsListening(true)
-        setError(null)
-        setTranscript("")
-        setConfidence(0)
+      // Stop any existing recognition
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+        recognitionRef.current = null
       }
 
-      recognition.onresult = (event: any) => {
-        console.log("📝 Recognition result event:", event)
-
-        let finalTranscript = ""
-        let interimTranscript = ""
-        let maxConfidence = 0
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i]
-          const transcript = result[0].transcript
-          const confidence = result[0].confidence || 0
-
-          if (result.isFinal) {
-            finalTranscript += transcript
-            maxConfidence = Math.max(maxConfidence, confidence)
-          } else {
-            interimTranscript += transcript
-          }
-        }
-
-        const currentTranscript = finalTranscript || interimTranscript
-        setTranscript(currentTranscript)
-        setConfidence(maxConfidence || 0.5)
-
-        console.log("📝 Transcript:", currentTranscript, "Confidence:", maxConfidence)
-
-        // Process final results
-        if (finalTranscript) {
-          const matchingCommand = findMatchingCommand(finalTranscript)
-          if (matchingCommand) {
-            console.log("🎯 Executing command:", finalTranscript)
-            matchingCommand.action()
-            onCommandRecognized?.(finalTranscript)
-          } else {
-            console.log("❓ No command found for:", finalTranscript)
-            onError?.(`No command found for: "${finalTranscript}"`)
-          }
-        }
+      // Create new recognition instance
+      const recognition = initializeRecognition()
+      if (recognition) {
+        recognitionRef.current = recognition
+        recognition.start()
       }
-
-      recognition.onerror = (event: any) => {
-        console.error("🚨 Recognition error:", event.error)
-        let errorMessage = "Voice recognition error"
-
-        switch (event.error) {
-          case "not-allowed":
-            errorMessage = "Microphone access denied. Please allow microphone permissions."
-            break
-          case "no-speech":
-            errorMessage = "No speech detected. Please try again."
-            break
-          case "network":
-            errorMessage = "Network error. Please check your connection."
-            break
-          case "aborted":
-            errorMessage = "Recognition was aborted."
-            break
-          default:
-            errorMessage = `Recognition error: ${event.error}`
-        }
-
-        setError(errorMessage)
-        onError?.(errorMessage)
-        setIsListening(false)
-      }
-
-      recognition.onend = () => {
-        console.log("🎤 Recognition ended")
-        setIsListening(false)
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current)
-        }
-      }
-
-      // Start recognition
-      recognition.start()
-      recognitionRef.current = recognition
-
-      // Auto-stop after 10 seconds
-      timeoutRef.current = setTimeout(() => {
-        if (recognitionRef.current && isListening) {
-          console.log("⏰ Auto-stopping recognition after timeout")
-          recognitionRef.current.stop()
-        }
-      }, 10000)
-    } catch (err) {
-      console.error("🚨 Failed to start recognition:", err)
-      setError("Failed to start voice recognition")
-      onError?.("Failed to start voice recognition")
-      setIsListening(false)
+    } catch (error) {
+      console.error("Microphone access error:", error)
+      onError?.("Microphone access denied. Please allow microphone permissions.")
     }
-  }, [isSupported, isListening, findMatchingCommand, onCommandRecognized, onError])
+  }, [isSupported, isListening, initializeRecognition, onError])
 
   // Stop listening function
   const stopListening = useCallback(() => {
