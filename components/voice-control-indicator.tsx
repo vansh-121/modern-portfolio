@@ -13,17 +13,25 @@ export function VoiceControlIndicator({
 }) {
   const { isListening, isSupported, transcript, confidence, toggleListening } = voiceControl
 
+  console.log("VoiceControlIndicator render:", { isListening, isSupported })
+
   if (!isSupported) {
+    console.log("Voice control not supported")
     return null
+  }
+
+  const handleClick = () => {
+    console.log("Voice control button clicked")
+    toggleListening()
   }
 
   return (
     <div className={cn("relative", className)}>
       <button
-        onClick={toggleListening}
+        onClick={handleClick}
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200",
-          isListening ? "bg-red-500/20 text-red-400 animate-pulse" : "text-white/70 hover:bg-white/10 hover:text-white",
+          "flex h-6 w-6 items-center justify-center rounded-full transition-all duration-200 text-white",
+          isListening ? "bg-red-500/30 text-red-400 animate-pulse" : "text-white/70 hover:bg-white/10 hover:text-white",
         )}
         title={isListening ? "Stop listening" : "Start voice control"}
         aria-label={isListening ? "Stop voice recognition" : "Start voice recognition"}
@@ -33,7 +41,7 @@ export function VoiceControlIndicator({
 
       {/* Voice feedback popup */}
       {isListening && (
-        <div className="absolute top-10 right-0 bg-black/90 backdrop-blur-md rounded-lg p-3 min-w-64 border border-white/20 shadow-xl z-50">
+        <div className="absolute top-8 right-0 bg-black/90 backdrop-blur-md rounded-lg p-3 min-w-64 border border-white/20 shadow-xl z-50">
           <div className="flex items-center space-x-2 mb-2">
             <Volume2 className="h-4 w-4 text-green-400 animate-pulse" />
             <span className="text-sm text-green-400 font-medium">Listening...</span>
@@ -49,7 +57,7 @@ export function VoiceControlIndicator({
               <div>• "Open projects"</div>
               <div>• "About me"</div>
               <div>• "Dark mode"</div>
-              <div>• "Contact"</div>
+              <div>• "Hello"</div>
             </div>
           </div>
         </div>

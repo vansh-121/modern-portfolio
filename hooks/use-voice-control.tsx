@@ -43,10 +43,12 @@ export function useVoiceControl({
     const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
     if (!SpeechRecognitionCtor) {
+      console.log("Speech recognition not supported")
       setIsSupported(false)
       return
     }
 
+    console.log("Speech recognition supported")
     setIsSupported(true)
     const recognition = new SpeechRecognitionCtor()
 
@@ -68,6 +70,7 @@ export function useVoiceControl({
       const text = result[0].transcript.toLowerCase().trim()
       const conf = result[0].confidence || 0.8
 
+      console.log("Voice result:", text, "confidence:", conf)
       setTranscript(text)
       setConfidence(conf)
 
@@ -144,22 +147,31 @@ export function useVoiceControl({
   }, [commands, onCommandRecognized, onError])
 
   const startListening = useCallback(async () => {
-    if (!recognitionRef.current || isListening || isStartingRef.current) return
+    console.log("Attempting to start listening...")
+    if (!recognitionRef.current || isListening || isStartingRef.current) {
+      console.log("Cannot start - already listening or starting")
+      return
+    }
 
     try {
       // Request microphone permission first
+      console.log("Requesting microphone permission...")
       await navigator.mediaDevices.getUserMedia({ audio: true })
+      console.log("Microphone permission granted")
 
       isStartingRef.current = true
       recognitionRef.current.start()
+      console.log("Speech recognition started")
 
       // Auto-stop after 8 seconds
       timeoutRef.current = setTimeout(() => {
         if (recognitionRef.current && isListening) {
+          console.log("Auto-stopping recognition after timeout")
           recognitionRef.current.stop()
         }
       }, 8000)
     } catch (error: any) {
+      console.log("Error starting voice recognition:", error)
       isStartingRef.current = false
       if (error.name === "NotAllowedError") {
         onError?.("Microphone access denied. Please allow microphone permissions and try again.")
@@ -170,6 +182,7 @@ export function useVoiceControl({
   }, [isListening, onError])
 
   const stopListening = useCallback(() => {
+    console.log("Stopping voice recognition...")
     if (recognitionRef.current && (isListening || isStartingRef.current)) {
       recognitionRef.current.stop()
     }
@@ -180,6 +193,7 @@ export function useVoiceControl({
   }, [isListening])
 
   const toggleListening = useCallback(() => {
+    console.log("Toggle listening - current state:", isListening)
     if (isListening || isStartingRef.current) {
       stopListening()
     } else {

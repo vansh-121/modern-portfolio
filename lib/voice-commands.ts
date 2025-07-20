@@ -9,82 +9,130 @@ export function createVoiceCommands(
     // Window commands
     {
       command: "open projects",
-      action: () => openWindow("projects"),
+      action: () => {
+        console.log("Voice command: open projects")
+        openWindow("projects")
+      },
       description: "Open the projects window",
     },
     {
       command: "show projects",
-      action: () => openWindow("projects"),
+      action: () => {
+        console.log("Voice command: show projects")
+        openWindow("projects")
+      },
       description: "Show the projects window",
     },
     {
       command: "projects",
-      action: () => openWindow("projects"),
+      action: () => {
+        console.log("Voice command: projects")
+        openWindow("projects")
+      },
       description: "Open projects",
     },
     {
       command: "open about",
-      action: () => openWindow("about"),
+      action: () => {
+        console.log("Voice command: open about")
+        openWindow("about")
+      },
       description: "Open the about me window",
     },
     {
       command: "about me",
-      action: () => openWindow("about"),
+      action: () => {
+        console.log("Voice command: about me")
+        openWindow("about")
+      },
       description: "Show about me",
     },
     {
       command: "about",
-      action: () => openWindow("about"),
+      action: () => {
+        console.log("Voice command: about")
+        openWindow("about")
+      },
       description: "Open about",
     },
     {
       command: "open resume",
-      action: () => openWindow("resume"),
+      action: () => {
+        console.log("Voice command: open resume")
+        openWindow("resume")
+      },
       description: "Open the resume window",
     },
     {
       command: "show resume",
-      action: () => openWindow("resume"),
+      action: () => {
+        console.log("Voice command: show resume")
+        openWindow("resume")
+      },
       description: "Show the resume",
     },
     {
       command: "resume",
-      action: () => openWindow("resume"),
+      action: () => {
+        console.log("Voice command: resume")
+        openWindow("resume")
+      },
       description: "Open resume",
     },
     {
       command: "open services",
-      action: () => openWindow("services"),
+      action: () => {
+        console.log("Voice command: open services")
+        openWindow("services")
+      },
       description: "Open the services window",
     },
     {
       command: "services",
-      action: () => openWindow("services"),
+      action: () => {
+        console.log("Voice command: services")
+        openWindow("services")
+      },
       description: "Show services",
     },
     {
       command: "open contact",
-      action: () => openWindow("contact"),
+      action: () => {
+        console.log("Voice command: open contact")
+        openWindow("contact")
+      },
       description: "Open the contact window",
     },
     {
       command: "contact me",
-      action: () => openWindow("contact"),
+      action: () => {
+        console.log("Voice command: contact me")
+        openWindow("contact")
+      },
       description: "Show contact information",
     },
     {
       command: "contact",
-      action: () => openWindow("contact"),
+      action: () => {
+        console.log("Voice command: contact")
+        openWindow("contact")
+      },
       description: "Open contact",
     },
     {
       command: "open terminal",
-      action: () => openWindow("terminal"),
+      action: () => {
+        console.log("Voice command: open terminal")
+        openWindow("terminal")
+      },
       description: "Open the terminal window",
     },
     {
       command: "terminal",
-      action: () => openWindow("terminal"),
+      action: () => {
+        console.log("Voice command: terminal")
+        openWindow("terminal")
+      },
       description: "Open terminal",
     },
 
@@ -92,6 +140,7 @@ export function createVoiceCommands(
     {
       command: "dark mode",
       action: () => {
+        console.log("Voice command: dark mode")
         setTheme("dark")
         showNotification("Switched to dark mode", "success")
       },
@@ -100,6 +149,7 @@ export function createVoiceCommands(
     {
       command: "light mode",
       action: () => {
+        console.log("Voice command: light mode")
         setTheme("light")
         showNotification("Switched to light mode", "success")
       },
@@ -109,22 +159,32 @@ export function createVoiceCommands(
     // Fun commands
     {
       command: "hello",
-      action: () => showNotification("Hello! Voice control is working perfectly! 👋", "success"),
+      action: () => {
+        console.log("Voice command: hello")
+        showNotification("Hello! Voice control is working perfectly! 👋", "success")
+      },
       description: "Say hello",
     },
     {
       command: "hi",
-      action: () => showNotification("Hi there! Try saying 'open projects' or 'dark mode'", "info"),
+      action: () => {
+        console.log("Voice command: hi")
+        showNotification("Hi there! Try saying 'open projects' or 'dark mode'", "info")
+      },
       description: "Greeting",
     },
     {
       command: "help",
-      action: () => showNotification("Try: 'open projects', 'about me', 'dark mode', 'contact'", "info"),
+      action: () => {
+        console.log("Voice command: help")
+        showNotification("Try: 'open projects', 'about me', 'dark mode', 'contact'", "info")
+      },
       description: "Show help",
     },
     {
       command: "surprise me",
       action: () => {
+        console.log("Voice command: surprise me")
         const windows = ["projects", "about", "resume", "services", "contact", "terminal"]
         const randomWindow = windows[Math.floor(Math.random() * windows.length)]
         openWindow(randomWindow)
