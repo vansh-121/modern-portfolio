@@ -57,8 +57,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "three": "latest",
-    "vaul": "latest",
-    "web-speech-api": "latest"
+    "vaul": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

@@ -1,44 +1,9 @@
 "use client"
 
-import {
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Bold,
-  Italic,
-  Underline,
-  ListOrdered,
-  ListOrderedIcon as ListUnordered,
-  Code,
-  Image,
-  Link,
-  Quote,
-  SeparatorHorizontal,
-  Redo,
-  Undo,
-  Download,
-  Copy,
-  Trash,
-  Plus,
-  Text,
-  Heading1,
-  Heading2,
-  Heading3,
-  Heading4,
-  Heading5,
-  Heading6,
-} from "lucide-react"
-
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Separator } from "@/components/ui/separator"
+import { useState, useEffect } from "react"
+import { Apple, Wifi, Battery, Volume2 } from "lucide-react"
 import { VoiceControlIndicator } from "@/components/voice-control-indicator"
+import type { UseVoiceControlReturn } from "@/hooks/use-voice-control"
 
 interface MenuBarProps {
   onBoldClick: () => void
@@ -67,7 +32,7 @@ interface MenuBarProps {
   onHeading4Click: () => void
   onHeading5Click: () => void
   onHeading6Click: () => void
-  voiceControl?: import("@/hooks/use-voice-control").UseVoiceControlReturn
+  voiceControl?: UseVoiceControlReturn
 }
 
 export function MenuBar({
@@ -99,109 +64,45 @@ export function MenuBar({
   onHeading6Click,
   voiceControl,
 }: MenuBarProps) {
+  const [currentTime, setCurrentTime] = useState("")
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      const timeString = now.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+      setCurrentTime(timeString)
+    }
+
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+
+    return () => clearInterval(interval)
+  }, [])
+
   return (
-    <div className="border-b">
-      <div className="container flex items-center space-x-2 py-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Add
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={onTextClick}>
-              <Text className="mr-2 h-4 w-4" />
-              Text
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onHeading1Click}>
-              <Heading1 className="mr-2 h-4 w-4" />
-              Heading 1
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onHeading2Click}>
-              <Heading2 className="mr-2 h-4 w-4" />
-              Heading 2
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onHeading3Click}>
-              <Heading3 className="mr-2 h-4 w-4" />
-              Heading 3
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onHeading4Click}>
-              <Heading4 className="mr-2 h-4 w-4" />
-              Heading 4
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onHeading5Click}>
-              <Heading5 className="mr-2 h-4 w-4" />
-              Heading 5
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={onHeading6Click}>
-              <Heading6 className="mr-2 h-4 w-4" />
-              Heading 6
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="outline" size="sm" onClick={onBoldClick}>
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onItalicClick}>
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onUnderlineClick}>
-          <Underline className="h-4 w-4" />
-        </Button>
-        <Separator orientation="vertical" className="mx-2 h-5" />
-        <Button variant="outline" size="sm" onClick={onAlignLeftClick}>
-          <AlignLeft className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onAlignCenterClick}>
-          <AlignCenter className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onAlignRightClick}>
-          <AlignRight className="h-4 w-4" />
-        </Button>
-        <Separator orientation="vertical" className="mx-2 h-5" />
-        <Button variant="outline" size="sm" onClick={onOrderedListClick}>
-          <ListOrdered className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onUnorderedListClick}>
-          <ListUnordered className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onCodeClick}>
-          <Code className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onImageClick}>
-          <Image className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onLinkClick}>
-          <Link className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onQuoteClick}>
-          <Quote className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onSeparatorClick}>
-          <SeparatorHorizontal className="h-4 w-4" />
-        </Button>
-        <Separator orientation="vertical" className="mx-2 h-5" />
-        <Button variant="outline" size="sm" onClick={onUndoClick}>
-          <Undo className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={onRedoClick}>
-          <Redo className="h-4 w-4" />
-        </Button>
-        <Separator orientation="vertical" className="mx-2 h-5" />
-        <div className="ml-auto flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={onDownloadClick}>
-            <Download className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={onCopyClick}>
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={onTrashClick}>
-            <Trash className="h-4 w-4" />
-          </Button>
-          <VoiceControlIndicator voiceControl={voiceControl!} className="ml-2" />
-        </div>
+    <div className="fixed top-0 left-0 right-0 h-8 bg-black/80 backdrop-blur-md border-b border-white/10 flex items-center justify-between px-4 text-white text-sm z-50">
+      {/* Left side - Apple menu */}
+      <div className="flex items-center space-x-4">
+        <Apple className="h-4 w-4" />
+        <span className="text-xs font-medium">Portfolio</span>
+      </div>
+
+      {/* Right side - System indicators */}
+      <div className="flex items-center space-x-3">
+        {/* Voice Control Indicator */}
+        {voiceControl && <VoiceControlIndicator voiceControl={voiceControl} />}
+
+        {/* System icons */}
+        <Volume2 className="h-4 w-4 opacity-70" />
+        <Wifi className="h-4 w-4 opacity-70" />
+        <Battery className="h-4 w-4 opacity-70" />
+
+        {/* Time */}
+        <span className="text-xs font-medium tabular-nums">{currentTime}</span>
       </div>
     </div>
   )

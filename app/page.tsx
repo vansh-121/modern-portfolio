@@ -65,10 +65,10 @@ export default function Portfolio() {
   const voiceControl = useVoiceControl({
     commands: voiceCommands,
     onCommandRecognized: (command) => {
-      showNotification(`Command "${command}" executed!`, "success")
+      showNotification(`✓ "${command}" executed!`, "success")
     },
     onError: (error) => {
-      showNotification(`Voice error: ${error}`, "error")
+      showNotification(error, "error")
     },
   })
 
@@ -263,7 +263,7 @@ export default function Portfolio() {
             // Show welcome message for voice control
             if (voiceControl.isSupported) {
               setTimeout(() => {
-                showNotification("Voice control is ready! Click the microphone or say 'Hello'", "info")
+                showNotification("🎤 Voice control ready! Click the microphone to start", "info")
               }, 2000)
             }
           }, 800)

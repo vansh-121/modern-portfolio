@@ -1,15 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
-import type { SpeechRecognition } from "web-speech-api"
 
-/**
- * VoiceCommand
- * ─────────────
- * command      – the phrase to match (lower-case)
- * action       – callback executed when phrase matches
- * description  – short help string
- */
 export interface VoiceCommand {
   command: string
   action: () => void
@@ -26,10 +18,6 @@ export interface UseVoiceControlReturn {
   toggleListening: () => void
 }
 
-/**
- * useVoiceControl
- * A thin wrapper around the native Web Speech API (no external package).
- */
 export function useVoiceControl({
   commands,
   onCommandRecognized,
@@ -44,16 +32,15 @@ export function useVoiceControl({
   const [transcript, setTranscript] = useState("")
   const [confidence, setConfidence] = useState(0)
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const recognitionRef = useRef<any>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const isStartingRef = useRef(false)
 
-  // ─── Initialise SpeechRecognition ─────────────────────────────────────────
+  // Initialize SpeechRecognition
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    const SpeechRecognitionCtor =
-      // Safari (webkit) + other browsers
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    const SpeechRecognitionCtor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
 
     if (!SpeechRecognitionCtor) {
       setIsSupported(false)
@@ -61,75 +48,143 @@ export function useVoiceControl({
     }
 
     setIsSupported(true)
-    const recognition: SpeechRecognition = new SpeechRecognitionCtor()
+    const recognition = new SpeechRecognitionCtor()
+
     recognition.continuous = false
     recognition.interimResults = true
     recognition.lang = "en-US"
     recognition.maxAlternatives = 1
 
     recognition.onstart = () => {
+      console.log("Voice recognition started")
       setIsListening(true)
       setTranscript("")
       setConfidence(0)
+      isStartingRef.current = false
     }
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: any) => {
       const result = event.results[event.results.length - 1]
       const text = result[0].transcript.toLowerCase().trim()
-      const conf = result[0].confidence
+      const conf = result[0].confidence || 0.8
+
       setTranscript(text)
       setConfidence(conf)
 
-      if (result.isFinal) {
-        const match = commands.find((cmd) => text.includes(cmd.command) || cmd.command.includes(text))
+      if (result.isFinal && text.length > 0) {
+        console.log("Final transcript:", text)
 
-        if (match && conf > 0.6) {
+        // Find matching command
+        const match = commands.find((cmd) => {
+          const cmdLower = cmd.command.toLowerCase()
+          return (
+            text.includes(cmdLower) ||
+            cmdLower.includes(text) ||
+            text.split(" ").some((word) => cmdLower.includes(word))
+          )
+        })
+
+        if (match && conf > 0.5) {
+          console.log("Command matched:", match.command)
           match.action()
           onCommandRecognized?.(match.command)
-        } else {
-          onError?.(`Unrecognised command: "${text}"`)
+        } else if (text.length > 1) {
+          onError?.(
+            `Command "${text}" not recognized. Try: ${commands
+              .slice(0, 3)
+              .map((c) => c.command)
+              .join(", ")}`,
+          )
         }
-
-        stopListening()
       }
     }
 
-    recognition.onerror = (e) => {
-      onError?.(e.error)
-      stopListening()
+    recognition.onerror = (event: any) => {
+      console.log("Speech recognition error:", event.error)
+      setIsListening(false)
+      isStartingRef.current = false
+
+      switch (event.error) {
+        case "not-allowed":
+          onError?.("Microphone access denied. Please allow microphone permissions.")
+          break
+        case "no-speech":
+          onError?.("No speech detected. Try speaking louder.")
+          break
+        case "aborted":
+          // Don't show error for aborted - this is usually intentional
+          break
+        case "network":
+          onError?.("Network error. Check your internet connection.")
+          break
+        default:
+          onError?.(`Voice recognition error: ${event.error}`)
+      }
     }
 
     recognition.onend = () => {
+      console.log("Voice recognition ended")
       setIsListening(false)
+      isStartingRef.current = false
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
     }
 
     recognitionRef.current = recognition
 
     return () => {
-      recognitionRef.current?.abort()
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (recognitionRef.current) {
+        recognitionRef.current.abort()
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [commands])
+  }, [commands, onCommandRecognized, onError])
 
-  // ─── Helpers ──────────────────────────────────────────────────────────────
-  const startListening = useCallback(() => {
-    if (!recognitionRef.current || isListening) return
+  const startListening = useCallback(async () => {
+    if (!recognitionRef.current || isListening || isStartingRef.current) return
+
     try {
+      // Request microphone permission first
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+
+      isStartingRef.current = true
       recognitionRef.current.start()
-      timeoutRef.current = setTimeout(stopListening, 5000) // auto-stop
-    } catch {
-      /* ignored – .start() can throw if called too quickly */
+
+      // Auto-stop after 8 seconds
+      timeoutRef.current = setTimeout(() => {
+        if (recognitionRef.current && isListening) {
+          recognitionRef.current.stop()
+        }
+      }, 8000)
+    } catch (error: any) {
+      isStartingRef.current = false
+      if (error.name === "NotAllowedError") {
+        onError?.("Microphone access denied. Please allow microphone permissions and try again.")
+      } else {
+        onError?.("Could not access microphone. Please check your settings.")
+      }
     }
-  }, [isListening])
+  }, [isListening, onError])
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop()
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-  }, [])
+    if (recognitionRef.current && (isListening || isStartingRef.current)) {
+      recognitionRef.current.stop()
+    }
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+    }
+    isStartingRef.current = false
+  }, [isListening])
 
   const toggleListening = useCallback(() => {
-    isListening ? stopListening() : startListening()
+    if (isListening || isStartingRef.current) {
+      stopListening()
+    } else {
+      startListening()
+    }
   }, [isListening, startListening, stopListening])
 
   return {
