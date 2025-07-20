@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect, useCallback, useRef } from "react"
+import type { VoiceCommand } from "@/lib/voice-commands"
+import SpeechRecognition from "speech-recognition"
 
-export interface VoiceCommand {
-  command: string
-  action: () => void
-  description: string
+interface UseVoiceControlOptions {
+  commands: VoiceCommand[]
+  onCommandRecognized?: (command: string) => void
+  onError?: (error: string) => void
 }
 
 export interface UseVoiceControlReturn {
@@ -13,66 +15,63 @@ export interface UseVoiceControlReturn {
   isSupported: boolean
   transcript: string
   confidence: number
+  error: string | null
+  toggleListening: () => void
   startListening: () => void
   stopListening: () => void
-  toggleListening: () => void
-  error: string | null
 }
 
 export function useVoiceControl({
   commands,
   onCommandRecognized,
   onError,
-}: {
-  commands: VoiceCommand[]
-  onCommandRecognized?: (cmd: string) => void
-  onError?: (err: string) => void
-}): UseVoiceControlReturn {
+}: UseVoiceControlOptions): UseVoiceControlReturn {
   const [isListening, setIsListening] = useState(false)
   const [isSupported, setIsSupported] = useState(false)
   const [transcript, setTranscript] = useState("")
   const [confidence, setConfidence] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  const recognitionRef = useRef<any>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Check browser support
   useEffect(() => {
-    if (typeof window === "undefined") return
+    const supported = !!SpeechRecognition
+    setIsSupported(supported)
 
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    console.log("🎤 Speech recognition supported:", supported)
 
-    if (!SpeechRecognition) {
-      console.log("❌ Speech Recognition not supported")
-      setIsSupported(false)
+    if (!supported) {
       setError("Speech recognition not supported in this browser")
-      return
-    }
-
-    console.log("✅ Speech Recognition supported")
-    setIsSupported(true)
-    setError(null)
-
-    return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort()
-        } catch (e) {
-          console.log("Cleanup error:", e)
-        }
-      }
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
-      }
     }
   }, [])
 
-  const startListening = useCallback(async () => {
-    console.log("🎤 Starting voice recognition...")
+  // Command matching function
+  const findMatchingCommand = useCallback(
+    (text: string): VoiceCommand | null => {
+      const normalizedText = text.toLowerCase().trim()
+      console.log("🔍 Looking for command match:", normalizedText)
 
+      for (const command of commands) {
+        for (const pattern of command.patterns) {
+          if (normalizedText.includes(pattern.toLowerCase())) {
+            console.log("✅ Found matching command:", pattern)
+            return command
+          }
+        }
+      }
+
+      console.log("❌ No matching command found")
+      return null
+    },
+    [commands],
+  )
+
+  // Start listening function
+  const startListening = useCallback(() => {
     if (!isSupported) {
-      console.log("❌ Speech recognition not supported")
+      console.log("❌ Cannot start - not supported")
       return
     }
 
@@ -82,156 +81,187 @@ export function useVoiceControl({
     }
 
     try {
-      // Request microphone permission
-      console.log("🔐 Requesting microphone permission...")
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      console.log("✅ Microphone permission granted")
+      console.log("🎤 Starting voice recognition...")
 
-      // Stop the stream immediately
-      stream.getTracks().forEach((track) => track.stop())
-
-      // Create fresh recognition instance
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       const recognition = new SpeechRecognition()
 
+      // Configure recognition
       recognition.continuous = false
       recognition.interimResults = true
       recognition.lang = "en-US"
       recognition.maxAlternatives = 1
 
+      // Event handlers
       recognition.onstart = () => {
-        console.log("🎯 Recognition started")
+        console.log("🎤 Recognition started")
         setIsListening(true)
+        setError(null)
         setTranscript("")
         setConfidence(0)
-        setError(null)
       }
 
-      recognition.onresult = (event: any) => {
-        console.log("📝 Got speech result")
+      recognition.onresult = (event) => {
+        console.log("📝 Recognition result event:", event)
 
-        if (event.results && event.results.length > 0) {
-          const result = event.results[event.results.length - 1]
-          const text = result[0].transcript.toLowerCase().trim()
-          const conf = result[0].confidence || 0.8
+        let finalTranscript = ""
+        let interimTranscript = ""
+        let maxConfidence = 0
 
-          console.log(`🗣️ "${text}" (${Math.round(conf * 100)}%)`)
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i]
+          const transcript = result[0].transcript
+          const confidence = result[0].confidence || 0
 
-          setTranscript(text)
-          setConfidence(conf)
+          if (result.isFinal) {
+            finalTranscript += transcript
+            maxConfidence = Math.max(maxConfidence, confidence)
+          } else {
+            interimTranscript += transcript
+          }
+        }
 
-          if (result.isFinal && text.length > 0) {
-            console.log("🔍 Processing final result:", text)
+        const currentTranscript = finalTranscript || interimTranscript
+        setTranscript(currentTranscript)
+        setConfidence(maxConfidence || 0.5)
 
-            // Find matching command
-            const match = commands.find((cmd) => {
-              const cmdLower = cmd.command.toLowerCase()
-              return text.includes(cmdLower) || cmdLower.includes(text)
-            })
+        console.log("📝 Transcript:", currentTranscript, "Confidence:", maxConfidence)
 
-            if (match) {
-              console.log("✅ Command matched:", match.command)
-              try {
-                match.action()
-                onCommandRecognized?.(match.command)
-              } catch (err) {
-                console.error("❌ Command execution error:", err)
-              }
-            } else {
-              console.log("❌ No command matched")
-              onError?.(`Command "${text}" not recognized. Try: hello, open projects, about me`)
-            }
+        // Process final results
+        if (finalTranscript) {
+          const matchingCommand = findMatchingCommand(finalTranscript)
+          if (matchingCommand) {
+            console.log("🎯 Executing command:", finalTranscript)
+            matchingCommand.action()
+            onCommandRecognized?.(finalTranscript)
+          } else {
+            console.log("❓ No command found for:", finalTranscript)
+            onError?.(`No command found for: "${finalTranscript}"`)
           }
         }
       }
 
-      recognition.onerror = (event: any) => {
-        console.error("❌ Speech error:", event.error)
-        setIsListening(false)
+      recognition.onerror = (event) => {
+        console.error("🚨 Recognition error:", event.error)
+        let errorMessage = "Voice recognition error"
 
-        let errorMsg = ""
         switch (event.error) {
           case "not-allowed":
-            errorMsg = "Microphone access denied"
+            errorMessage = "Microphone access denied. Please allow microphone permissions."
             break
           case "no-speech":
-            errorMsg = "No speech detected"
+            errorMessage = "No speech detected. Please try again."
+            break
+          case "network":
+            errorMessage = "Network error. Please check your connection."
             break
           case "aborted":
-            errorMsg = "Recognition aborted"
+            errorMessage = "Recognition was aborted."
             break
           default:
-            errorMsg = `Speech error: ${event.error}`
+            errorMessage = `Recognition error: ${event.error}`
         }
 
-        setError(errorMsg)
-        onError?.(errorMsg)
+        setError(errorMessage)
+        onError?.(errorMessage)
+        setIsListening(false)
       }
 
       recognition.onend = () => {
-        console.log("🔚 Recognition ended")
+        console.log("🎤 Recognition ended")
         setIsListening(false)
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current)
         }
       }
 
+      // Start recognition
+      recognition.start()
       recognitionRef.current = recognition
 
-      // Start recognition
-      console.log("🚀 Starting recognition...")
-      recognition.start()
-
-      // Auto-stop after 8 seconds
+      // Auto-stop after 10 seconds
       timeoutRef.current = setTimeout(() => {
-        console.log("⏰ Auto-stopping recognition")
-        if (recognition) {
-          recognition.stop()
+        if (recognitionRef.current && isListening) {
+          console.log("⏰ Auto-stopping recognition after timeout")
+          recognitionRef.current.stop()
         }
-      }, 8000)
-    } catch (error: any) {
-      console.error("❌ Failed to start:", error)
+      }, 10000)
+    } catch (err) {
+      console.error("🚨 Failed to start recognition:", err)
+      setError("Failed to start voice recognition")
+      onError?.("Failed to start voice recognition")
       setIsListening(false)
-
-      let errorMsg = ""
-      if (error.name === "NotAllowedError") {
-        errorMsg = "Microphone access denied"
-      } else if (error.name === "NotFoundError") {
-        errorMsg = "No microphone found"
-      } else {
-        errorMsg = `Failed to start: ${error.message}`
-      }
-
-      setError(errorMsg)
-      onError?.(errorMsg)
     }
-  }, [isSupported, isListening, commands, onCommandRecognized, onError])
+  }, [isSupported, isListening, findMatchingCommand, onCommandRecognized, onError])
 
+  // Stop listening function
   const stopListening = useCallback(() => {
-    console.log("⏹️ Stopping recognition...")
+    console.log("🛑 Stopping voice recognition...")
+
+    if (recognitionRef.current) {
+      recognitionRef.current.stop()
+      recognitionRef.current = null
+    }
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
-    }
-
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.stop()
-      } catch (e) {
-        console.log("Stop error:", e)
-      }
+      timeoutRef.current = null
     }
 
     setIsListening(false)
-    setError(null)
   }, [])
 
+  // Toggle listening
   const toggleListening = useCallback(() => {
-    console.log("🔄 Toggle listening, current:", isListening)
     if (isListening) {
       stopListening()
     } else {
       startListening()
+    }
+  }, [isListening, startListening, stopListening])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
+
+  // Add spacebar activation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only activate on spacebar if not typing in an input
+      if (
+        event.code === "Space" &&
+        !isListening &&
+        !(event.target instanceof HTMLInputElement) &&
+        !(event.target instanceof HTMLTextAreaElement)
+      ) {
+        event.preventDefault()
+        console.log("⌨️ Spacebar pressed - starting voice control")
+        startListening()
+      }
+    }
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      // Stop on spacebar release
+      if (event.code === "Space" && isListening) {
+        event.preventDefault()
+        console.log("⌨️ Spacebar released - stopping voice control")
+        stopListening()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    window.addEventListener("keyup", handleKeyUp)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      window.removeEventListener("keyup", handleKeyUp)
     }
   }, [isListening, startListening, stopListening])
 
@@ -240,9 +270,9 @@ export function useVoiceControl({
     isSupported,
     transcript,
     confidence,
+    error,
+    toggleListening,
     startListening,
     stopListening,
-    toggleListening,
-    error,
   }
 }

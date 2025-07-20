@@ -1,97 +1,99 @@
-import type { VoiceCommand } from "@/hooks/use-voice-control"
+export interface VoiceCommand {
+  patterns: string[]
+  action: () => void
+  description: string
+}
 
 export function createVoiceCommands(
   openWindow: (id: string) => void,
   setTheme: (theme: string) => void,
   showNotification: (message: string, type?: "success" | "error" | "info") => void,
+  showHelloAnimation?: () => void,
 ): VoiceCommand[] {
   return [
     {
-      command: "hello",
+      patterns: ["hello", "hi", "hey", "greetings"],
       action: () => {
-        console.log("🎉 Hello command executed!")
-        showNotification("Hello! Voice control is working! 🎤", "success")
+        console.log("🎉 Hello command triggered!")
+        if (showHelloAnimation) {
+          showHelloAnimation()
+        } else {
+          showNotification("👋 Hello there! Voice control is working!", "success")
+        }
       },
-      description: "Test command",
+      description: "Test greeting command",
     },
     {
-      command: "hi",
+      patterns: ["open projects", "show projects", "projects"],
       action: () => {
-        console.log("👋 Hi command executed!")
-        showNotification("Hi there! Voice is active!", "success")
-      },
-      description: "Greeting",
-    },
-    {
-      command: "open projects",
-      action: () => {
-        console.log("📁 Opening projects")
+        console.log("📁 Opening projects...")
         openWindow("projects")
-        showNotification("Opening projects", "success")
+        showNotification("📁 Opening Projects window", "success")
       },
-      description: "Open projects",
+      description: "Open projects window",
     },
     {
-      command: "projects",
+      patterns: ["about me", "about", "who are you"],
       action: () => {
-        console.log("📁 Projects command")
-        openWindow("projects")
-        showNotification("Showing projects", "success")
-      },
-      description: "Show projects",
-    },
-    {
-      command: "about me",
-      action: () => {
-        console.log("👤 About me command")
+        console.log("👤 Opening about...")
         openWindow("about")
-        showNotification("Opening about", "success")
+        showNotification("👤 Opening About Me window", "success")
       },
-      description: "About section",
+      description: "Open about window",
     },
     {
-      command: "about",
+      patterns: ["resume", "cv", "curriculum"],
       action: () => {
-        console.log("👤 About command")
-        openWindow("about")
-        showNotification("Showing about", "success")
+        console.log("📄 Opening resume...")
+        openWindow("resume")
+        showNotification("📄 Opening Resume window", "success")
       },
-      description: "About",
+      description: "Open resume window",
     },
     {
-      command: "dark mode",
+      patterns: ["services", "what do you do", "skills"],
       action: () => {
-        console.log("🌙 Dark mode command")
-        setTheme("dark")
-        showNotification("Dark mode enabled", "success")
+        console.log("⚡ Opening services...")
+        openWindow("services")
+        showNotification("⚡ Opening Services window", "success")
       },
-      description: "Dark theme",
+      description: "Open services window",
     },
     {
-      command: "light mode",
+      patterns: ["contact", "contact me", "get in touch"],
       action: () => {
-        console.log("☀️ Light mode command")
-        setTheme("light")
-        showNotification("Light mode enabled", "success")
-      },
-      description: "Light theme",
-    },
-    {
-      command: "contact",
-      action: () => {
-        console.log("📞 Contact command")
+        console.log("📞 Opening contact...")
         openWindow("contact")
-        showNotification("Opening contact", "success")
+        showNotification("📞 Opening Contact window", "success")
       },
-      description: "Contact info",
+      description: "Open contact window",
     },
     {
-      command: "help",
+      patterns: ["terminal", "console", "command line"],
       action: () => {
-        console.log("❓ Help command")
-        showNotification("Available: hello, open projects, about me, dark mode", "info")
+        console.log("💻 Opening terminal...")
+        openWindow("terminal")
+        showNotification("💻 Opening Terminal window", "success")
       },
-      description: "Show help",
+      description: "Open terminal window",
+    },
+    {
+      patterns: ["dark mode", "dark theme", "switch theme"],
+      action: () => {
+        console.log("🌙 Toggling theme...")
+        setTheme("dark")
+        showNotification("🌙 Switched to dark mode", "success")
+      },
+      description: "Switch to dark mode",
+    },
+    {
+      patterns: ["light mode", "light theme", "bright mode"],
+      action: () => {
+        console.log("☀️ Toggling theme...")
+        setTheme("light")
+        showNotification("☀️ Switched to light mode", "success")
+      },
+      description: "Switch to light mode",
     },
   ]
 }

@@ -38,7 +38,7 @@ export function VoiceControlIndicator({
               ? "text-red-400 hover:bg-red-500/10"
               : "text-white/70 hover:bg-white/10 hover:text-white",
         )}
-        title={error ? error : isListening ? "Stop listening" : "Start voice control"}
+        title={error ? error : isListening ? "Stop listening" : "Start voice control (or hold Spacebar)"}
       >
         {error ? (
           <AlertCircle className="h-4 w-4" />
@@ -75,11 +75,15 @@ export function VoiceControlIndicator({
               <div className="border-t border-white/10 pt-2">
                 <div className="text-xs text-white/50 mb-1">Try saying:</div>
                 <div className="text-xs text-white/70 space-y-1">
-                  <div>• "Hello"</div>
+                  <div>• "Hello" (shows greeting animation)</div>
                   <div>• "Open projects"</div>
                   <div>• "About me"</div>
                   <div>• "Dark mode"</div>
                 </div>
+              </div>
+
+              <div className="text-xs text-blue-300 border-t border-white/10 pt-2">
+                💡 Tip: Hold Spacebar to activate voice control
               </div>
             </div>
           )}

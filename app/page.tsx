@@ -16,6 +16,7 @@ import { TerminalContent } from "@/components/terminal-content"
 import { GreetingWidget } from "@/components/greeting-widget"
 import { MusicWidget } from "@/components/music-widget"
 import { VoiceNotification } from "@/components/voice-notification"
+import { HelloAnimationPopup } from "@/components/hello-animation-popup"
 import { useVoiceControl } from "@/hooks/use-voice-control"
 import { createVoiceCommands } from "@/lib/voice-commands"
 import { useTheme } from "next-themes"
@@ -45,6 +46,7 @@ export default function Portfolio() {
   const [windows, setWindows] = useState<WindowState[]>([])
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait")
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [showHelloPopup, setShowHelloPopup] = useState(false)
   const { setTheme } = useTheme()
 
   const [highestZIndex, setHighestZIndex] = useState(100)
@@ -59,6 +61,12 @@ export default function Portfolio() {
     setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
+  // Hello animation trigger
+  const showHelloAnimation = () => {
+    console.log("🎉 Showing hello animation!")
+    setShowHelloPopup(true)
+  }
+
   // Window management
   function openWindow(id: string) {
     console.log("Opening window:", id)
@@ -71,13 +79,16 @@ export default function Portfolio() {
   }
 
   // Voice control setup
-  const voiceCommands = createVoiceCommands(openWindow, setTheme, showNotification)
+  const voiceCommands = createVoiceCommands(openWindow, setTheme, showNotification, showHelloAnimation)
 
   const voiceControl = useVoiceControl({
     commands: voiceCommands,
     onCommandRecognized: (command) => {
       console.log("✅ Voice command recognized:", command)
-      showNotification(`Command "${command}" executed!`, "success")
+      // Don't show notification for hello command since it has its own animation
+      if (!command.toLowerCase().includes("hello") && !command.toLowerCase().includes("hi")) {
+        showNotification(`Command "${command}" executed!`, "success")
+      }
     },
     onError: (error) => {
       console.error("❌ Voice error:", error)
@@ -261,7 +272,7 @@ export default function Portfolio() {
             // Show voice control welcome
             if (voiceControl.isSupported) {
               setTimeout(() => {
-                showNotification("🎤 Voice control ready! Click mic and say 'Hello'", "info")
+                showNotification("🎤 Voice control ready! Say 'Hello' to see the greeting animation", "info")
               }, 2000)
             }
           }, 800)
@@ -355,6 +366,9 @@ export default function Portfolio() {
   return (
     <div className="h-screen w-full overflow-hidden relative">
       <ThreeBackground />
+
+      {/* Hello Animation Popup */}
+      <HelloAnimationPopup isVisible={showHelloPopup} onClose={() => setShowHelloPopup(false)} />
 
       {/* Voice Notifications */}
       {notifications.map((notification) => (
